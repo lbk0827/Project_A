@@ -1,0 +1,29 @@
+# Godot 4.x / 3.x 기본 gitignore
+
+# 에디터 캐시 및 임시 파일 (핵심)
+.godot/
+.import/
+
+# 내보내기 결과물 (플레이어, 바이너리)
+bin/
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+*.pck
+*.zip
+
+# 에디터 레이아웃 및 개인 설정
+.godot/editor/
+editor_layout.cfg
+editor_settings-3.tres
+editor_settings-4.tres
+
+# 기타 임시 파일
+*.translation
+*.tmp
+*.log
+
+# macOS 시스템 파일
+.DS_Store
