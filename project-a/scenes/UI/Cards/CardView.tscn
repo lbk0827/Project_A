@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://dosxrphbltuho"]
+
+[ext_resource type="Texture2D" uid="uid://cwyhvacaouo1f" path="res://Scenes/UI/Cards/CardFrame_Attack.tres" id="1_djckl"]
+
+[node name="CardView" type="Control" unique_id=605748442]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="Frame" type="TextureRect" parent="." unique_id=2024660597]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("1_djckl")

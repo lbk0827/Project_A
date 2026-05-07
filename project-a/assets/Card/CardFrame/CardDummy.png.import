@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dycabw54se4tk"
-path="res://.godot/imported/HeroinSheet.png-9b82b9a9668b45454fb5b0c5427d2476.ctex"
+uid="uid://br5mrsqo5k2k1"
+path="res://.godot/imported/CardDummy.png-f43de29f1f63a29df6e76c42da3837a0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Characters/Spritesheets/HeroinSheet.png"
-dest_files=["res://.godot/imported/HeroinSheet.png-9b82b9a9668b45454fb5b0c5427d2476.ctex"]
+source_file="res://Assets/Card/CardFrame/CardDummy.png"
+dest_files=["res://.godot/imported/CardDummy.png-f43de29f1f63a29df6e76c42da3837a0.ctex"]
 
 [params]
 
