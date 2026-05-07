@@ -163,8 +163,3 @@ sprite_frames = SubResource("SpriteFrames_m480h")
 animation = &"Idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1180448648]
-
-[node name="Camera2D" type="Camera2D" parent="." unique_id=100234118]
-enabled = true
-position_smoothing_enabled = true
-position_smoothing_speed = 8.0
