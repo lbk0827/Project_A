@@ -3,6 +3,34 @@
 [ext_resource type="Script" uid="uid://qdct5rji41m1" path="res://scripts/player/heroine_controller.gd" id="1_m6hok"]
 [ext_resource type="Texture2D" uid="uid://d48c3qwq5noq" path="res://assets/characters/spritesheets/HeroinSheet.png" id="2_pigwg"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_m6hok"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(0, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pigwg"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(128, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m480h"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(256, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vwtxx"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(384, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j2jfy"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(0, 384, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fmq2u"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(256, 384, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3stqp"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(384, 384, 128, 128)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_7sfk1"]
 atlas = ExtResource("2_pigwg")
 region = Rect2(0, 0, 128, 128)
@@ -53,6 +81,32 @@ region = Rect2(128, 640, 128, 128)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_m480h"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m6hok")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pigwg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m480h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vwtxx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j2jfy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fmq2u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3stqp")
+}],
+"loop": false,
+"name": &"Attack",
+"speed": 14.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_7sfk1")
@@ -106,7 +160,11 @@ script = ExtResource("1_m6hok")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=236742736]
 position = Vector2(-1, 0)
 sprite_frames = SubResource("SpriteFrames_m480h")
-animation = &"Run"
-frame_progress = 0.7904436
+animation = &"Idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1180448648]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=100234118]
+enabled = true
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
