@@ -31,6 +31,62 @@ region = Rect2(256, 384, 128, 128)
 atlas = ExtResource("2_pigwg")
 region = Rect2(384, 384, 128, 128)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_xn84c"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(384, 1152, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fmi78"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(256, 1152, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_04uts"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(0, 1280, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fuckr"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(128, 1280, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vw0hi"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(256, 1280, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_40huf"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(384, 1280, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yn6no"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(0, 1408, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8fb6c"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(128, 1408, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gys2g"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(256, 1408, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qbdg2"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(384, 1408, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k8qit"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(384, 1024, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xbfkx"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(256, 1024, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fxxu6"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(128, 1024, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gj8y1"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(0, 1024, 128, 128)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_7sfk1"]
 atlas = ExtResource("2_pigwg")
 region = Rect2(0, 0, 128, 128)
@@ -79,6 +135,14 @@ region = Rect2(0, 640, 128, 128)
 atlas = ExtResource("2_pigwg")
 region = Rect2(128, 640, 128, 128)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_1t1w4"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(128, 1152, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_grjyl"]
+atlas = ExtResource("2_pigwg")
+region = Rect2(0, 1152, 128, 128)
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_m480h"]
 animations = [{
 "frames": [{
@@ -106,6 +170,58 @@ animations = [{
 "loop": false,
 "name": &"Attack",
 "speed": 14.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xn84c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fmi78")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_04uts")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fuckr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vw0hi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_40huf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yn6no")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8fb6c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gys2g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qbdg2")
+}],
+"loop": true,
+"name": &"Dead",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k8qit")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xbfkx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fxxu6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gj8y1")
+}],
+"loop": true,
+"name": &"Hit",
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -152,6 +268,17 @@ animations = [{
 "loop": true,
 "name": &"Run",
 "speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1t1w4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_grjyl")
+}],
+"loop": true,
+"name": &"Sick",
+"speed": 2.0
 }]
 
 [node name="Heroine" type="CharacterBody2D" unique_id=641925143]
@@ -160,6 +287,7 @@ script = ExtResource("1_m6hok")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=236742736]
 position = Vector2(-1, 0)
 sprite_frames = SubResource("SpriteFrames_m480h")
-animation = &"Idle"
+animation = &"Dead"
+frame_progress = 0.68379384
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1180448648]
