@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://dqj3jc7q46mk2"]
+
+[ext_resource type="Script" uid="uid://cmqaaplrls6n6" path="res://scripts/core/main.gd" id="1_bp03x"]
+[ext_resource type="PackedScene" uid="uid://q3cxavnfvd0o" path="res://scenes/player/heroine.tscn" id="2_ag07a"]
+
+[node name="Main" type="Node2D" unique_id=284682706]
+script = ExtResource("1_bp03x")
+
+[node name="Heroine" parent="." unique_id=641925143 instance=ExtResource("2_ag07a")]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=258763091]
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dosxrphbltuho"]
 
-[ext_resource type="Texture2D" uid="uid://cwyhvacaouo1f" path="res://Scenes/UI/Cards/CardFrame_Attack.tres" id="1_djckl"]
+[ext_resource type="Texture2D" uid="uid://cwyhvacaouo1f" path="res://scenes/ui/cards/CardFrame_Attack.tres" id="1_djckl"]
 
 [node name="CardView" type="Control" unique_id=605748442]
 layout_mode = 3

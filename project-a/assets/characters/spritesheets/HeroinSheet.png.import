@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dycabw54se4tk"
-path="res://.godot/imported/HeroinSheet.png-9b82b9a9668b45454fb5b0c5427d2476.ctex"
+path="res://.godot/imported/HeroinSheet.png-130dce40ea76c153c7d74262dfb6c60d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Characters/Spritesheets/HeroinSheet.png"
-dest_files=["res://.godot/imported/HeroinSheet.png-9b82b9a9668b45454fb5b0c5427d2476.ctex"]
+source_file="res://assets/characters/spritesheets/HeroinSheet.png"
+dest_files=["res://.godot/imported/HeroinSheet.png-130dce40ea76c153c7d74262dfb6c60d.ctex"]
 
 [params]
 

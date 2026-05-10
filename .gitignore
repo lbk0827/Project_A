@@ -2,6 +2,7 @@
 
 # 에디터 캐시 및 임시 파일 (핵심)
 .godot/
+.godot_case_backup/
 .import/
 
 # 내보내기 결과물 (플레이어, 바이너리)

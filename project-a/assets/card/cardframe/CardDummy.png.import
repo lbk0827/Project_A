@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bltgk7arikdie"
-path="res://.godot/imported/FX_Slash.png-63d0344953e6d33419eedddb89c2d15a.ctex"
+uid="uid://br5mrsqo5k2k1"
+path="res://.godot/imported/CardDummy.png-28ccc26d60108ed4bbf36a057c7e3b3b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/VFX/FX_Slash.png"
-dest_files=["res://.godot/imported/FX_Slash.png-63d0344953e6d33419eedddb89c2d15a.ctex"]
+source_file="res://assets/card/cardframe/CardDummy.png"
+dest_files=["res://.godot/imported/CardDummy.png-28ccc26d60108ed4bbf36a057c7e3b3b.ctex"]
 
 [params]
 
