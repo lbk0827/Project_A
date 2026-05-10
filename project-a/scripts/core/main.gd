@@ -4,6 +4,9 @@ const MAX_HAND_SIZE := 5
 const PLAYER_MAX_HP := 40
 const ENEMY_MAX_HP := 44
 const STARTING_ENERGY := 3
+const CARD_SPACING := -8
+const CARD_FAN_DEGREES := 9.0
+const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_LIBRARY := {
 	"slash": {
 		"id": "slash",
@@ -61,14 +64,6 @@ var enemy_intent_index := 0
 var battle_over := false
 
 var ui_root: Control
-var player_status_label: Label
-var enemy_status_label: Label
-var turn_label: Label
-var deck_label: Label
-var discard_label: Label
-var intent_label: Label
-var result_label: Label
-var log_label: Label
 var hand_container: HBoxContainer
 var end_turn_button: Button
 var restart_button: Button
@@ -83,9 +78,9 @@ func _process(delta: float):
 		camera.global_position = camera.global_position.lerp(heroine.global_position, min(1.0, delta * 8.0))
 
 func _setup_scene():
-	heroine.global_position = Vector2(280, 430)
 	if is_instance_valid(camera):
 		camera.enabled = true
+		camera.global_position = heroine.global_position
 		camera.position_smoothing_enabled = true
 		camera.position_smoothing_speed = 6.0
 	if heroine.has_method("set_movement_enabled"):
@@ -99,59 +94,25 @@ func _build_ui():
 	ui_root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	canvas.add_child(ui_root)
 
-	var backdrop := ColorRect.new()
-	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
-	backdrop.color = Color(0.05, 0.06, 0.08, 0.82)
-	ui_root.add_child(backdrop)
-
-	player_status_label = _make_label(Vector2(28, 24), Vector2(360, 92), 22)
-	ui_root.add_child(player_status_label)
-
-	enemy_status_label = _make_label(Vector2(890, 24), Vector2(340, 92), 22)
-	enemy_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	ui_root.add_child(enemy_status_label)
-
-	turn_label = _make_label(Vector2(470, 24), Vector2(340, 40), 28)
-	turn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	ui_root.add_child(turn_label)
-
-	intent_label = _make_label(Vector2(820, 118), Vector2(410, 64), 20)
-	intent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	ui_root.add_child(intent_label)
-
-	deck_label = _make_label(Vector2(28, 118), Vector2(280, 36), 18)
-	ui_root.add_child(deck_label)
-
-	discard_label = _make_label(Vector2(28, 150), Vector2(280, 36), 18)
-	ui_root.add_child(discard_label)
-
-	log_label = _make_label(Vector2(348, 112), Vector2(584, 180), 18)
-	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	log_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	ui_root.add_child(log_label)
-
-	result_label = _make_label(Vector2(380, 300), Vector2(520, 70), 34)
-	result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	result_label.visible = false
-	ui_root.add_child(result_label)
-
 	hand_container = HBoxContainer.new()
-	hand_container.position = Vector2(70, 520)
-	hand_container.custom_minimum_size = Vector2(940, 160)
+	hand_container.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	hand_container.position = Vector2(-365, -200)
+	hand_container.custom_minimum_size = Vector2(730, 184)
+	hand_container.size = Vector2(730, 184)
 	hand_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	hand_container.add_theme_constant_override("separation", 12)
+	hand_container.add_theme_constant_override("separation", CARD_SPACING)
 	ui_root.add_child(hand_container)
 
 	end_turn_button = Button.new()
 	end_turn_button.text = "End Turn"
-	end_turn_button.position = Vector2(1080, 560)
-	end_turn_button.custom_minimum_size = Vector2(150, 56)
+	end_turn_button.position = Vector2(1080, 630)
+	end_turn_button.custom_minimum_size = Vector2(150, 48)
 	end_turn_button.pressed.connect(_on_end_turn_pressed)
 	ui_root.add_child(end_turn_button)
 
 	restart_button = Button.new()
 	restart_button.text = "Restart Battle"
-	restart_button.position = Vector2(1040, 625)
+	restart_button.position = Vector2(1040, 575)
 	restart_button.custom_minimum_size = Vector2(190, 46)
 	restart_button.visible = false
 	restart_button.pressed.connect(_on_restart_pressed)
@@ -171,8 +132,9 @@ func _start_battle():
 	turn_number = 1
 	enemy_intent_index = 0
 	battle_over = false
-	result_label.visible = false
+	end_turn_button.visible = true
 	restart_button.visible = false
+	restart_button.text = "Restart Battle"
 	if heroine.has_method("reset_combat_state"):
 		heroine.call("reset_combat_state", player_hp, PLAYER_MAX_HP)
 	_log("Battle start. Defeat the training enemy.")
@@ -268,8 +230,8 @@ func _damage_enemy(amount: int):
 
 	if enemy_hp <= 0:
 		battle_over = true
-		result_label.text = "Victory"
-		result_label.visible = true
+		end_turn_button.visible = false
+		restart_button.text = "Victory - Restart"
 		restart_button.visible = true
 		_log("The enemy is defeated.")
 
@@ -292,8 +254,8 @@ func _damage_player(amount: int):
 
 	if player_hp <= 0:
 		battle_over = true
-		result_label.text = "Defeat"
-		result_label.visible = true
+		end_turn_button.visible = false
+		restart_button.text = "Defeat - Restart"
 		restart_button.visible = true
 		if heroine.has_method("play_dead_animation"):
 			heroine.call("play_dead_animation")
@@ -339,21 +301,6 @@ func _on_restart_pressed():
 	_start_battle()
 
 func _refresh_ui():
-	player_status_label.text = "Heroine  HP %d/%d  Block %d  Energy %d" % [player_hp, PLAYER_MAX_HP, player_block, energy]
-	enemy_status_label.text = "Enemy  HP %d/%d  Block %d" % [enemy_hp, ENEMY_MAX_HP, enemy_block]
-	turn_label.text = "Turn %d" % turn_number
-	deck_label.text = "Draw Pile: %d" % draw_pile.size()
-	discard_label.text = "Discard Pile: %d" % discard_pile.size()
-
-	if battle_over:
-		intent_label.text = "Battle finished."
-	else:
-		var intent: Dictionary = ENEMY_INTENTS[enemy_intent_index]
-		if intent["type"] == "attack":
-			intent_label.text = "Enemy Intent: %s (%d damage)" % [intent["name"], intent["amount"]]
-		else:
-			intent_label.text = "Enemy Intent: %s (%d block)" % [intent["name"], intent["amount"]]
-
 	end_turn_button.disabled = battle_over
 
 	for child in hand_container.get_children():
@@ -361,23 +308,18 @@ func _refresh_ui():
 
 	for i in range(hand.size()):
 		var card: Dictionary = hand[i]
-		var button := Button.new()
-		button.custom_minimum_size = Vector2(170, 150)
-		button.text = "%s\nCost %d\n%s" % [card["name"], card["cost"], card["text"]]
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.disabled = battle_over or card["cost"] > energy
-		button.pressed.connect(_on_card_pressed.bind(i))
-		hand_container.add_child(button)
-
-	log_label.text = "\n".join(battle_log.slice(max(0, battle_log.size() - 6), battle_log.size()))
+		var card_view: Control = CARD_VIEW_SCENE.instantiate()
+		card_view.call("set_card", card, i, battle_over or card["cost"] > energy)
+		card_view.call("set_hand_order", i)
+		card_view.rotation_degrees = _get_card_rotation(i, hand.size())
+		card_view.connect("card_pressed", Callable(self, "_on_card_pressed"))
+		hand_container.add_child(card_view)
 
 func _log(message: String):
 	battle_log.append(message)
 
-func _make_label(pos: Vector2, size: Vector2, font_size: int) -> Label:
-	var label := Label.new()
-	label.position = pos
-	label.custom_minimum_size = size
-	label.size = size
-	label.add_theme_font_size_override("font_size", font_size)
-	return label
+func _get_card_rotation(index: int, count: int) -> float:
+	if count <= 1:
+		return 0.0
+	var hand_center := float(count - 1) * 0.5
+	return (float(index) - hand_center) / hand_center * CARD_FAN_DEGREES

@@ -1,13 +1,75 @@
 [gd_scene format=3 uid="uid://dosxrphbltuho"]
 
 [ext_resource type="Texture2D" uid="uid://cwyhvacaouo1f" path="res://scenes/ui/cards/CardFrame_Attack.tres" id="1_djckl"]
+[ext_resource type="Script" uid="uid://cbc1u8i6m7np6" path="res://scripts/ui/card_view.gd" id="2_tnd34"]
 
 [node name="CardView" type="Control" unique_id=605748442]
+custom_minimum_size = Vector2(130, 184)
 layout_mode = 3
 anchors_preset = 0
+offset_right = 130.0
+offset_bottom = 184.0
+pivot_offset = Vector2(65, 150)
+script = ExtResource("2_tnd34")
 
-[node name="Frame" type="TextureRect" parent="." unique_id=2024660597]
+[node name="VisualRoot" type="Control" parent="." unique_id=884751707]
+unique_name_in_owner = true
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 130.0
+offset_bottom = 184.0
+pivot_offset = Vector2(65, 150)
+
+[node name="Frame" type="TextureRect" parent="VisualRoot" unique_id=2024660597]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 130.0
+offset_bottom = 184.0
 texture = ExtResource("1_djckl")
+stretch_mode = 5
+
+[node name="CostLabel" type="Label" parent="VisualRoot" unique_id=508847678]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 5.0
+offset_top = 2.0
+offset_right = 37.0
+offset_bottom = 36.0
+theme_override_font_sizes/font_size = 24
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NameLabel" type="Label" parent="VisualRoot" unique_id=730278389]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 20.0
+offset_top = 52.0
+offset_right = 110.0
+offset_bottom = 78.0
+theme_override_font_sizes/font_size = 16
+text = "Slash"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="BodyLabel" type="Label" parent="VisualRoot" unique_id=462371920]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 18.0
+offset_top = 128.0
+offset_right = 112.0
+offset_bottom = 180.0
+theme_override_font_sizes/font_size = 13
+text = "Deal 6 damage."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="ClickArea" type="Button" parent="VisualRoot" unique_id=583696011]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 130.0
+offset_bottom = 184.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+flat = true
