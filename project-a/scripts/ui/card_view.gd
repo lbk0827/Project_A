@@ -31,16 +31,16 @@ func _ready():
 	if not click_area.mouse_exited.is_connected(_on_mouse_exited):
 		click_area.mouse_exited.connect(_on_mouse_exited)
 
-func set_card(card: Dictionary, index: int, is_disabled: bool):
+func set_card(card: Dictionary, index: int, disabled: bool):
 	_bind_nodes()
 	card_index = index
-	self.is_disabled = is_disabled
+	is_disabled = disabled
 	frame.texture = ATTACK_FRAME if card.get("type", "") == "attack" else SKILL_FRAME
 	cost_label.text = str(card.get("cost", 0))
 	name_label.text = str(card.get("name", ""))
 	body_label.text = str(card.get("text", ""))
-	click_area.disabled = is_disabled
-	modulate = DISABLED_MODULATE if is_disabled else NORMAL_MODULATE
+	click_area.disabled = disabled
+	modulate = DISABLED_MODULATE if disabled else NORMAL_MODULATE
 	_reset_visual()
 
 func set_hand_order(order: int):

@@ -73,14 +73,9 @@ func _ready():
 	_build_ui()
 	_start_battle()
 
-func _process(delta: float):
-	if is_instance_valid(camera) and is_instance_valid(heroine):
-		camera.global_position = camera.global_position.lerp(heroine.global_position, min(1.0, delta * 8.0))
-
 func _setup_scene():
 	if is_instance_valid(camera):
 		camera.enabled = true
-		camera.global_position = heroine.global_position
 		camera.position_smoothing_enabled = true
 		camera.position_smoothing_speed = 6.0
 	if heroine.has_method("set_movement_enabled"):

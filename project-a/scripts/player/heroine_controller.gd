@@ -120,8 +120,8 @@ func _on_animation_finished():
 		is_attacking = false
 		_play_base_animation(Vector2.ZERO)
 
-func _has_animation(name: StringName) -> bool:
-	return anim.sprite_frames != null and anim.sprite_frames.has_animation(name)
+func _has_animation(animation_name: StringName) -> bool:
+	return anim.sprite_frames != null and anim.sprite_frames.has_animation(animation_name)
 
 func _is_animation_locked() -> bool:
 	return is_attacking or is_hit_reacting
