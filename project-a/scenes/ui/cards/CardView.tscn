@@ -14,7 +14,7 @@ script = ExtResource("2_tnd34")
 
 [node name="VisualRoot" type="Control" parent="." unique_id=884751707]
 unique_name_in_owner = true
-layout_mode = 0
+anchors_preset = 0
 offset_right = 130.0
 offset_bottom = 184.0
 pivot_offset = Vector2(65, 150)
