@@ -8,6 +8,7 @@ const CARD_SPACING := -8
 const CARD_FAN_DEGREES := 9.0
 const MONSTER_DROP_RADIUS := 90.0
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
+const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const CARD_LIBRARY := {
 	"slash": {
 		"id": "slash",
@@ -74,6 +75,12 @@ var ui_root: Control
 var hand_container: HBoxContainer
 var end_turn_button: Button
 var restart_button: Button
+var targeting_dot: Panel
+var targeting_dot_style: StyleBoxFlat
+var selected_card_index := -1
+var is_card_play_lifted := false
+var is_targeting_active := false
+var is_monster_targeted := false
 
 func _ready():
 	_setup_scene()
@@ -105,6 +112,15 @@ func _build_ui():
 	hand_container.add_theme_constant_override("separation", CARD_SPACING)
 	ui_root.add_child(hand_container)
 
+	targeting_dot = Panel.new()
+	targeting_dot.visible = false
+	targeting_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	targeting_dot.z_index = 900
+	targeting_dot_style = StyleBoxFlat.new()
+	targeting_dot.add_theme_stylebox_override("panel", targeting_dot_style)
+	_apply_targeting_dot_style(false)
+	ui_root.add_child(targeting_dot)
+
 	end_turn_button = Button.new()
 	end_turn_button.text = "End Turn"
 	end_turn_button.position = Vector2(1080, 630)
@@ -134,6 +150,10 @@ func _start_battle():
 	turn_number = 1
 	enemy_intent_index = 0
 	battle_over = false
+	selected_card_index = -1
+	is_card_play_lifted = false
+	is_targeting_active = false
+	is_monster_targeted = false
 	end_turn_button.visible = true
 	restart_button.visible = false
 	restart_button.text = "Restart Battle"
@@ -295,12 +315,15 @@ func _on_card_dropped(index: int, screen_position: Vector2):
 		return
 
 	var card: Dictionary = hand[index]
+	var was_play_lifted := is_card_play_lifted
+	var was_monster_targeted := is_monster_targeted
+	_reset_hand_drag_state()
 	if card.get("requires_target", false) != true:
-		if not _is_hand_drop_position(screen_position):
+		if was_play_lifted:
 			_play_card(index)
 		return
 
-	if _is_monster_drop_position(screen_position):
+	if was_monster_targeted:
 		_play_card(index)
 	else:
 		_log("%s needs a target." % card["name"])
@@ -321,6 +344,7 @@ func _on_restart_pressed():
 
 func _refresh_ui():
 	end_turn_button.disabled = battle_over
+	_reset_hand_drag_state()
 
 	for child in hand_container.get_children():
 		child.queue_free()
@@ -328,9 +352,11 @@ func _refresh_ui():
 	for i in range(hand.size()):
 		var card: Dictionary = hand[i]
 		var card_view: Control = CARD_VIEW_SCENE.instantiate()
-		card_view.call("set_card", card, i, battle_over or card["cost"] > energy)
+		card_view.call("set_card", card, i, battle_over or card["cost"] > energy, CARD_HAND_SETTINGS)
 		card_view.call("set_hand_order", i)
 		card_view.rotation_degrees = _get_card_rotation(i, hand.size())
+		card_view.connect("card_drag_started", Callable(self, "_on_card_drag_started"))
+		card_view.connect("card_drag_moved", Callable(self, "_on_card_drag_moved"))
 		card_view.connect("card_dropped", Callable(self, "_on_card_dropped"))
 		hand_container.add_child(card_view)
 
@@ -346,13 +372,8 @@ func _get_card_rotation(index: int, count: int) -> float:
 func _is_monster_drop_position(screen_position: Vector2) -> bool:
 	if not is_instance_valid(monster):
 		return false
-	var monster_screen_position: Vector2 = get_viewport().get_canvas_transform() * monster.global_position
+	var monster_screen_position := _get_monster_screen_position()
 	return screen_position.distance_to(monster_screen_position) <= MONSTER_DROP_RADIUS
-
-func _is_hand_drop_position(screen_position: Vector2) -> bool:
-	if not is_instance_valid(hand_container):
-		return false
-	return hand_container.get_global_rect().has_point(screen_position)
 
 func _play_monster_hit():
 	if not is_instance_valid(monster_sprite):
@@ -364,3 +385,107 @@ func _play_monster_hit():
 func _reset_monster_visual():
 	if is_instance_valid(monster_sprite):
 		monster_sprite.modulate = Color.WHITE
+
+func _on_card_drag_started(index: int):
+	selected_card_index = index
+	is_card_play_lifted = false
+	is_targeting_active = false
+	is_monster_targeted = false
+	_update_inactive_cards(false)
+
+func _on_card_drag_moved(index: int, screen_position: Vector2):
+	if selected_card_index != index:
+		return
+	var should_lift := _is_card_play_lifted(screen_position)
+	if _selected_card_requires_target():
+		if should_lift and not is_targeting_active:
+			is_card_play_lifted = true
+			_start_targeting_card(index, screen_position)
+			return
+		if is_targeting_active:
+			_update_targeting_dot(screen_position)
+			return
+	if should_lift == is_card_play_lifted:
+		return
+	is_card_play_lifted = should_lift
+	_update_inactive_cards(is_card_play_lifted)
+
+func _is_card_play_lifted(screen_position: Vector2) -> bool:
+	if not is_instance_valid(hand_container):
+		return false
+	var hand_top := hand_container.get_global_rect().position.y
+	return screen_position.y <= hand_top - CARD_HAND_SETTINGS.play_lift_threshold
+
+func _update_inactive_cards(should_lower: bool):
+	for child in hand_container.get_children():
+		if not child is Control:
+			continue
+		if child.card_index == selected_card_index:
+			continue
+		var target_position := CARD_HAND_SETTINGS.inactive_hand_offset if should_lower else Vector2.ZERO
+		child.call("set_inactive_offset", target_position)
+
+func _reset_hand_drag_state():
+	selected_card_index = -1
+	is_card_play_lifted = false
+	is_targeting_active = false
+	is_monster_targeted = false
+	if is_instance_valid(targeting_dot):
+		targeting_dot.visible = false
+	_update_inactive_cards(false)
+
+func _selected_card_requires_target() -> bool:
+	if selected_card_index < 0 or selected_card_index >= hand.size():
+		return false
+	return hand[selected_card_index].get("requires_target", false) == true
+
+func _start_targeting_card(index: int, screen_position: Vector2):
+	is_targeting_active = true
+	_update_inactive_cards(true)
+	var card_view := _get_card_view(index)
+	if card_view != null:
+		card_view.call("set_targeting_anchor", _get_targeting_card_center())
+	_update_targeting_dot(screen_position)
+
+func _get_card_view(index: int) -> Control:
+	for child in hand_container.get_children():
+		if child is Control and child.card_index == index:
+			return child
+	return null
+
+func _get_targeting_card_center() -> Vector2:
+	var screen_rect := ui_root.get_global_rect()
+	return screen_rect.get_center() + CARD_HAND_SETTINGS.targeting_card_screen_offset
+
+func _update_targeting_dot(screen_position: Vector2):
+	if not is_instance_valid(targeting_dot):
+		return
+	var target_position := screen_position
+	is_monster_targeted = _is_monster_drop_position(screen_position)
+	if is_monster_targeted:
+		target_position = _get_monster_screen_position()
+	_apply_targeting_dot_style(is_monster_targeted)
+	var diameter := CARD_HAND_SETTINGS.targeting_dot_radius * 2.0
+	targeting_dot.size = Vector2(diameter, diameter)
+	targeting_dot.position = target_position - targeting_dot.size * 0.5
+	targeting_dot.visible = true
+
+func _get_monster_screen_position() -> Vector2:
+	if not is_instance_valid(monster):
+		return Vector2.ZERO
+	return get_viewport().get_canvas_transform() * monster.global_position
+
+func _apply_targeting_dot_style(is_targeted: bool):
+	if targeting_dot_style == null:
+		return
+	var radius := int(CARD_HAND_SETTINGS.targeting_dot_radius)
+	targeting_dot_style.bg_color = CARD_HAND_SETTINGS.targeting_dot_targeted_color if is_targeted else CARD_HAND_SETTINGS.targeting_dot_color
+	targeting_dot_style.border_color = Color(1.0, 0.86, 0.86, 0.92)
+	targeting_dot_style.border_width_left = CARD_HAND_SETTINGS.targeting_dot_border_width
+	targeting_dot_style.border_width_top = CARD_HAND_SETTINGS.targeting_dot_border_width
+	targeting_dot_style.border_width_right = CARD_HAND_SETTINGS.targeting_dot_border_width
+	targeting_dot_style.border_width_bottom = CARD_HAND_SETTINGS.targeting_dot_border_width
+	targeting_dot_style.corner_radius_top_left = radius
+	targeting_dot_style.corner_radius_top_right = radius
+	targeting_dot_style.corner_radius_bottom_right = radius
+	targeting_dot_style.corner_radius_bottom_left = radius

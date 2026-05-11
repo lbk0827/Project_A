@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CardHandSettings" format=3 uid="uid://bxshmauowsx7p"]
+
+[ext_resource type="Script" uid="uid://dpy22locp2awo" path="res://scripts/ui/card_hand_settings.gd" id="1_4a1t7"]
+
+[resource]
+script = ExtResource("1_4a1t7")
+hover_offset = Vector2(0, -24)
+hover_scale = Vector2(1.08, 1.08)
+drag_scale = Vector2(2.25, 2.25)
+tween_time = 0.1
+play_lift_threshold = 90.0
+inactive_hand_offset = Vector2(0, 138)
+targeting_card_screen_offset = Vector2(0, 135)
+targeting_dot_radius = 24.0
+targeting_dot_color = Color(1, 0.12, 0.08, 0.72)
+targeting_dot_targeted_color = Color(1, 0, 0, 0.92)
+targeting_dot_border_width = 3
