@@ -288,7 +288,5 @@ script = ExtResource("1_m6hok")
 position = Vector2(-1, 0)
 sprite_frames = SubResource("SpriteFrames_m480h")
 animation = &"Attack"
-frame = 6
-frame_progress = 1.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1180448648]
