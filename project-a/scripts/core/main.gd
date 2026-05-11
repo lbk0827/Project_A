@@ -6,6 +6,7 @@ const ENEMY_MAX_HP := 44
 const STARTING_ENERGY := 3
 const CARD_SPACING := -8
 const CARD_FAN_DEGREES := 9.0
+const MONSTER_DROP_RADIUS := 90.0
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_LIBRARY := {
 	"slash": {
@@ -14,6 +15,7 @@ const CARD_LIBRARY := {
 		"cost": 1,
 		"text": "Deal 6 damage.",
 		"type": "attack",
+		"requires_target": true,
 		"amount": 6
 	},
 	"guard": {
@@ -22,6 +24,7 @@ const CARD_LIBRARY := {
 		"cost": 1,
 		"text": "Gain 7 block.",
 		"type": "skill",
+		"requires_target": false,
 		"amount": 7
 	},
 	"focus": {
@@ -30,6 +33,7 @@ const CARD_LIBRARY := {
 		"cost": 0,
 		"text": "Draw 1 card. Gain 1 energy.",
 		"type": "skill",
+		"requires_target": false,
 		"amount": 1
 	},
 	"heavy_slash": {
@@ -38,6 +42,7 @@ const CARD_LIBRARY := {
 		"cost": 2,
 		"text": "Deal 12 damage.",
 		"type": "attack",
+		"requires_target": true,
 		"amount": 12
 	}
 }
@@ -49,6 +54,8 @@ const ENEMY_INTENTS := [
 
 @onready var heroine: CharacterBody2D = $Heroine
 @onready var camera: Camera2D = $Camera2D
+@onready var monster: Node2D = $Monster
+@onready var monster_sprite: CanvasItem = $Monster/AnimatedSprite2D
 
 var draw_pile: Array[Dictionary] = []
 var discard_pile: Array[Dictionary] = []
@@ -132,6 +139,7 @@ func _start_battle():
 	restart_button.text = "Restart Battle"
 	if heroine.has_method("reset_combat_state"):
 		heroine.call("reset_combat_state", player_hp, PLAYER_MAX_HP)
+	_reset_monster_visual()
 	_log("Battle start. Defeat the training enemy.")
 	_start_player_turn(true)
 
@@ -222,12 +230,15 @@ func _damage_enemy(amount: int):
 	if incoming > 0:
 		enemy_hp = max(0, enemy_hp - incoming)
 		_log("Enemy takes %d damage." % incoming)
+		_play_monster_hit()
 
 	if enemy_hp <= 0:
 		battle_over = true
 		end_turn_button.visible = false
 		restart_button.text = "Victory - Restart"
 		restart_button.visible = true
+		if is_instance_valid(monster_sprite):
+			monster_sprite.modulate = Color(0.45, 0.45, 0.45, 0.75)
 		_log("The enemy is defeated.")
 
 func _damage_player(amount: int):
@@ -279,8 +290,21 @@ func _play_heroine_hit():
 	if heroine.has_method("play_hit_animation"):
 		heroine.call("play_hit_animation")
 
-func _on_card_pressed(index: int):
-	_play_card(index)
+func _on_card_dropped(index: int, screen_position: Vector2):
+	if battle_over or index < 0 or index >= hand.size():
+		return
+
+	var card: Dictionary = hand[index]
+	if card.get("requires_target", false) != true:
+		if not _is_hand_drop_position(screen_position):
+			_play_card(index)
+		return
+
+	if _is_monster_drop_position(screen_position):
+		_play_card(index)
+	else:
+		_log("%s needs a target." % card["name"])
+		_refresh_ui()
 
 func _on_end_turn_pressed():
 	if battle_over:
@@ -307,7 +331,7 @@ func _refresh_ui():
 		card_view.call("set_card", card, i, battle_over or card["cost"] > energy)
 		card_view.call("set_hand_order", i)
 		card_view.rotation_degrees = _get_card_rotation(i, hand.size())
-		card_view.connect("card_pressed", Callable(self, "_on_card_pressed"))
+		card_view.connect("card_dropped", Callable(self, "_on_card_dropped"))
 		hand_container.add_child(card_view)
 
 func _log(message: String):
@@ -318,3 +342,25 @@ func _get_card_rotation(index: int, count: int) -> float:
 		return 0.0
 	var hand_center := float(count - 1) * 0.5
 	return (float(index) - hand_center) / hand_center * CARD_FAN_DEGREES
+
+func _is_monster_drop_position(screen_position: Vector2) -> bool:
+	if not is_instance_valid(monster):
+		return false
+	var monster_screen_position: Vector2 = get_viewport().get_canvas_transform() * monster.global_position
+	return screen_position.distance_to(monster_screen_position) <= MONSTER_DROP_RADIUS
+
+func _is_hand_drop_position(screen_position: Vector2) -> bool:
+	if not is_instance_valid(hand_container):
+		return false
+	return hand_container.get_global_rect().has_point(screen_position)
+
+func _play_monster_hit():
+	if not is_instance_valid(monster_sprite):
+		return
+	var hit_tween := create_tween()
+	hit_tween.tween_property(monster_sprite, "modulate", Color(1.0, 0.35, 0.35), 0.05)
+	hit_tween.tween_property(monster_sprite, "modulate", Color.WHITE, 0.12)
+
+func _reset_monster_visual():
+	if is_instance_valid(monster_sprite):
+		monster_sprite.modulate = Color.WHITE

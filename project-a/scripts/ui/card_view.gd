@@ -1,6 +1,6 @@
 extends Control
 
-signal card_pressed(index: int)
+signal card_dropped(index: int, screen_position: Vector2)
 
 const ATTACK_FRAME := preload("res://scenes/ui/cards/CardFrame_Attack.tres")
 const SKILL_FRAME := preload("res://scenes/ui/cards/CardFrame_Skill.tres")
@@ -9,6 +9,7 @@ const DISABLED_MODULATE := Color(0.58, 0.58, 0.58, 0.92)
 const HOVER_OFFSET := Vector2(0, -24)
 const HOVER_SCALE := Vector2(1.08, 1.08)
 const TWEEN_TIME := 0.1
+const DRAG_SCALE := Vector2(1.12, 1.12)
 
 var visual_root: Control
 var frame: TextureRect
@@ -21,11 +22,14 @@ var card_index := -1
 var is_disabled := false
 var normal_z_index := 0
 var hover_tween: Tween
+var is_dragging := false
+var drag_offset := Vector2.ZERO
+var drag_start_global_position := Vector2.ZERO
 
 func _ready():
 	_bind_nodes()
-	if not click_area.pressed.is_connected(_on_click_area_pressed):
-		click_area.pressed.connect(_on_click_area_pressed)
+	if not click_area.gui_input.is_connected(_on_click_area_gui_input):
+		click_area.gui_input.connect(_on_click_area_gui_input)
 	if not click_area.mouse_entered.is_connected(_on_mouse_entered):
 		click_area.mouse_entered.connect(_on_mouse_entered)
 	if not click_area.mouse_exited.is_connected(_on_mouse_exited):
@@ -47,18 +51,33 @@ func set_hand_order(order: int):
 	normal_z_index = order
 	z_index = normal_z_index
 
-func _on_click_area_pressed():
-	card_pressed.emit(card_index)
-
 func _on_mouse_entered():
-	if is_disabled:
+	if is_disabled or is_dragging:
 		return
 	z_index = 100 + normal_z_index
 	_tween_visual(HOVER_OFFSET, HOVER_SCALE)
 
 func _on_mouse_exited():
+	if is_dragging:
+		return
 	z_index = normal_z_index
 	_tween_visual(Vector2.ZERO, Vector2.ONE)
+
+func _input(event: InputEvent):
+	if not is_dragging:
+		return
+	if event is InputEventMouseMotion:
+		visual_root.global_position = event.position - drag_offset
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+		var drop_position: Vector2 = event.position
+		_end_drag()
+		card_dropped.emit(card_index, drop_position)
+
+func _on_click_area_gui_input(event: InputEvent):
+	if is_disabled:
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		_start_drag(get_global_mouse_position())
 
 func _bind_nodes():
 	if frame != null:
@@ -83,3 +102,19 @@ func _reset_visual():
 		hover_tween.kill()
 	visual_root.position = Vector2.ZERO
 	visual_root.scale = Vector2.ONE
+
+func _start_drag(screen_position: Vector2):
+	if hover_tween != null:
+		hover_tween.kill()
+	is_dragging = true
+	z_index = 1000
+	drag_start_global_position = visual_root.global_position
+	drag_offset = screen_position - drag_start_global_position
+	visual_root.scale = DRAG_SCALE
+	get_viewport().set_input_as_handled()
+
+func _end_drag():
+	is_dragging = false
+	z_index = normal_z_index
+	visual_root.global_position = drag_start_global_position
+	_reset_visual()
