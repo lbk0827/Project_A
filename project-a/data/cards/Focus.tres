@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=2 format=3 uid="uid://b7igqg5n53lpy"]
+
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_r1fvg"]
+
+[resource]
+script = ExtResource("1_r1fvg")
+id = "focus"
+display_name = "Focus"
+cost = 0
+text = "Draw 1 card. Gain 1 energy."
+card_type = &"skill"
+requires_target = false
+amount = 1

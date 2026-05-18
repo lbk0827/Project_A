@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=2 format=3 uid="uid://dw3x5tnn8x6mk"]
+
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_cufl3"]
+
+[resource]
+script = ExtResource("1_cufl3")
+id = "heavy_slash"
+display_name = "Heavy Slash"
+cost = 2
+text = "Deal 12 damage."
+card_type = &"attack"
+requires_target = true
+amount = 12

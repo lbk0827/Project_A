@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=2 format=3 uid="uid://cm154chadregn"]
+
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_4mcsd"]
+
+[resource]
+script = ExtResource("1_4mcsd")
+id = "slash"
+display_name = "Slash"
+cost = 1
+text = "Deal 6 damage."
+card_type = &"attack"
+requires_target = true
+amount = 6

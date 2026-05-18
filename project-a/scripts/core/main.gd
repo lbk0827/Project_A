@@ -1,56 +1,24 @@
 extends Node2D
 
 const MAX_HAND_SIZE := 5
-const PLAYER_MAX_HP := 40
-const ENEMY_MAX_HP := 44
-const STARTING_ENERGY := 3
 const CARD_SPACING := -8
 const CARD_FAN_DEGREES := 9.0
 const MONSTER_DROP_RADIUS := 90.0
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
-const CARD_LIBRARY := {
-	"slash": {
-		"id": "slash",
-		"name": "Slash",
-		"cost": 1,
-		"text": "Deal 6 damage.",
-		"type": "attack",
-		"requires_target": true,
-		"amount": 6
-	},
-	"guard": {
-		"id": "guard",
-		"name": "Guard",
-		"cost": 1,
-		"text": "Gain 7 block.",
-		"type": "skill",
-		"requires_target": false,
-		"amount": 7
-	},
-	"focus": {
-		"id": "focus",
-		"name": "Focus",
-		"cost": 0,
-		"text": "Draw 1 card. Gain 1 energy.",
-		"type": "skill",
-		"requires_target": false,
-		"amount": 1
-	},
-	"heavy_slash": {
-		"id": "heavy_slash",
-		"name": "Heavy Slash",
-		"cost": 2,
-		"text": "Deal 12 damage.",
-		"type": "attack",
-		"requires_target": true,
-		"amount": 12
-	}
-}
-const ENEMY_INTENTS := [
-	{"name": "Stab", "type": "attack", "amount": 6},
-	{"name": "Brace", "type": "block", "amount": 5},
-	{"name": "Heavy Blow", "type": "attack", "amount": 9}
+const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
+const MONSTER_STATS := preload("res://data/monsters/MonsterDummyStats.tres")
+const CARD_SLASH := preload("res://data/cards/Slash.tres")
+const CARD_GUARD := preload("res://data/cards/Guard.tres")
+const CARD_FOCUS := preload("res://data/cards/Focus.tres")
+const CARD_HEAVY_SLASH := preload("res://data/cards/HeavySlash.tres")
+const INTENT_STAB := preload("res://data/monsters/intents/Stab.tres")
+const INTENT_BRACE := preload("res://data/monsters/intents/Brace.tres")
+const INTENT_HEAVY_BLOW := preload("res://data/monsters/intents/HeavyBlow.tres")
+const ENEMY_INTENTS: Array[EnemyIntentData] = [
+	INTENT_STAB,
+	INTENT_BRACE,
+	INTENT_HEAVY_BLOW
 ]
 
 @onready var heroine: CharacterBody2D = $Heroine
@@ -58,15 +26,15 @@ const ENEMY_INTENTS := [
 @onready var monster: Node2D = $Monster
 @onready var monster_sprite: CanvasItem = $Monster/AnimatedSprite2D
 
-var draw_pile: Array[Dictionary] = []
-var discard_pile: Array[Dictionary] = []
-var hand: Array[Dictionary] = []
+var draw_pile: Array[CardData] = []
+var discard_pile: Array[CardData] = []
+var hand: Array[CardData] = []
 var battle_log: Array[String] = []
-var player_hp := PLAYER_MAX_HP
+var player_hp := 0
 var player_block := 0
-var enemy_hp := ENEMY_MAX_HP
+var enemy_hp := 0
 var enemy_block := 0
-var energy := STARTING_ENERGY
+var energy := 0
 var turn_number := 1
 var enemy_intent_index := 0
 var battle_over := false
@@ -142,11 +110,11 @@ func _start_battle():
 	discard_pile.clear()
 	hand.clear()
 	battle_log.clear()
-	player_hp = PLAYER_MAX_HP
+	player_hp = PLAYER_STATS.max_hp
 	player_block = 0
-	enemy_hp = ENEMY_MAX_HP
+	enemy_hp = MONSTER_STATS.max_hp
 	enemy_block = 0
-	energy = STARTING_ENERGY
+	energy = PLAYER_STATS.starting_energy
 	turn_number = 1
 	enemy_intent_index = 0
 	battle_over = false
@@ -158,33 +126,30 @@ func _start_battle():
 	restart_button.visible = false
 	restart_button.text = "Restart Battle"
 	if heroine.has_method("reset_combat_state"):
-		heroine.call("reset_combat_state", player_hp, PLAYER_MAX_HP)
+		heroine.call("reset_combat_state", player_hp, PLAYER_STATS.max_hp)
 	_reset_monster_visual()
 	_log("Battle start. Defeat the training enemy.")
 	_start_player_turn(true)
 
 func _start_player_turn(is_first_turn := false):
 	player_block = 0
-	energy = STARTING_ENERGY
+	energy = PLAYER_STATS.starting_energy
 	_draw_cards(MAX_HAND_SIZE)
 	if not is_first_turn:
 		turn_number += 1
 	_log("Turn %d. Draw up and spend your energy." % turn_number)
 	_refresh_ui()
 
-func _build_starter_deck() -> Array[Dictionary]:
-	var deck: Array[Dictionary] = []
+func _build_starter_deck() -> Array[CardData]:
+	var deck: Array[CardData] = []
 	for _i in range(4):
-		deck.append(_make_card("slash"))
+		deck.append(CARD_SLASH)
 	for _i in range(3):
-		deck.append(_make_card("guard"))
+		deck.append(CARD_GUARD)
 	for _i in range(2):
-		deck.append(_make_card("focus"))
-	deck.append(_make_card("heavy_slash"))
+		deck.append(CARD_FOCUS)
+	deck.append(CARD_HEAVY_SLASH)
 	return deck
-
-func _make_card(card_id: String) -> Dictionary:
-	return CARD_LIBRARY[card_id].duplicate(true)
 
 func _draw_cards(amount: int):
 	for _i in range(amount):
@@ -208,10 +173,10 @@ func _play_card(index: int):
 	if battle_over or index < 0 or index >= hand.size():
 		return
 
-	var card: Dictionary = hand[index]
-	var cost: int = card["cost"]
+	var card: CardData = hand[index]
+	var cost: int = card.cost
 	if cost > energy:
-		_log("Not enough energy for %s." % card["name"])
+		_log("Not enough energy for %s." % card.display_name)
 		_refresh_ui()
 		return
 
@@ -219,20 +184,20 @@ func _play_card(index: int):
 	hand.remove_at(index)
 	discard_pile.append(card)
 
-	match card["id"]:
+	match card.id:
 		"slash":
 			_log("Slash deals 6 damage.")
-			_damage_enemy(card["amount"])
+			_damage_enemy(card.amount)
 			_play_heroine_attack()
 		"heavy_slash":
 			_log("Heavy Slash crashes in for 12 damage.")
-			_damage_enemy(card["amount"])
+			_damage_enemy(card.amount)
 			_play_heroine_attack()
 		"guard":
-			player_block += card["amount"]
-			_log("Guard grants %d block." % card["amount"])
+			player_block += card.amount
+			_log("Guard grants %d block." % card.amount)
 		"focus":
-			energy += card["amount"]
+			energy += card.amount
 			_draw_cards(1)
 			_log("Focus draws 1 card and refunds 1 energy.")
 
@@ -276,7 +241,7 @@ func _damage_player(amount: int):
 		_play_heroine_hit()
 
 	if heroine.has_method("update_hp_state"):
-		heroine.call("update_hp_state", player_hp, PLAYER_MAX_HP)
+		heroine.call("update_hp_state", player_hp, PLAYER_STATS.max_hp)
 
 	if player_hp <= 0:
 		battle_over = true
@@ -291,14 +256,14 @@ func _enemy_turn():
 	if battle_over:
 		return
 
-	var intent: Dictionary = ENEMY_INTENTS[enemy_intent_index]
-	match intent["type"]:
+	var intent: EnemyIntentData = ENEMY_INTENTS[enemy_intent_index]
+	match intent.intent_type:
 		"attack":
-			_log("Enemy uses %s for %d damage." % [intent["name"], intent["amount"]])
-			_damage_player(intent["amount"])
+			_log("Enemy uses %s for %d damage." % [intent.display_name, intent.amount])
+			_damage_player(intent.amount)
 		"block":
-			enemy_block += intent["amount"]
-			_log("Enemy uses %s and gains %d block." % [intent["name"], intent["amount"]])
+			enemy_block += intent.amount
+			_log("Enemy uses %s and gains %d block." % [intent.display_name, intent.amount])
 
 	enemy_intent_index = (enemy_intent_index + 1) % ENEMY_INTENTS.size()
 
@@ -314,11 +279,11 @@ func _on_card_dropped(index: int, screen_position: Vector2):
 	if battle_over or index < 0 or index >= hand.size():
 		return
 
-	var card: Dictionary = hand[index]
+	var card: CardData = hand[index]
 	var was_play_lifted := is_card_play_lifted
 	var was_monster_targeted := is_monster_targeted
 	_reset_hand_drag_state()
-	if card.get("requires_target", false) != true:
+	if not card.requires_target:
 		if was_play_lifted:
 			_play_card(index)
 		return
@@ -326,7 +291,7 @@ func _on_card_dropped(index: int, screen_position: Vector2):
 	if was_monster_targeted:
 		_play_card(index)
 	else:
-		_log("%s needs a target." % card["name"])
+		_log("%s needs a target." % card.display_name)
 		_refresh_ui()
 
 func _on_end_turn_pressed():
@@ -350,9 +315,9 @@ func _refresh_ui():
 		child.queue_free()
 
 	for i in range(hand.size()):
-		var card: Dictionary = hand[i]
+		var card: CardData = hand[i]
 		var card_view: Control = CARD_VIEW_SCENE.instantiate()
-		card_view.call("set_card", card, i, battle_over or card["cost"] > energy, CARD_HAND_SETTINGS)
+		card_view.call("set_card", card, i, battle_over or card.cost > energy, CARD_HAND_SETTINGS)
 		card_view.call("set_hand_order", i)
 		card_view.rotation_degrees = _get_card_rotation(i, hand.size())
 		card_view.connect("card_drag_started", Callable(self, "_on_card_drag_started"))
@@ -437,7 +402,7 @@ func _reset_hand_drag_state():
 func _selected_card_requires_target() -> bool:
 	if selected_card_index < 0 or selected_card_index >= hand.size():
 		return false
-	return hand[selected_card_index].get("requires_target", false) == true
+	return hand[selected_card_index].requires_target
 
 func _start_targeting_card(index: int, screen_position: Vector2):
 	is_targeting_active = true

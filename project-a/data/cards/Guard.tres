@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=2 format=3 uid="uid://cgl6ohjkpwfpf"]
+
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_sytyq"]
+
+[resource]
+script = ExtResource("1_sytyq")
+id = "guard"
+display_name = "Guard"
+cost = 1
+text = "Gain 7 block."
+card_type = &"skill"
+requires_target = false
+amount = 7

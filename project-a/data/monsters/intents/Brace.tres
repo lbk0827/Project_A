@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="EnemyIntentData" load_steps=2 format=3 uid="uid://c50a5vw4ugbbp"]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_intent_data.gd" id="1_jup3t"]
+
+[resource]
+script = ExtResource("1_jup3t")
+display_name = "Brace"
+intent_type = &"block"
+amount = 5
