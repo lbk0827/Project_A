@@ -1,0 +1,11 @@
+[
+	{
+		"ID": 1,
+		"CharID": "Nine",
+		"Hp": 100,
+		"Atk": 10,
+		"Def": 10,
+		"CriRate": 0.05,
+		"CriDmg": 10.0
+	}
+]
