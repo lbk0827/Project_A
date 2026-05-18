@@ -2,6 +2,12 @@ extends CharacterBody2D
 
 @export var speed := 180.0
 @export var attack_action: StringName = &"ui_accept"
+@export_group("Combat Motion")
+@export var attack_offset_from_target := Vector2(-120, 0)
+@export var approach_time := 0.35
+@export var attack_impact_delay := 0.18
+@export var attack_recover_delay := 0.38
+@export var return_time := 0.3
 @onready var anim: AnimatedSprite2D = $AnimatedSprite2D
 
 var is_attacking := false
@@ -70,6 +76,23 @@ func play_attack_animation():
 	if is_dead or not _has_animation("Attack"):
 		return
 	_start_attack()
+
+func play_run_animation(direction: Vector2):
+	if is_dead or _is_animation_locked():
+		return
+	_play_base_animation(direction.normalized())
+
+func play_idle_animation():
+	if is_dead or _is_animation_locked():
+		return
+	_play_base_animation(Vector2.ZERO)
+
+func set_facing_direction(direction: Vector2):
+	if direction.x != 0:
+		anim.flip_h = direction.x < 0
+
+func get_attack_position(target_position: Vector2) -> Vector2:
+	return target_position + attack_offset_from_target
 
 func play_hit_animation():
 	if is_dead or not _has_animation("Hit"):

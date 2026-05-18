@@ -38,6 +38,8 @@ var energy := 0
 var turn_number := 1
 var enemy_intent_index := 0
 var battle_over := false
+var combat_sequence_active := false
+var player_home_position := Vector2.ZERO
 
 var ui_root: Control
 var hand_container: HBoxContainer
@@ -56,6 +58,7 @@ func _ready():
 	_start_battle()
 
 func _setup_scene():
+	player_home_position = heroine.global_position
 	if is_instance_valid(camera):
 		camera.enabled = true
 		camera.position_smoothing_enabled = true
@@ -118,6 +121,7 @@ func _start_battle():
 	turn_number = 1
 	enemy_intent_index = 0
 	battle_over = false
+	combat_sequence_active = false
 	selected_card_index = -1
 	is_card_play_lifted = false
 	is_targeting_active = false
@@ -125,6 +129,7 @@ func _start_battle():
 	end_turn_button.visible = true
 	restart_button.visible = false
 	restart_button.text = "Restart Battle"
+	heroine.global_position = player_home_position
 	if heroine.has_method("reset_combat_state"):
 		heroine.call("reset_combat_state", player_hp, PLAYER_STATS.max_hp)
 	_reset_monster_visual()
@@ -170,7 +175,7 @@ func _discard_hand():
 	hand.clear()
 
 func _play_card(index: int):
-	if battle_over or index < 0 or index >= hand.size():
+	if battle_over or combat_sequence_active or index < 0 or index >= hand.size():
 		return
 
 	var card: CardData = hand[index]
@@ -187,12 +192,10 @@ func _play_card(index: int):
 	match card.id:
 		"slash":
 			_log("Slash deals 6 damage.")
-			_damage_enemy(card.amount)
-			_play_heroine_attack()
+			_play_player_attack_sequence(card)
 		"heavy_slash":
 			_log("Heavy Slash crashes in for 12 damage.")
-			_damage_enemy(card.amount)
-			_play_heroine_attack()
+			_play_player_attack_sequence(card)
 		"guard":
 			player_block += card.amount
 			_log("Guard grants %d block." % card.amount)
@@ -202,6 +205,67 @@ func _play_card(index: int):
 			_log("Focus draws 1 card and refunds 1 energy.")
 
 	_refresh_ui()
+
+func _play_player_attack_sequence(card: CardData):
+	combat_sequence_active = true
+	_refresh_ui()
+	await _move_player_to_attack_position()
+	_play_heroine_attack()
+	await get_tree().create_timer(_get_heroine_motion_value("attack_impact_delay", 0.18)).timeout
+	_damage_enemy(card.amount)
+	await get_tree().create_timer(_get_heroine_motion_value("attack_recover_delay", 0.38)).timeout
+	await _return_player_home()
+	combat_sequence_active = false
+	_face_player_to_monster()
+	if not battle_over and heroine.has_method("play_idle_animation"):
+		heroine.call("play_idle_animation")
+	_refresh_ui()
+
+func _move_player_to_attack_position():
+	if not is_instance_valid(heroine) or not is_instance_valid(monster):
+		return
+
+	var attack_position := _get_heroine_attack_position(monster.global_position)
+	var direction := attack_position - heroine.global_position
+	if heroine.has_method("set_facing_direction"):
+		heroine.call("set_facing_direction", direction)
+	if heroine.has_method("play_run_animation"):
+		heroine.call("play_run_animation", direction)
+
+	var tween := create_tween()
+	tween.tween_property(heroine, "global_position", attack_position, _get_heroine_motion_value("approach_time", 0.35))
+	await tween.finished
+
+func _return_player_home():
+	if not is_instance_valid(heroine):
+		return
+
+	var direction := player_home_position - heroine.global_position
+	if heroine.has_method("set_facing_direction"):
+		heroine.call("set_facing_direction", direction)
+	if heroine.has_method("play_run_animation"):
+		heroine.call("play_run_animation", direction)
+
+	var tween := create_tween()
+	tween.tween_property(heroine, "global_position", player_home_position, _get_heroine_motion_value("return_time", 0.3))
+	await tween.finished
+
+func _face_player_to_monster():
+	if not is_instance_valid(heroine) or not is_instance_valid(monster):
+		return
+	if heroine.has_method("set_facing_direction"):
+		heroine.call("set_facing_direction", monster.global_position - heroine.global_position)
+
+func _get_heroine_attack_position(target_position: Vector2) -> Vector2:
+	if heroine.has_method("get_attack_position"):
+		return heroine.call("get_attack_position", target_position)
+	return target_position + Vector2(-120, 0)
+
+func _get_heroine_motion_value(property_name: StringName, fallback: float) -> float:
+	var value: Variant = heroine.get(property_name)
+	if value is float or value is int:
+		return float(value)
+	return fallback
 
 func _damage_enemy(amount: int):
 	var incoming: int = amount
@@ -276,7 +340,7 @@ func _play_heroine_hit():
 		heroine.call("play_hit_animation")
 
 func _on_card_dropped(index: int, screen_position: Vector2):
-	if battle_over or index < 0 or index >= hand.size():
+	if battle_over or combat_sequence_active or index < 0 or index >= hand.size():
 		return
 
 	var card: CardData = hand[index]
@@ -295,7 +359,7 @@ func _on_card_dropped(index: int, screen_position: Vector2):
 		_refresh_ui()
 
 func _on_end_turn_pressed():
-	if battle_over:
+	if battle_over or combat_sequence_active:
 		return
 	_discard_hand()
 	_enemy_turn()
@@ -308,7 +372,7 @@ func _on_restart_pressed():
 	_start_battle()
 
 func _refresh_ui():
-	end_turn_button.disabled = battle_over
+	end_turn_button.disabled = battle_over or combat_sequence_active
 	_reset_hand_drag_state()
 
 	for child in hand_container.get_children():
@@ -317,7 +381,7 @@ func _refresh_ui():
 	for i in range(hand.size()):
 		var card: CardData = hand[i]
 		var card_view: Control = CARD_VIEW_SCENE.instantiate()
-		card_view.call("set_card", card, i, battle_over or card.cost > energy, CARD_HAND_SETTINGS)
+		card_view.call("set_card", card, i, battle_over or combat_sequence_active or card.cost > energy, CARD_HAND_SETTINGS)
 		card_view.call("set_hand_order", i)
 		card_view.rotation_degrees = _get_card_rotation(i, hand.size())
 		card_view.connect("card_drag_started", Callable(self, "_on_card_drag_started"))
