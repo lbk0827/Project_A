@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://bfdm6u3ia7t0o"]
+
+[ext_resource type="Script" uid="uid://c34hw1cnmirfr" path="res://scripts/vfx/one_shot_vfx.gd" id="1_3jvxt"]
+[ext_resource type="Texture2D" uid="uid://82fp48qur2e6" path="res://assets/vfx/FX_HeroineSlash.png" id="2_h26yc"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3jvxt"]
+atlas = ExtResource("2_h26yc")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h26yc"]
+atlas = ExtResource("2_h26yc")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5nlhd"]
+atlas = ExtResource("2_h26yc")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bdabb"]
+atlas = ExtResource("2_h26yc")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3jvxt"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3jvxt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h26yc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5nlhd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bdabb")
+}],
+"loop": false,
+"name": &"default",
+"speed": 18.0
+}]
+
+[node name="FXHeroineSlash" type="Node2D" unique_id=564396194]
+z_index = 20
+script = ExtResource("1_3jvxt")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=531846241]
+scale = Vector2(3, 3)
+sprite_frames = SubResource("SpriteFrames_3jvxt")
+frame = 2
+frame_progress = 0.69520414

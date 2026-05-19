@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+const FX_HEROINE_SLASH_SCENE := preload("res://scenes/vfx/fx_heroine_slash.tscn")
+
 @export var speed := 180.0
 @export var attack_action: StringName = &"ui_accept"
 @export_group("Combat Motion")
@@ -8,6 +10,8 @@ extends CharacterBody2D
 @export var attack_impact_delay := 0.18
 @export var attack_recover_delay := 0.38
 @export var return_time := 0.3
+@export_group("Attack VFX")
+@export var slash_fx_offset := Vector2(-45, -10)
 @onready var anim: AnimatedSprite2D = $AnimatedSprite2D
 
 var is_attacking := false
@@ -16,6 +20,7 @@ var movement_enabled := true
 var hp_ratio := 1.0
 var is_dead := false
 var hit_recover_time := 0.0
+var attack_sequence_id := 0
 
 func _ready():
 	anim.animation_finished.connect(_on_animation_finished)
@@ -39,7 +44,7 @@ func _physics_process(delta):
 	if not movement_enabled:
 		velocity = Vector2.ZERO
 		move_and_slide()
-		if not _is_animation_locked():
+		if not _is_animation_locked() and anim.animation != "Run":
 			_play_base_animation(Vector2.ZERO)
 		return
 
@@ -65,6 +70,7 @@ func set_movement_enabled(enabled: bool):
 	_play_base_animation(Vector2.ZERO)
 
 func reset_combat_state(current_hp: int, max_hp: int):
+	attack_sequence_id += 1
 	is_attacking = false
 	is_hit_reacting = false
 	is_dead = false
@@ -72,10 +78,10 @@ func reset_combat_state(current_hp: int, max_hp: int):
 	update_hp_state(current_hp, max_hp)
 	anim.play("Idle")
 
-func play_attack_animation():
+func play_attack_animation(target_position: Variant = null):
 	if is_dead or not _has_animation("Attack"):
 		return
-	_start_attack()
+	_start_attack(target_position)
 
 func play_run_animation(direction: Vector2):
 	if is_dead or _is_animation_locked():
@@ -97,6 +103,7 @@ func get_attack_position(target_position: Vector2) -> Vector2:
 func play_hit_animation():
 	if is_dead or not _has_animation("Hit"):
 		return
+	attack_sequence_id += 1
 	is_hit_reacting = true
 	hit_recover_time = 0.4
 	velocity = Vector2.ZERO
@@ -106,6 +113,7 @@ func play_dead_animation():
 	if is_dead:
 		return
 	is_dead = true
+	attack_sequence_id += 1
 	is_attacking = false
 	is_hit_reacting = false
 	hit_recover_time = 0.0
@@ -133,10 +141,29 @@ func _play_base_animation(dir: Vector2):
 		if dir.x != 0:
 			anim.flip_h = dir.x < 0
 
-func _start_attack():
+func _start_attack(target_position: Variant = null):
+	attack_sequence_id += 1
 	is_attacking = true
 	velocity = Vector2.ZERO
 	anim.play("Attack")
+	if target_position is Vector2:
+		_spawn_slash_fx_after_impact(target_position, attack_sequence_id)
+
+func _spawn_slash_fx_after_impact(target_position: Vector2, sequence_id: int):
+	await get_tree().create_timer(attack_impact_delay).timeout
+	if sequence_id != attack_sequence_id or is_dead or not is_attacking:
+		return
+
+	var slash_fx := FX_HEROINE_SLASH_SCENE.instantiate()
+	var fx_parent := get_parent()
+	if fx_parent == null:
+		fx_parent = get_tree().current_scene
+	if fx_parent == null:
+		return
+
+	fx_parent.add_child(slash_fx)
+	slash_fx.global_position = target_position + slash_fx_offset
+	slash_fx.scale.x = 1.0 if target_position.x >= global_position.x else -1.0
 
 func _on_animation_finished():
 	if anim.animation == "Attack":

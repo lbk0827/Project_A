@@ -24,6 +24,8 @@ stretch_mode = 6
 
 [node name="Heroine" parent="." unique_id=641925143 instance=ExtResource("2_ag07a")]
 position = Vector2(-350, -60)
+approach_time = 0.25
+return_time = 0.25
 
 [node name="Monster" parent="." unique_id=843095761 instance=ExtResource("4_wtb6v")]
 position = Vector2(200, -60)

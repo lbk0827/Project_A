@@ -333,7 +333,10 @@ func _enemy_turn():
 
 func _play_heroine_attack():
 	if heroine.has_method("play_attack_animation"):
-		heroine.call("play_attack_animation")
+		var target_position: Variant = null
+		if is_instance_valid(monster):
+			target_position = monster.global_position
+		heroine.call("play_attack_animation", target_position)
 
 func _play_heroine_hit():
 	if heroine.has_method("play_hit_animation"):
