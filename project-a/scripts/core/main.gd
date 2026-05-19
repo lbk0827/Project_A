@@ -4,6 +4,7 @@ const MAX_HAND_SIZE := 5
 const CARD_SPACING := -8
 const CARD_FAN_DEGREES := 9.0
 const MONSTER_DROP_RADIUS := 90.0
+const GAUGE_HP_SCENE := preload("res://scenes/ui/panel/gauge_hp.tscn")
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
@@ -42,6 +43,7 @@ var combat_sequence_active := false
 var player_home_position := Vector2.ZERO
 
 var ui_root: Control
+var gauge_hp: Control
 var hand_container: HBoxContainer
 var end_turn_button: Button
 var restart_button: Button
@@ -73,6 +75,10 @@ func _build_ui():
 	ui_root = Control.new()
 	ui_root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	canvas.add_child(ui_root)
+
+	gauge_hp = GAUGE_HP_SCENE.instantiate()
+	gauge_hp.position = Vector2(28, 24)
+	ui_root.add_child(gauge_hp)
 
 	hand_container = HBoxContainer.new()
 	hand_container.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
@@ -377,6 +383,8 @@ func _on_restart_pressed():
 func _refresh_ui():
 	end_turn_button.disabled = battle_over or combat_sequence_active
 	_reset_hand_drag_state()
+	if is_instance_valid(gauge_hp) and gauge_hp.has_method("set_player_hp"):
+		gauge_hp.call("set_player_hp", player_hp, PLAYER_STATS.max_hp)
 
 	for child in hand_container.get_children():
 		child.queue_free()
