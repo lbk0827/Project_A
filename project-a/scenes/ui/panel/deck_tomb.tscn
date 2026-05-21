@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://bft3xg2qxagt2"]
+
+[node name="DeckTomb" type="Control" unique_id=357536061]
+layout_mode = 3
+anchors_preset = 0
