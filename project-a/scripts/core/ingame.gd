@@ -4,7 +4,7 @@ const MAX_HAND_SIZE := 5
 const CARD_SPACING := -8
 const CARD_FAN_DEGREES := 9.0
 const MONSTER_DROP_RADIUS := 90.0
-const GAUGE_HP_SCENE := preload("res://scenes/ui/panel/gauge_hp.tscn")
+const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
@@ -42,8 +42,8 @@ var battle_over := false
 var combat_sequence_active := false
 var player_home_position := Vector2.ZERO
 
+var battle_ui: CanvasLayer
 var ui_root: Control
-var gauge_hp: Control
 var hand_container: HBoxContainer
 var end_turn_button: Button
 var restart_button: Button
@@ -69,49 +69,20 @@ func _setup_scene():
 		heroine.call("set_movement_enabled", false)
 
 func _build_ui():
-	var canvas := CanvasLayer.new()
-	add_child(canvas)
+	battle_ui = BATTLE_UI_SCENE.instantiate()
+	add_child(battle_ui)
 
-	ui_root = Control.new()
-	ui_root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	canvas.add_child(ui_root)
+	ui_root = battle_ui.get_node("%UIRoot")
+	hand_container = battle_ui.get_node("%HandContainer")
+	targeting_dot = battle_ui.get_node("%TargetingDot")
+	end_turn_button = battle_ui.get_node("%EndTurnButton")
+	restart_button = battle_ui.get_node("%RestartButton")
 
-	gauge_hp = GAUGE_HP_SCENE.instantiate()
-	gauge_hp.position = Vector2(28, 24)
-	ui_root.add_child(gauge_hp)
-
-	hand_container = HBoxContainer.new()
-	hand_container.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	hand_container.position = Vector2(-365, -200)
-	hand_container.custom_minimum_size = Vector2(730, 184)
-	hand_container.size = Vector2(730, 184)
-	hand_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	hand_container.add_theme_constant_override("separation", CARD_SPACING)
-	ui_root.add_child(hand_container)
-
-	targeting_dot = Panel.new()
-	targeting_dot.visible = false
-	targeting_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	targeting_dot.z_index = 900
 	targeting_dot_style = StyleBoxFlat.new()
 	targeting_dot.add_theme_stylebox_override("panel", targeting_dot_style)
 	_apply_targeting_dot_style(false)
-	ui_root.add_child(targeting_dot)
-
-	end_turn_button = Button.new()
-	end_turn_button.text = "End Turn"
-	end_turn_button.position = Vector2(1080, 630)
-	end_turn_button.custom_minimum_size = Vector2(150, 48)
 	end_turn_button.pressed.connect(_on_end_turn_pressed)
-	ui_root.add_child(end_turn_button)
-
-	restart_button = Button.new()
-	restart_button.text = "Restart Battle"
-	restart_button.position = Vector2(1040, 575)
-	restart_button.custom_minimum_size = Vector2(190, 46)
-	restart_button.visible = false
 	restart_button.pressed.connect(_on_restart_pressed)
-	ui_root.add_child(restart_button)
 
 func _start_battle():
 	draw_pile = _build_starter_deck()
@@ -383,8 +354,9 @@ func _on_restart_pressed():
 func _refresh_ui():
 	end_turn_button.disabled = battle_over or combat_sequence_active
 	_reset_hand_drag_state()
-	if is_instance_valid(gauge_hp) and gauge_hp.has_method("set_player_hp"):
-		gauge_hp.call("set_player_hp", player_hp, PLAYER_STATS.max_hp)
+	if is_instance_valid(battle_ui):
+		battle_ui.call("set_player_hp", player_hp, PLAYER_STATS.max_hp)
+		battle_ui.call("set_deck_count", draw_pile.size())
 
 	for child in hand_container.get_children():
 		child.queue_free()
