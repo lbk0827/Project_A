@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://psmnvvf2shg5"]
+
+[ext_resource type="Texture2D" uid="uid://b7cnmct1mnngi" path="res://scenes/ui/panel/deck_hand.tres" id="1_pk6ml"]
+[ext_resource type="Script" path="res://scripts/ui/deck_hand.gd" id="1_uejj3"]
+
+[node name="deck_hand" type="Control" unique_id=830524674]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 248.0
+offset_bottom = 330.0
+script = ExtResource("1_uejj3")
+
+[node name="VisualRoot" type="Control" parent="." unique_id=2068433370]
+anchors_preset = 0
+offset_right = 248.0
+offset_bottom = 330.0
+
+[node name="TextureRect" type="TextureRect" parent="VisualRoot" unique_id=619269680]
+layout_mode = 0
+offset_right = 248.0
+offset_bottom = 330.0
+texture = ExtResource("1_pk6ml")
+
+[node name="TXT_Count" type="Label" parent="VisualRoot" unique_id=2055894244]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 93.0
+offset_top = 143.0
+offset_right = 133.0
+offset_bottom = 166.0
+text = "99"
+horizontal_alignment = 1
