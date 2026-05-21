@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dqj3jc7q46mk2"]
 
-[ext_resource type="Script" path="res://scripts/core/ingame.gd" id="1_bp03x"]
+[ext_resource type="Script" uid="uid://cmqaaplrls6n6" path="res://scripts/core/ingame.gd" id="1_bp03x"]
 [ext_resource type="PackedScene" uid="uid://q3cxavnfvd0o" path="res://scenes/player/heroine.tscn" id="2_ag07a"]
 [ext_resource type="Texture2D" uid="uid://b6h2yk28pplxh" path="res://assets/stage/Stage_1.png" id="2_wtb6v"]
 [ext_resource type="PackedScene" uid="uid://coarhl0mkytfr" path="res://scenes/monster/monster.tscn" id="4_wtb6v"]

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://03cesb1ldchw"]
 
-[ext_resource type="Script" path="res://scripts/ui/battle_ui.gd" id="1_3n0va"]
+[ext_resource type="Script" uid="uid://3a8ggbjtnxms" path="res://scripts/ui/battle_ui.gd" id="1_3n0va"]
 [ext_resource type="PackedScene" uid="uid://b5gyn0cse1v0o" path="res://scenes/ui/panel/gauge_hp.tscn" id="2_3n0va"]
 [ext_resource type="PackedScene" uid="uid://psmnvvf2shg5" path="res://scenes/ui/panel/deck_hand.tscn" id="3_n8d6p"]
 
@@ -27,10 +27,10 @@ offset_bottom = 160.0
 [node name="DeckHand" parent="UIRoot" unique_id=2055485183 instance=ExtResource("3_n8d6p")]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 20.000004
-offset_top = 494.0
-offset_right = 268.0
-offset_bottom = 824.0
+offset_left = 40.0
+offset_top = 501.00003
+offset_right = 288.0
+offset_bottom = 831.0
 scale = Vector2(0.6, 0.6)
 
 [node name="HandContainer" type="HBoxContainer" parent="UIRoot" unique_id=1446994566]

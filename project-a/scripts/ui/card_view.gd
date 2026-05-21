@@ -26,6 +26,7 @@ var is_dragging := false
 var is_targeting_mode := false
 var drag_offset := Vector2.ZERO
 var drag_start_global_position := Vector2.ZERO
+var drag_start_rotation := 0.0
 var inactive_offset := Vector2.ZERO
 var settings: CardHandSettings = DEFAULT_SETTINGS
 
@@ -68,9 +69,14 @@ func set_targeting_anchor(center_position: Vector2):
 	if not is_dragging or is_targeting_mode:
 		return
 	is_targeting_mode = true
+	z_as_relative = false
+	z_index = 1000
 	if hover_tween != null:
 		hover_tween.kill()
-	visual_root.global_position = center_position - visual_root.size * 0.5
+	top_level = true
+	rotation_degrees = 0.0
+	global_position = center_position - size * 0.5
+	visual_root.position = Vector2.ZERO
 	visual_root.scale = Vector2.ONE
 
 func _on_mouse_entered():
@@ -135,8 +141,10 @@ func _start_drag(screen_position: Vector2):
 	var grabbed_local_position: Vector2 = visual_root.get_global_transform().affine_inverse() * screen_position
 	is_dragging = true
 	is_targeting_mode = false
+	z_as_relative = false
 	z_index = 1000
 	drag_start_global_position = visual_root.global_position
+	drag_start_rotation = rotation_degrees
 	visual_root.scale = settings.drag_scale
 	var grabbed_screen_position: Vector2 = visual_root.get_global_transform() * grabbed_local_position
 	visual_root.global_position += screen_position - grabbed_screen_position
@@ -148,6 +156,9 @@ func _start_drag(screen_position: Vector2):
 func _end_drag():
 	is_dragging = false
 	is_targeting_mode = false
+	top_level = false
+	rotation_degrees = drag_start_rotation
+	z_as_relative = true
 	z_index = normal_z_index
 	visual_root.global_position = drag_start_global_position
 	_reset_visual()

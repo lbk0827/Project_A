@@ -466,8 +466,9 @@ func _get_card_view(index: int) -> Control:
 	return null
 
 func _get_targeting_card_center() -> Vector2:
-	var screen_rect := ui_root.get_global_rect()
-	return screen_rect.get_center() + CARD_HAND_SETTINGS.targeting_card_screen_offset
+	if not is_instance_valid(hand_container):
+		return ui_root.get_global_rect().get_center()
+	return hand_container.get_global_rect().get_center() + CARD_HAND_SETTINGS.targeting_card_screen_offset
 
 func _update_targeting_dot(screen_position: Vector2):
 	if not is_instance_valid(targeting_dot):
