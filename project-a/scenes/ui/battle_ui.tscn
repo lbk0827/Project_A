@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://3a8ggbjtnxms" path="res://scripts/ui/battle_ui.gd" id="1_3n0va"]
 [ext_resource type="PackedScene" uid="uid://b5gyn0cse1v0o" path="res://scenes/ui/panel/gauge_hp.tscn" id="2_3n0va"]
 [ext_resource type="PackedScene" uid="uid://psmnvvf2shg5" path="res://scenes/ui/panel/deck_hand.tscn" id="3_n8d6p"]
+[ext_resource type="PackedScene" uid="uid://bft3xg2qxagt2" path="res://scenes/ui/panel/deck_tomb.tscn" id="4_tomb"]
 
 [node name="BattleUI" type="CanvasLayer" unique_id=1257733836]
 script = ExtResource("1_3n0va")
@@ -28,9 +29,18 @@ offset_bottom = 160.0
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 40.0
-offset_top = 501.00003
+offset_top = 413.0
 offset_right = 288.0
-offset_bottom = 831.0
+offset_bottom = 743.0
+scale = Vector2(0.6, 0.6)
+
+[node name="DeckTomb" parent="UIRoot" unique_id=1769514194 instance=ExtResource("4_tomb")]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1104.0
+offset_top = 413.00003
+offset_right = 1352.0
+offset_bottom = 743.0
 scale = Vector2(0.6, 0.6)
 
 [node name="HandContainer" type="HBoxContainer" parent="UIRoot" unique_id=1446994566]

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://psmnvvf2shg5"]
 
 [ext_resource type="Texture2D" uid="uid://b7cnmct1mnngi" path="res://scenes/ui/panel/deck_hand.tres" id="1_pk6ml"]
-[ext_resource type="Script" path="res://scripts/ui/deck_hand.gd" id="1_uejj3"]
+[ext_resource type="Script" uid="uid://dyspjrgq51504" path="res://scripts/ui/deck_hand.gd" id="1_uejj3"]
 
 [node name="deck_hand" type="Control" unique_id=830524674]
 layout_mode = 3

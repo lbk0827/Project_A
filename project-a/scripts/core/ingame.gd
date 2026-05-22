@@ -357,6 +357,7 @@ func _refresh_ui():
 	if is_instance_valid(battle_ui):
 		battle_ui.call("set_player_hp", player_hp, PLAYER_STATS.max_hp)
 		battle_ui.call("set_deck_count", draw_pile.size())
+		battle_ui.call("set_tomb_count", discard_pile.size())
 
 	for child in hand_container.get_children():
 		child.queue_free()
