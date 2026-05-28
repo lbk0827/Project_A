@@ -101,8 +101,9 @@ script = ExtResource("1_1uvy5")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=301871918]
 sprite_frames = SubResource("SpriteFrames_kn680")
-animation = &"Idle"
-frame_progress = 0.045204043
+animation = &"Attack"
+frame = 3
+frame_progress = 0.12302812
 flip_h = true
 
 [node name="Area2D" type="Area2D" parent="." unique_id=869955497]

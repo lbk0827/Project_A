@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b5gyn0cse1v0o"]
 
-[ext_resource type="Script" path="res://scripts/ui/gauge_hp.gd" id="1_6uy60"]
+[ext_resource type="Script" uid="uid://bel0vfr8ajm3" path="res://scripts/ui/gauge_hp.gd" id="1_6uy60"]
 [ext_resource type="Texture2D" uid="uid://b7kclx72fuqjj" path="res://assets/ui/UISheet.png" id="2_jxcvf"]
 [ext_resource type="Texture2D" uid="uid://b58yvuh26d31a" path="res://scenes/ui/panel/gauge_hp_frame.tres" id="3_rpc3k"]
 

@@ -88,10 +88,10 @@ mouse_filter = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 48)
 layout_mode = 0
-offset_left = 1080.0
-offset_top = 630.0
-offset_right = 1230.0
-offset_bottom = 678.0
+offset_left = 1101.0
+offset_top = 632.0
+offset_right = 1251.0
+offset_bottom = 680.0
 focus_mode = 0
 text = "End Turn"
 
