@@ -109,6 +109,8 @@ func _start_battle():
 	heroine.global_position = player_home_position
 	if heroine.has_method("reset_combat_state"):
 		heroine.call("reset_combat_state", player_hp, PLAYER_STATS.max_hp)
+	if monster.has_method("reset_combat_state"):
+		monster.call("reset_combat_state")
 	_reset_monster_visual()
 	_log("Battle start. Defeat the training enemy.")
 	_start_player_turn(true)
@@ -301,12 +303,82 @@ func _enemy_turn():
 	match intent.intent_type:
 		"attack":
 			_log("Enemy uses %s for %d damage." % [intent.display_name, intent.amount])
-			_damage_player(intent.amount)
+			await _play_monster_attack_sequence(intent.amount)
 		"block":
 			enemy_block += intent.amount
 			_log("Enemy uses %s and gains %d block." % [intent.display_name, intent.amount])
 
 	enemy_intent_index = (enemy_intent_index + 1) % ENEMY_INTENTS.size()
+
+func _play_monster_attack_sequence(amount: int):
+	combat_sequence_active = true
+	_refresh_ui()
+	await _move_monster_to_attack_position()
+	_play_monster_attack()
+	var attack_duration: float = _get_monster_attack_duration()
+	var attack_impact_delay: float = min(_get_monster_motion_value("attack_impact_delay", 0.2), attack_duration)
+	await get_tree().create_timer(attack_impact_delay).timeout
+	_damage_player(amount)
+	await get_tree().create_timer(max(attack_duration - attack_impact_delay, 0.0)).timeout
+	await _return_monster_home()
+	combat_sequence_active = false
+	if not battle_over and monster.has_method("play_idle_animation"):
+		if monster.has_method("restore_home_facing"):
+			monster.call("restore_home_facing")
+		monster.call("play_idle_animation")
+	_refresh_ui()
+
+func _move_monster_to_attack_position():
+	if not is_instance_valid(monster) or not is_instance_valid(heroine):
+		return
+
+	var attack_position := _get_monster_attack_position(heroine.global_position)
+	var direction := attack_position - monster.global_position
+	if monster.has_method("set_facing_direction"):
+		monster.call("set_facing_direction", direction)
+	if monster.has_method("play_run_animation"):
+		monster.call("play_run_animation", direction)
+
+	var tween := create_tween()
+	tween.tween_property(monster, "global_position", attack_position, _get_monster_motion_value("approach_time", 0.35))
+	await tween.finished
+
+func _return_monster_home():
+	if not is_instance_valid(monster):
+		return
+
+	var target_position: Vector2 = monster.home_position if "home_position" in monster else monster.global_position
+	var direction := target_position - monster.global_position
+	if monster.has_method("set_facing_direction"):
+		monster.call("set_facing_direction", direction)
+	if monster.has_method("play_run_animation"):
+		monster.call("play_run_animation", direction)
+
+	var tween := create_tween()
+	tween.tween_property(monster, "global_position", target_position, _get_monster_motion_value("return_time", 0.3))
+	await tween.finished
+	if monster.has_method("restore_home_facing"):
+		monster.call("restore_home_facing")
+
+func _get_monster_attack_position(target_position: Vector2) -> Vector2:
+	if monster.has_method("get_attack_position"):
+		return monster.call("get_attack_position", target_position)
+	return target_position + Vector2(120, 0)
+
+func _get_monster_motion_value(property_name: StringName, fallback: float) -> float:
+	var value: Variant = monster.get(property_name)
+	if value is float or value is int:
+		return float(value)
+	return fallback
+
+func _get_monster_attack_duration() -> float:
+	if monster.has_method("get_attack_animation_duration"):
+		return monster.call("get_attack_animation_duration")
+	return _get_monster_motion_value("attack_impact_delay", 0.2) + _get_monster_motion_value("attack_recover_delay", 0.35)
+
+func _play_monster_attack():
+	if monster.has_method("play_attack_animation"):
+		monster.call("play_attack_animation")
 
 func _play_heroine_attack():
 	if heroine.has_method("play_attack_animation"):
@@ -342,7 +414,7 @@ func _on_end_turn_pressed():
 	if battle_over or combat_sequence_active:
 		return
 	_discard_hand()
-	_enemy_turn()
+	await _enemy_turn()
 	if not battle_over:
 		_start_player_turn()
 	else:
