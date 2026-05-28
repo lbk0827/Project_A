@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bft3xg2qxagt2"]
 
 [ext_resource type="Texture2D" uid="uid://cycw0lhed6yuw" path="res://scenes/ui/panel/deck_tomb.tres" id="1_o2wx4"]
-[ext_resource type="Script" path="res://scripts/ui/deck_tomb.gd" id="2_tomb"]
+[ext_resource type="Script" uid="uid://b8pq56wvnh5lf" path="res://scripts/ui/deck_tomb.gd" id="2_tomb"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mpql5"]
 atlas = ExtResource("1_o2wx4")
@@ -26,9 +26,10 @@ texture = SubResource("AtlasTexture_mpql5")
 [node name="TXT_Count" type="Label" parent="VisualRoot" unique_id=1491078624]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 93.0
-offset_top = 143.0
-offset_right = 133.0
-offset_bottom = 166.0
+offset_left = 84.0
+offset_top = 120.0
+offset_right = 141.0
+offset_bottom = 189.0
+theme_override_font_sizes/font_size = 50
 text = "99"
 horizontal_alignment = 1

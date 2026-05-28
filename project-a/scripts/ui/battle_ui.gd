@@ -4,6 +4,7 @@ extends CanvasLayer
 @onready var gauge_hp: Control = %GaugeHp
 @onready var deck_hand: Control = %DeckHand
 @onready var deck_tomb: Control = %DeckTomb
+@onready var energy_ui: Control = %EnergyUI
 @onready var hand_container: HBoxContainer = %HandContainer
 @onready var targeting_dot: Panel = %TargetingDot
 @onready var end_turn_button: Button = %EndTurnButton
@@ -20,3 +21,11 @@ func set_deck_count(count: int):
 func set_tomb_count(count: int):
 	if deck_tomb.has_method("set_tomb_count"):
 		deck_tomb.call("set_tomb_count", count)
+
+func set_energy(current_energy: int):
+	if energy_ui.has_method("set_energy"):
+		energy_ui.call("set_energy", current_energy)
+
+func set_hand_count(current_count: int, max_count: int):
+	if energy_ui.has_method("set_hand_count"):
+		energy_ui.call("set_hand_count", current_count, max_count)

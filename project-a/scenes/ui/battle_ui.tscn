@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://b5gyn0cse1v0o" path="res://scenes/ui/panel/gauge_hp.tscn" id="2_3n0va"]
 [ext_resource type="PackedScene" uid="uid://psmnvvf2shg5" path="res://scenes/ui/panel/deck_hand.tscn" id="3_n8d6p"]
 [ext_resource type="PackedScene" uid="uid://bft3xg2qxagt2" path="res://scenes/ui/panel/deck_tomb.tscn" id="4_tomb"]
+[ext_resource type="PackedScene" uid="uid://drn821ax3cwok" path="res://scenes/ui/panel/energy_ui.tscn" id="5_energy"]
 
 [node name="BattleUI" type="CanvasLayer" unique_id=1257733836]
 script = ExtResource("1_3n0va")
@@ -46,20 +47,35 @@ scale = Vector2(0.6, 0.6)
 [node name="HandContainer" type="HBoxContainer" parent="UIRoot" unique_id=1446994566]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(730, 184)
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -365.0
-offset_top = -200.0
+offset_top = -184.0
 offset_right = 365.0
-offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 0
 size_flags_horizontal = 4
 theme_override_constants/separation = -8
 alignment = 1
+
+[node name="EnergyUI" parent="UIRoot" unique_id=1349080146 instance=ExtResource("5_energy")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -600.0
+offset_top = -111.0
+offset_right = -456.0
+offset_bottom = -41.0
+grow_horizontal = 2
+grow_vertical = 0
 
 [node name="TargetingDot" type="Panel" parent="UIRoot" unique_id=830027811]
 unique_name_in_owner = true

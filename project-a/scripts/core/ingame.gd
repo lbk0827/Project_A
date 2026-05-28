@@ -1,6 +1,6 @@
 extends Node2D
 
-const MAX_HAND_SIZE := 5
+const MAX_HAND_SIZE := 7
 const CARD_SPACING := -8
 const CARD_FAN_DEGREES := 9.0
 const MONSTER_DROP_RADIUS := 90.0
@@ -356,6 +356,8 @@ func _refresh_ui():
 	_reset_hand_drag_state()
 	if is_instance_valid(battle_ui):
 		battle_ui.call("set_player_hp", player_hp, PLAYER_STATS.max_hp)
+		battle_ui.call("set_energy", energy)
+		battle_ui.call("set_hand_count", hand.size(), MAX_HAND_SIZE)
 		battle_ui.call("set_deck_count", draw_pile.size())
 		battle_ui.call("set_tomb_count", discard_pile.size())
 

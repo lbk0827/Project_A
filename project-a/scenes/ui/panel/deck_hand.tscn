@@ -24,9 +24,10 @@ texture = ExtResource("1_pk6ml")
 [node name="TXT_Count" type="Label" parent="VisualRoot" unique_id=2055894244]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 93.0
-offset_top = 143.0
-offset_right = 133.0
-offset_bottom = 166.0
+offset_left = 87.0
+offset_top = 110.0
+offset_right = 144.0
+offset_bottom = 179.0
+theme_override_font_sizes/font_size = 50
 text = "99"
 horizontal_alignment = 1
