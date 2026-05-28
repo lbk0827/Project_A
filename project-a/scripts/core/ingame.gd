@@ -1,6 +1,9 @@
 extends Node2D
 
 const MAX_HAND_SIZE := 7
+const DRAW_CARDS_PER_TURN := 3
+const DRAW_CARD_DELAY := 0.12
+const DRAW_CARD_ANIMATION_TIME := 0.28
 const CARD_SPACING := -8
 const CARD_FAN_DEGREES := 9.0
 const MONSTER_DROP_RADIUS := 90.0
@@ -53,6 +56,7 @@ var selected_card_index := -1
 var is_card_play_lifted := false
 var is_targeting_active := false
 var is_monster_targeted := false
+var draw_animation_card_index := -1
 
 func _ready():
 	_setup_scene()
@@ -103,6 +107,7 @@ func _start_battle():
 	is_card_play_lifted = false
 	is_targeting_active = false
 	is_monster_targeted = false
+	draw_animation_card_index = -1
 	end_turn_button.visible = true
 	restart_button.visible = false
 	restart_button.text = "Restart Battle"
@@ -116,12 +121,15 @@ func _start_battle():
 	_start_player_turn(true)
 
 func _start_player_turn(is_first_turn := false):
+	combat_sequence_active = true
 	player_block = 0
 	energy = PLAYER_STATS.starting_energy
-	_draw_cards(MAX_HAND_SIZE)
 	if not is_first_turn:
 		turn_number += 1
-	_log("Turn %d. Draw up and spend your energy." % turn_number)
+	_log("Turn %d. Draw %d cards and spend your energy." % [turn_number, DRAW_CARDS_PER_TURN])
+	_refresh_ui()
+	await _draw_cards_with_animation(DRAW_CARDS_PER_TURN)
+	combat_sequence_active = false
 	_refresh_ui()
 
 func _build_starter_deck() -> Array[CardData]:
@@ -137,16 +145,32 @@ func _build_starter_deck() -> Array[CardData]:
 
 func _draw_cards(amount: int):
 	for _i in range(amount):
-		if hand.size() >= MAX_HAND_SIZE:
+		if not _draw_card_to_hand():
 			return
-		if draw_pile.is_empty():
-			if discard_pile.is_empty():
-				return
-			draw_pile = discard_pile.duplicate(true)
-			discard_pile.clear()
-			draw_pile.shuffle()
-			_log("Discard pile reshuffled into draw pile.")
-		hand.append(draw_pile.pop_back())
+
+func _draw_cards_with_animation(amount: int):
+	for _i in range(amount):
+		if not _draw_card_to_hand():
+			return
+		draw_animation_card_index = hand.size() - 1
+		_refresh_ui()
+		await _play_draw_card_from_deck(draw_animation_card_index)
+		draw_animation_card_index = -1
+		_refresh_ui()
+		await get_tree().create_timer(DRAW_CARD_DELAY).timeout
+
+func _draw_card_to_hand() -> bool:
+	if hand.size() >= MAX_HAND_SIZE:
+		return false
+	if draw_pile.is_empty():
+		if discard_pile.is_empty():
+			return false
+		draw_pile = discard_pile.duplicate(true)
+		discard_pile.clear()
+		draw_pile.shuffle()
+		_log("Discard pile reshuffled into draw pile.")
+	hand.append(draw_pile.pop_back())
+	return true
 
 func _discard_hand():
 	for card in hand:
@@ -446,6 +470,41 @@ func _refresh_ui():
 		card_view.connect("card_drag_moved", Callable(self, "_on_card_drag_moved"))
 		card_view.connect("card_dropped", Callable(self, "_on_card_dropped"))
 		hand_container.add_child(card_view)
+		if i == draw_animation_card_index:
+			card_view.modulate.a = 0.0
+
+func _play_draw_card_from_deck(index: int):
+	await get_tree().process_frame
+	if index < 0 or index >= hand.size() or not is_instance_valid(ui_root):
+		return
+
+	var target_card := _get_card_view(index)
+	if target_card == null:
+		return
+
+	var card: CardData = hand[index]
+	var proxy_card: Control = CARD_VIEW_SCENE.instantiate()
+	ui_root.add_child(proxy_card)
+	proxy_card.call("set_card", card, index, false, CARD_HAND_SETTINGS)
+	proxy_card.call("set_hand_order", 700 + index)
+	proxy_card.size = target_card.size
+	proxy_card.z_as_relative = false
+	proxy_card.z_index = 700 + index
+	proxy_card.rotation_degrees = 0.0
+	proxy_card.scale = Vector2(0.8, 0.8)
+	proxy_card.modulate.a = 1.0
+
+	var source_position := _get_deck_screen_position() - proxy_card.size * 0.5
+	var target_position := target_card.global_position
+	proxy_card.global_position = source_position
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(proxy_card, "global_position", target_position, DRAW_CARD_ANIMATION_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(proxy_card, "rotation_degrees", target_card.rotation_degrees, DRAW_CARD_ANIMATION_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(proxy_card, "scale", Vector2.ONE, DRAW_CARD_ANIMATION_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await tween.finished
+	proxy_card.queue_free()
 
 func _log(message: String):
 	battle_log.append(message)
@@ -562,6 +621,15 @@ func _get_monster_screen_position() -> Vector2:
 	if not is_instance_valid(monster):
 		return Vector2.ZERO
 	return get_viewport().get_canvas_transform() * monster.global_position
+
+func _get_deck_screen_position() -> Vector2:
+	if is_instance_valid(battle_ui):
+		var deck_hand := battle_ui.get_node_or_null("%DeckHand")
+		if deck_hand is Control:
+			return deck_hand.get_global_rect().get_center()
+	if is_instance_valid(hand_container):
+		return hand_container.get_global_rect().get_center()
+	return Vector2.ZERO
 
 func _apply_targeting_dot_style(is_targeted: bool):
 	if targeting_dot_style == null:
