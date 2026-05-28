@@ -71,9 +71,9 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_d5ckf")
 }],
-"loop": true,
+"loop": false,
 "name": &"Attack",
-"speed": 5.0
+"speed": 12.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -102,8 +102,8 @@ script = ExtResource("1_1uvy5")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=301871918]
 sprite_frames = SubResource("SpriteFrames_kn680")
 animation = &"Attack"
-frame = 3
-frame_progress = 0.12302812
+frame = 6
+frame_progress = 1.0
 flip_h = true
 
 [node name="Area2D" type="Area2D" parent="." unique_id=869955497]
