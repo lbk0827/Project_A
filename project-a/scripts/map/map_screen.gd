@@ -28,8 +28,16 @@ var node_lookup: Dictionary = {}
 var node_buttons: Dictionary = {}
 var log_label: Label
 var title_label: Label
+var run_status_label: Label
 var enter_battle_button: Button
+var result_panel: PanelContainer
+var result_title_label: Label
+var result_body_label: Label
+var continue_node_button: Button
 var selected_combat_node_id := ""
+
+func _run_state() -> Node:
+	return get_node_or_null("/root/RunState")
 
 func _ready():
 	if size == Vector2.ZERO:
@@ -72,6 +80,14 @@ func _build_static_ui():
 	title_label.size = Vector2(420, 48)
 	add_child(title_label)
 
+	run_status_label = Label.new()
+	_mark_generated(run_status_label)
+	run_status_label.add_theme_font_size_override("font_size", 18)
+	run_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	run_status_label.position = Vector2(730, 42)
+	run_status_label.size = Vector2(270, 34)
+	add_child(run_status_label)
+
 	log_label = Label.new()
 	_mark_generated(log_label)
 	log_label.text = ""
@@ -87,6 +103,7 @@ func _build_static_ui():
 	enter_battle_button.position = Vector2(1030, 610)
 	enter_battle_button.size = Vector2(190, 52)
 	enter_battle_button.visible = false
+	enter_battle_button.z_index = 40
 	enter_battle_button.pressed.connect(_on_enter_battle_pressed)
 	add_child(enter_battle_button)
 
@@ -95,8 +112,53 @@ func _build_static_ui():
 	reset_button.text = "Reset Map"
 	reset_button.position = Vector2(1030, 42)
 	reset_button.size = Vector2(150, 42)
+	reset_button.z_index = 40
 	reset_button.pressed.connect(_on_reset_pressed)
 	add_child(reset_button)
+
+	_build_result_panel()
+
+func _build_result_panel():
+	result_panel = PanelContainer.new()
+	_mark_generated(result_panel)
+	result_panel.visible = false
+	result_panel.position = Vector2(840, 190)
+	result_panel.size = Vector2(340, 250)
+	result_panel.z_index = 50
+	add_child(result_panel)
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.1, 0.12, 0.16, 0.96)
+	style.border_color = Color(0.75, 0.67, 0.42, 1.0)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_right = 6
+	style.corner_radius_bottom_left = 6
+	result_panel.add_theme_stylebox_override("panel", style)
+
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 14)
+	result_panel.add_child(content)
+
+	result_title_label = Label.new()
+	result_title_label.add_theme_font_size_override("font_size", 22)
+	content.add_child(result_title_label)
+
+	result_body_label = Label.new()
+	result_body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	result_body_label.add_theme_font_size_override("font_size", 15)
+	result_body_label.custom_minimum_size = Vector2(300, 118)
+	content.add_child(result_body_label)
+
+	continue_node_button = Button.new()
+	continue_node_button.text = "Continue"
+	continue_node_button.custom_minimum_size = Vector2(160, 42)
+	continue_node_button.pressed.connect(_on_continue_node_pressed)
+	content.add_child(continue_node_button)
 
 func _build_map_nodes():
 	for node_data in map_nodes:
@@ -132,26 +194,38 @@ func _on_node_pressed(node_id: String):
 	_set_current_node(node_id)
 
 func _set_current_node(node_id: String, complete_previous := true):
+	var run_state := _run_state()
+	if run_state == null:
+		return
 	if complete_previous and current_node_id != node_id:
-		RunState.complete_node(current_node_id)
+		run_state.complete_node(current_node_id)
 	current_node_id = node_id
-	RunState.current_node_id = current_node_id
+	run_state.current_node_id = current_node_id
+	_hide_node_result()
 
 	var node_data: Dictionary = node_lookup[current_node_id]
 	var node_type: String = node_data["type"]
-	selected_combat_node_id = current_node_id if node_type in ["battle", "elite", "boss"] else ""
+	var is_unresolved_combat := _is_combat_node(current_node_id) and not _is_node_completed(current_node_id)
+	var is_unresolved_result := _is_result_node(current_node_id) and not _is_node_completed(current_node_id)
+	selected_combat_node_id = current_node_id if is_unresolved_combat else ""
 	enter_battle_button.visible = not selected_combat_node_id.is_empty()
 
-	if node_type == "boss":
+	if run_state.run_cleared:
+		log_label.text = "Run cleared. Reset the map to start another prototype run."
+	elif _is_combat_node(current_node_id) and _is_node_completed(current_node_id):
+		log_label.text = "%s cleared. Choose the next connected node." % node_data["label"]
+	elif is_unresolved_result:
+		log_label.text = "%s node resolved. Confirm the result to continue." % node_data["label"]
+		_show_node_result(node_data)
+	elif node_type == "boss":
 		log_label.text = "Boss node selected. Enter the final battle when ready."
 	elif node_type in ["battle", "elite"]:
 		log_label.text = "%s node selected. Enter battle when ready." % node_data["label"]
 	else:
 		log_label.text = "%s node completed. Choose the next connected node." % node_data["label"]
-		if node_type != "start":
-			RunState.complete_node(current_node_id)
 
 	_update_node_states()
+	_update_run_status()
 	queue_redraw()
 
 func _update_node_states():
@@ -172,24 +246,67 @@ func _on_enter_battle_pressed():
 		return
 	if Engine.is_editor_hint():
 		return
+	var run_state := _run_state()
+	if run_state == null:
+		return
 	var node_data: Dictionary = node_lookup[selected_combat_node_id]
 	log_label.text = "Loading %s..." % node_data["label"]
-	RunState.start_combat_node(selected_combat_node_id)
+	run_state.start_combat_node(selected_combat_node_id)
 	get_tree().change_scene_to_file(INGAME_SCENE_PATH)
 
 func _on_reset_pressed():
-	RunState.reset_run()
+	var run_state := _run_state()
+	if run_state != null:
+		run_state.reset_run()
 	selected_combat_node_id = ""
+	_hide_node_result()
 	_set_current_node("start", false)
 
+func _on_continue_node_pressed():
+	if not _is_result_node(current_node_id):
+		return
+	var run_state := _run_state()
+	if run_state == null:
+		return
+	var node_data: Dictionary = node_lookup[current_node_id]
+	var result_text := _apply_result_node_effect(node_data["type"])
+	run_state.complete_node(current_node_id)
+	_hide_node_result()
+	log_label.text = "%s completed. %s" % [node_data["label"], result_text]
+	_update_node_states()
+	_update_run_status()
+	queue_redraw()
+
 func _is_selectable(node_id: String) -> bool:
+	var run_state := _run_state()
+	if run_state == null:
+		return false
+	if run_state.run_cleared:
+		return false
 	if node_id == current_node_id:
+		return false
+	if _is_result_node(current_node_id) and not _is_node_completed(current_node_id):
+		return false
+	if _is_combat_node(current_node_id) and not _is_node_completed(current_node_id):
 		return false
 	var current_node: Dictionary = node_lookup[current_node_id]
 	return node_id in current_node["next"]
 
+func _is_result_node(node_id: String) -> bool:
+	if not node_lookup.has(node_id):
+		return false
+	var node_data: Dictionary = node_lookup[node_id]
+	return node_data["type"] in ["event", "treasure", "rest"]
+
+func _is_combat_node(node_id: String) -> bool:
+	if not node_lookup.has(node_id):
+		return false
+	var node_data: Dictionary = node_lookup[node_id]
+	return node_data["type"] in ["battle", "elite", "boss"]
+
 func _is_node_completed(node_id: String) -> bool:
-	return RunState.is_node_completed(node_id)
+	var run_state := _run_state()
+	return run_state != null and run_state.is_node_completed(node_id)
 
 func _get_node_center(node_id: String) -> Vector2:
 	var node_data: Dictionary = node_lookup[node_id]
@@ -223,12 +340,63 @@ func _get_icon_region(node_type: String) -> Rect2:
 func _mark_generated(node: Node):
 	node.set_meta("map_screen_generated", true)
 
+func _show_node_result(node_data: Dictionary):
+	if result_panel == null:
+		return
+	var node_type: String = node_data["type"]
+	result_title_label.text = node_data["label"]
+	result_body_label.text = _get_result_text(node_type)
+	result_panel.visible = true
+
+func _hide_node_result():
+	if result_panel != null:
+		result_panel.visible = false
+
+func _update_run_status():
+	if run_status_label == null:
+		return
+	var run_state := _run_state()
+	if run_state == null:
+		run_status_label.text = "HP --/--   Gold --"
+		return
+	run_status_label.text = "HP %d/%d   Gold %d" % [run_state.current_hp, run_state.max_hp, run_state.gold]
+
+func _apply_result_node_effect(node_type: String) -> String:
+	var run_state := _run_state()
+	if run_state == null:
+		return "Choose the next node."
+	match node_type:
+		"event":
+			run_state.gain_gold(10)
+			return "Gained 10 gold. Choose the next node."
+		"treasure":
+			run_state.gain_gold(50)
+			return "Gained 50 gold. Choose the next node."
+		"rest":
+			var before_hp := int(run_state.current_hp)
+			run_state.heal(12)
+			return "Recovered %d HP. Choose the next node." % (int(run_state.current_hp) - before_hp)
+		_:
+			return "Choose the next node."
+
+func _get_result_text(node_type: String) -> String:
+	match node_type:
+		"event":
+			return "An unstable anomaly flickers nearby. Event choices will be connected here later."
+		"treasure":
+			return "A sealed chest waits on the path. Reward selection will be connected here later."
+		"rest":
+			return "The party catches its breath. Healing and upgrade choices will be connected here later."
+		_:
+			return "This node has been resolved."
+
 func _load_run_state():
 	if Engine.is_editor_hint():
 		current_node_id = "start"
 		return
-	if node_lookup.has(RunState.current_node_id):
-		current_node_id = RunState.current_node_id
+	var run_state := _run_state()
+	if run_state != null and node_lookup.has(run_state.current_node_id):
+		current_node_id = run_state.current_node_id
 	else:
 		current_node_id = "start"
 

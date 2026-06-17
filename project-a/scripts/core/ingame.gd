@@ -60,6 +60,9 @@ var is_targeting_active := false
 var is_monster_targeted := false
 var draw_animation_card_index := -1
 
+func _run_state() -> Node:
+	return get_node_or_null("/root/RunState")
+
 func _ready():
 	_setup_scene()
 	_build_ui()
@@ -96,7 +99,10 @@ func _start_battle():
 	discard_pile.clear()
 	hand.clear()
 	battle_log.clear()
+	var run_state := _run_state()
 	player_hp = PLAYER_STATS.max_hp
+	if run_state != null and run_state.current_hp > 0:
+		player_hp = min(run_state.current_hp, PLAYER_STATS.max_hp)
 	player_block = 0
 	enemy_hp = MONSTER_STATS.max_hp
 	enemy_block = 0
@@ -293,7 +299,10 @@ func _damage_enemy(amount: int):
 		end_turn_button.visible = false
 		restart_button.text = "Victory - Map"
 		restart_button.visible = true
-		RunState.complete_active_combat_node()
+		var run_state := _run_state()
+		if run_state != null:
+			run_state.current_hp = player_hp
+			run_state.complete_active_combat_node()
 		if is_instance_valid(monster_sprite):
 			monster_sprite.modulate = Color(0.45, 0.45, 0.45, 0.75)
 		_log("The enemy is defeated.")
@@ -317,6 +326,9 @@ func _damage_player(amount: int):
 
 	if player_hp <= 0:
 		battle_over = true
+		var run_state := _run_state()
+		if run_state != null:
+			run_state.current_hp = player_hp
 		end_turn_button.visible = false
 		restart_button.text = "Defeat - Restart"
 		restart_button.visible = true
