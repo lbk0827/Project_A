@@ -16,6 +16,7 @@ const CARD_SLASH := preload("res://data/cards/Slash.tres")
 const CARD_GUARD := preload("res://data/cards/Guard.tres")
 const CARD_FOCUS := preload("res://data/cards/Focus.tres")
 const CARD_HEAVY_SLASH := preload("res://data/cards/HeavySlash.tres")
+const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
 const INTENT_STAB := preload("res://data/monsters/intents/Stab.tres")
 const INTENT_BRACE := preload("res://data/monsters/intents/Brace.tres")
 const INTENT_HEAVY_BLOW := preload("res://data/monsters/intents/HeavyBlow.tres")
@@ -42,6 +43,7 @@ var energy := 0
 var turn_number := 1
 var enemy_intent_index := 0
 var battle_over := false
+var battle_won := false
 var combat_sequence_active := false
 var player_home_position := Vector2.ZERO
 
@@ -102,6 +104,7 @@ func _start_battle():
 	turn_number = 1
 	enemy_intent_index = 0
 	battle_over = false
+	battle_won = false
 	combat_sequence_active = false
 	selected_card_index = -1
 	is_card_play_lifted = false
@@ -286,9 +289,11 @@ func _damage_enemy(amount: int):
 
 	if enemy_hp <= 0:
 		battle_over = true
+		battle_won = true
 		end_turn_button.visible = false
-		restart_button.text = "Victory - Restart"
+		restart_button.text = "Victory - Map"
 		restart_button.visible = true
+		RunState.complete_active_combat_node()
 		if is_instance_valid(monster_sprite):
 			monster_sprite.modulate = Color(0.45, 0.45, 0.45, 0.75)
 		_log("The enemy is defeated.")
@@ -445,6 +450,9 @@ func _on_end_turn_pressed():
 		_refresh_ui()
 
 func _on_restart_pressed():
+	if battle_won:
+		get_tree().change_scene_to_file(MAP_SCENE_PATH)
+		return
 	_start_battle()
 
 func _refresh_ui():
