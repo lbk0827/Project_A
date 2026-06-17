@@ -1,0 +1,65 @@
+[
+	{
+		"id": "slash",
+		"display_name": "Slash",
+		"cost": 1,
+		"text": "Deal 6 damage.",
+		"card_type": "attack",
+		"requires_target": true,
+		"effects": [
+			{
+				"type": "damage",
+				"amount": 6,
+				"target": "enemy"
+			}
+		]
+	},
+	{
+		"id": "guard",
+		"display_name": "Guard",
+		"cost": 1,
+		"text": "Gain 7 block.",
+		"card_type": "skill",
+		"requires_target": false,
+		"effects": [
+			{
+				"type": "block",
+				"amount": 7,
+				"target": "self"
+			}
+		]
+	},
+	{
+		"id": "focus",
+		"display_name": "Focus",
+		"cost": 0,
+		"text": "Draw 1 card. Gain 1 energy.",
+		"card_type": "skill",
+		"requires_target": false,
+		"effects": [
+			{
+				"type": "draw",
+				"amount": 1
+			},
+			{
+				"type": "energy",
+				"amount": 1
+			}
+		]
+	},
+	{
+		"id": "heavy_slash",
+		"display_name": "Heavy Slash",
+		"cost": 2,
+		"text": "Deal 12 damage.",
+		"card_type": "attack",
+		"requires_target": true,
+		"effects": [
+			{
+				"type": "damage",
+				"amount": 12,
+				"target": "enemy"
+			}
+		]
+	}
+]
