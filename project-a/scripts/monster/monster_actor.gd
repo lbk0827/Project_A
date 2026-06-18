@@ -6,6 +6,7 @@ extends Node2D
 @export var attack_impact_delay := 0.2
 @export var attack_recover_delay := 0.35
 @export var return_time := 0.3
+@export var source_faces_left := false
 
 @export_group("Reaction Motion")
 @export var hit_flash_color := Color(1.0, 0.28, 0.24)
@@ -56,7 +57,7 @@ func reset_combat_state():
 
 func set_facing_direction(direction: Vector2):
 	if direction.x != 0:
-		anim.flip_h = direction.x < 0
+		anim.flip_h = direction.x > 0 if source_faces_left else direction.x < 0
 
 func get_attack_position(target_position: Vector2) -> Vector2:
 	return target_position + attack_offset_from_target
