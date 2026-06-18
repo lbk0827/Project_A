@@ -12,6 +12,13 @@ const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
 const DEFAULT_MONSTER_DATA := preload("res://data/monsters/MireImp.tres")
+const BONE_CRAWLER_DATA := preload("res://data/monsters/BoneCrawler.tres")
+const ABYSSAL_CROWN_GUARDIAN_DATA := preload("res://data/monsters/AbyssalCrownGuardian.tres")
+const MONSTER_DATA_BY_ID := {
+	"mire_imp": DEFAULT_MONSTER_DATA,
+	"bone_crawler": BONE_CRAWLER_DATA,
+	"abyssal_crown_guardian": ABYSSAL_CROWN_GUARDIAN_DATA,
+}
 const CARD_SLASH := preload("res://data/cards/Slash.tres")
 const CARD_GUARD := preload("res://data/cards/Guard.tres")
 const CARD_FOCUS := preload("res://data/cards/Focus.tres")
@@ -60,7 +67,7 @@ func _run_state() -> Node:
 
 func _ready():
 	_setup_scene()
-	_setup_monster(DEFAULT_MONSTER_DATA)
+	_setup_monster(_get_selected_monster_data())
 	_build_ui()
 	_start_battle()
 
@@ -85,6 +92,14 @@ func _setup_monster(data: MonsterData):
 	add_child(monster)
 	monster.global_position = monster_spawn.global_position
 	monster_sprite = monster.get_node_or_null("AnimatedSprite2D") as CanvasItem
+
+func _get_selected_monster_data() -> MonsterData:
+	var run_state := _run_state()
+	if run_state != null:
+		var monster_id: String = run_state.current_monster_id if "current_monster_id" in run_state else ""
+		if not monster_id.is_empty() and MONSTER_DATA_BY_ID.has(monster_id):
+			return MONSTER_DATA_BY_ID[monster_id]
+	return DEFAULT_MONSTER_DATA
 
 func _build_ui():
 	battle_ui = BATTLE_UI_SCENE.instantiate()
