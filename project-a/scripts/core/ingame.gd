@@ -8,6 +8,10 @@ const CARD_SPACING := -8
 const CARD_FAN_DEGREES := 9.0
 const MONSTER_DROP_RADIUS := 90.0
 const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
+const ENEMY_HP_BAR_SCENE := preload("res://scenes/ui/panel/gauge_hp.tscn")
+const ENEMY_HP_BAR_SCALE := Vector2(0.28, 0.28)
+const COMBAT_HP_BAR_VISUAL_CENTER_OFFSET := Vector2(-18, 0)
+const PLAYER_HP_BAR_OFFSET := Vector2(0, -130)
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
@@ -37,6 +41,8 @@ var monster_data: MonsterData
 var enemy_intents: Array[EnemyIntentData] = []
 var monster: Node2D
 var monster_sprite: CanvasItem
+var player_hp_bar: Control
+var enemy_hp_bar: Control
 var player_hp := 0
 var player_block := 0
 var enemy_hp := 0
@@ -73,12 +79,21 @@ func _ready():
 
 func _setup_scene():
 	player_home_position = heroine.global_position
+	_setup_player_hp_bar()
 	if is_instance_valid(camera):
 		camera.enabled = true
 		camera.position_smoothing_enabled = true
 		camera.position_smoothing_speed = 6.0
 	if heroine.has_method("set_movement_enabled"):
 		heroine.call("set_movement_enabled", false)
+
+func _setup_player_hp_bar():
+	if is_instance_valid(player_hp_bar):
+		player_hp_bar.queue_free()
+	player_hp_bar = ENEMY_HP_BAR_SCENE.instantiate()
+	heroine.add_child(player_hp_bar)
+	player_hp_bar.scale = ENEMY_HP_BAR_SCALE
+	player_hp_bar.position = _get_combat_hp_bar_position(player_hp_bar, PLAYER_HP_BAR_OFFSET)
 
 func _setup_monster(data: MonsterData):
 	monster_data = data
@@ -92,6 +107,18 @@ func _setup_monster(data: MonsterData):
 	add_child(monster)
 	monster.global_position = monster_spawn.global_position
 	monster_sprite = monster.get_node_or_null("AnimatedSprite2D") as CanvasItem
+	_setup_enemy_hp_bar()
+
+func _setup_enemy_hp_bar():
+	if is_instance_valid(enemy_hp_bar):
+		enemy_hp_bar.queue_free()
+	enemy_hp_bar = ENEMY_HP_BAR_SCENE.instantiate()
+	monster.add_child(enemy_hp_bar)
+	enemy_hp_bar.scale = ENEMY_HP_BAR_SCALE
+	enemy_hp_bar.position = _get_combat_hp_bar_position(enemy_hp_bar, monster_data.hp_bar_offset)
+
+func _get_combat_hp_bar_position(hp_bar: Control, offset: Vector2) -> Vector2:
+	return offset - hp_bar.size * hp_bar.scale * 0.5 + COMBAT_HP_BAR_VISUAL_CENTER_OFFSET
 
 func _get_selected_monster_data() -> MonsterData:
 	var run_state := _run_state()
@@ -110,6 +137,10 @@ func _build_ui():
 	targeting_dot = battle_ui.get_node("%TargetingDot")
 	end_turn_button = battle_ui.get_node("%EndTurnButton")
 	restart_button = battle_ui.get_node("%RestartButton")
+
+	var legacy_player_hp := battle_ui.get_node_or_null("%GaugeHp")
+	if legacy_player_hp is Control:
+		legacy_player_hp.visible = false
 
 	targeting_dot_style = StyleBoxFlat.new()
 	targeting_dot.add_theme_stylebox_override("panel", targeting_dot_style)
@@ -150,6 +181,8 @@ func _start_battle():
 	if monster.has_method("reset_combat_state"):
 		monster.call("reset_combat_state")
 	_reset_monster_visual()
+	_update_player_hp_bar()
+	_update_enemy_hp_bar()
 	_log("Battle start. Defeat %s." % monster_data.display_name)
 	_start_player_turn(true)
 
@@ -321,6 +354,7 @@ func _damage_enemy(amount: int):
 	if enemy_hp <= 0:
 		battle_over = true
 		battle_won = true
+		_update_enemy_hp_bar()
 		end_turn_button.visible = false
 		restart_button.text = "Victory - Map"
 		restart_button.visible = true
@@ -332,6 +366,7 @@ func _damage_enemy(amount: int):
 		_log("The enemy is defeated.")
 	elif damaged_enemy:
 		_play_monster_hit()
+		_update_enemy_hp_bar()
 
 func _damage_player(amount: int):
 	var incoming: int = amount
@@ -349,6 +384,7 @@ func _damage_player(amount: int):
 
 	if heroine.has_method("update_hp_state"):
 		heroine.call("update_hp_state", player_hp, PLAYER_STATS.max_hp)
+	_update_player_hp_bar()
 
 	if player_hp <= 0:
 		battle_over = true
@@ -497,11 +533,12 @@ func _refresh_ui():
 	end_turn_button.disabled = battle_over or combat_sequence_active
 	_reset_hand_drag_state()
 	if is_instance_valid(battle_ui):
-		battle_ui.call("set_player_hp", player_hp, PLAYER_STATS.max_hp)
 		battle_ui.call("set_energy", energy)
 		battle_ui.call("set_hand_count", hand.size(), MAX_HAND_SIZE)
 		battle_ui.call("set_deck_count", draw_pile.size())
 		battle_ui.call("set_tomb_count", discard_pile.size())
+	_update_player_hp_bar()
+	_update_enemy_hp_bar()
 
 	for child in hand_container.get_children():
 		child.queue_free()
@@ -586,6 +623,14 @@ func _play_monster_death():
 func _reset_monster_visual():
 	if is_instance_valid(monster_sprite):
 		monster_sprite.modulate = Color.WHITE
+
+func _update_player_hp_bar():
+	if is_instance_valid(player_hp_bar) and player_hp_bar.has_method("set_player_hp"):
+		player_hp_bar.call("set_player_hp", player_hp, PLAYER_STATS.max_hp)
+
+func _update_enemy_hp_bar():
+	if is_instance_valid(enemy_hp_bar) and enemy_hp_bar.has_method("set_player_hp"):
+		enemy_hp_bar.call("set_player_hp", enemy_hp, monster_data.stats.max_hp)
 
 func _on_card_drag_started(index: int):
 	selected_card_index = index

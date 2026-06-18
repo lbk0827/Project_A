@@ -14,3 +14,4 @@ display_name = "Bone Crawler"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")
 intents = Array[ExtResource("4_heavy")]([ExtResource("4_heavy"), ExtResource("5_stab"), ExtResource("6_brace")])
+hp_bar_offset = Vector2(0, -148)
