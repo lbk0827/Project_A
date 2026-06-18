@@ -11,30 +11,25 @@ const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
-const MONSTER_STATS := preload("res://data/monsters/MonsterDummyStats.tres")
+const DEFAULT_MONSTER_DATA := preload("res://data/monsters/MireImp.tres")
 const CARD_SLASH := preload("res://data/cards/Slash.tres")
 const CARD_GUARD := preload("res://data/cards/Guard.tres")
 const CARD_FOCUS := preload("res://data/cards/Focus.tres")
 const CARD_HEAVY_SLASH := preload("res://data/cards/HeavySlash.tres")
 const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
-const INTENT_STAB := preload("res://data/monsters/intents/Stab.tres")
-const INTENT_BRACE := preload("res://data/monsters/intents/Brace.tres")
-const INTENT_HEAVY_BLOW := preload("res://data/monsters/intents/HeavyBlow.tres")
-const ENEMY_INTENTS: Array[EnemyIntentData] = [
-	INTENT_STAB,
-	INTENT_BRACE,
-	INTENT_HEAVY_BLOW
-]
 
 @onready var heroine: CharacterBody2D = $Heroine
 @onready var camera: Camera2D = $Camera2D
-@onready var monster: Node2D = $Monster
-@onready var monster_sprite: CanvasItem = $Monster/AnimatedSprite2D
+@onready var monster_spawn: Marker2D = $MonsterSpawn
 
 var draw_pile: Array[CardData] = []
 var discard_pile: Array[CardData] = []
 var hand: Array[CardData] = []
 var battle_log: Array[String] = []
+var monster_data: MonsterData
+var enemy_intents: Array[EnemyIntentData] = []
+var monster: Node2D
+var monster_sprite: CanvasItem
 var player_hp := 0
 var player_block := 0
 var enemy_hp := 0
@@ -65,6 +60,7 @@ func _run_state() -> Node:
 
 func _ready():
 	_setup_scene()
+	_setup_monster(DEFAULT_MONSTER_DATA)
 	_build_ui()
 	_start_battle()
 
@@ -76,6 +72,19 @@ func _setup_scene():
 		camera.position_smoothing_speed = 6.0
 	if heroine.has_method("set_movement_enabled"):
 		heroine.call("set_movement_enabled", false)
+
+func _setup_monster(data: MonsterData):
+	monster_data = data
+	enemy_intents = data.intents.duplicate()
+
+	if is_instance_valid(monster):
+		monster.queue_free()
+
+	monster = data.scene.instantiate()
+	monster.name = "Monster"
+	add_child(monster)
+	monster.global_position = monster_spawn.global_position
+	monster_sprite = monster.get_node_or_null("AnimatedSprite2D") as CanvasItem
 
 func _build_ui():
 	battle_ui = BATTLE_UI_SCENE.instantiate()
@@ -104,7 +113,7 @@ func _start_battle():
 	if run_state != null and run_state.current_hp > 0:
 		player_hp = min(run_state.current_hp, PLAYER_STATS.max_hp)
 	player_block = 0
-	enemy_hp = MONSTER_STATS.max_hp
+	enemy_hp = monster_data.stats.max_hp
 	enemy_block = 0
 	energy = PLAYER_STATS.starting_energy
 	turn_number = 1
@@ -126,7 +135,7 @@ func _start_battle():
 	if monster.has_method("reset_combat_state"):
 		monster.call("reset_combat_state")
 	_reset_monster_visual()
-	_log("Battle start. Defeat the training enemy.")
+	_log("Battle start. Defeat %s." % monster_data.display_name)
 	_start_player_turn(true)
 
 func _start_player_turn(is_first_turn := false):
@@ -288,10 +297,11 @@ func _damage_enemy(amount: int):
 		if blocked > 0:
 			_log("Enemy blocks %d damage." % blocked)
 
+	var damaged_enemy := false
 	if incoming > 0:
 		enemy_hp = max(0, enemy_hp - incoming)
 		_log("Enemy takes %d damage." % incoming)
-		_play_monster_hit()
+		damaged_enemy = true
 
 	if enemy_hp <= 0:
 		battle_over = true
@@ -303,9 +313,10 @@ func _damage_enemy(amount: int):
 		if run_state != null:
 			run_state.current_hp = player_hp
 			run_state.complete_active_combat_node()
-		if is_instance_valid(monster_sprite):
-			monster_sprite.modulate = Color(0.45, 0.45, 0.45, 0.75)
+		_play_monster_death()
 		_log("The enemy is defeated.")
+	elif damaged_enemy:
+		_play_monster_hit()
 
 func _damage_player(amount: int):
 	var incoming: int = amount
@@ -337,10 +348,10 @@ func _damage_player(amount: int):
 		_log("You have fallen.")
 
 func _enemy_turn():
-	if battle_over:
+	if battle_over or enemy_intents.is_empty():
 		return
 
-	var intent: EnemyIntentData = ENEMY_INTENTS[enemy_intent_index]
+	var intent: EnemyIntentData = enemy_intents[enemy_intent_index]
 	match intent.intent_type:
 		"attack":
 			_log("Enemy uses %s for %d damage." % [intent.display_name, intent.amount])
@@ -349,7 +360,7 @@ func _enemy_turn():
 			enemy_block += intent.amount
 			_log("Enemy uses %s and gains %d block." % [intent.display_name, intent.amount])
 
-	enemy_intent_index = (enemy_intent_index + 1) % ENEMY_INTENTS.size()
+	enemy_intent_index = (enemy_intent_index + 1) % enemy_intents.size()
 
 func _play_monster_attack_sequence(amount: int):
 	combat_sequence_active = true
@@ -542,11 +553,20 @@ func _is_monster_drop_position(screen_position: Vector2) -> bool:
 	return screen_position.distance_to(monster_screen_position) <= MONSTER_DROP_RADIUS
 
 func _play_monster_hit():
-	if not is_instance_valid(monster_sprite):
+	if monster.has_method("play_hit_animation"):
+		monster.call("play_hit_animation")
 		return
-	var hit_tween := create_tween()
-	hit_tween.tween_property(monster_sprite, "modulate", Color(1.0, 0.35, 0.35), 0.05)
-	hit_tween.tween_property(monster_sprite, "modulate", Color.WHITE, 0.12)
+	if is_instance_valid(monster_sprite):
+		var hit_tween := create_tween()
+		hit_tween.tween_property(monster_sprite, "modulate", Color(1.0, 0.35, 0.35), 0.05)
+		hit_tween.tween_property(monster_sprite, "modulate", Color.WHITE, 0.12)
+
+func _play_monster_death():
+	if monster.has_method("play_death_animation"):
+		monster.call("play_death_animation")
+		return
+	if is_instance_valid(monster_sprite):
+		monster_sprite.modulate = Color(0.45, 0.45, 0.45, 0.75)
 
 func _reset_monster_visual():
 	if is_instance_valid(monster_sprite):

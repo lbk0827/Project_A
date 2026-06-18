@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://cmireimpdata1"]
+
+[ext_resource type="Script" uid="uid://b5mireimpdata" path="res://scripts/data/monster_data.gd" id="1_data"]
+[ext_resource type="Resource" uid="uid://bfmireimpstats" path="res://data/monsters/MireImpStats.tres" id="2_stats"]
+[ext_resource type="PackedScene" path="res://scenes/monster/monster_mire_imp.tscn" id="3_scene"]
+[ext_resource type="Resource" uid="uid://bn8mki8eb66ab" path="res://data/monsters/intents/Stab.tres" id="4_stab"]
+[ext_resource type="Resource" uid="uid://c50a5vw4ugbbp" path="res://data/monsters/intents/Brace.tres" id="5_brace"]
+[ext_resource type="Resource" uid="uid://drj3c0y5cq2xc" path="res://data/monsters/intents/HeavyBlow.tres" id="6_heavy"]
+
+[resource]
+script = ExtResource("1_data")
+id = "mire_imp"
+display_name = "Mire Imp"
+stats = ExtResource("2_stats")
+scene = ExtResource("3_scene")
+intents = Array[ExtResource("4_stab")]([ExtResource("4_stab"), ExtResource("5_brace"), ExtResource("6_heavy")])
