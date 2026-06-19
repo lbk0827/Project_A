@@ -5,9 +5,9 @@
 [resource]
 script = ExtResource("1_sytyq")
 id = "guard"
-display_name = "Guard"
+display_name = "방어"
 cost = 1
-text = "Gain 7 block."
+text = "방어도 7을 얻습니다."
 card_type = &"skill"
 requires_target = false
 amount = 7

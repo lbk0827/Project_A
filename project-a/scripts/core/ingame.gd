@@ -9,9 +9,12 @@ const CARD_FAN_DEGREES := 9.0
 const MONSTER_DROP_RADIUS := 90.0
 const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
 const ENEMY_HP_BAR_SCENE := preload("res://scenes/ui/panel/gauge_hp.tscn")
+const FLOATING_DAMAGE_TEXT_SCENE := preload("res://scenes/vfx/floating_damage_text.tscn")
 const ENEMY_HP_BAR_SCALE := Vector2(0.28, 0.28)
 const COMBAT_HP_BAR_VISUAL_CENTER_OFFSET := Vector2(-18, 0)
 const PLAYER_HP_BAR_OFFSET := Vector2(0, -130)
+const PLAYER_DAMAGE_TEXT_OFFSET := Vector2(0, -104)
+const ENEMY_DAMAGE_TEXT_OFFSET := Vector2(0, -112)
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
@@ -349,6 +352,7 @@ func _damage_enemy(amount: int):
 	if incoming > 0:
 		enemy_hp = max(0, enemy_hp - incoming)
 		_log("Enemy takes %d damage." % incoming)
+		_spawn_damage_number(monster, incoming, Color.WHITE, ENEMY_DAMAGE_TEXT_OFFSET)
 		damaged_enemy = true
 
 	if enemy_hp <= 0:
@@ -380,6 +384,7 @@ func _damage_player(amount: int):
 	if incoming > 0:
 		player_hp = max(0, player_hp - incoming)
 		_log("You take %d damage." % incoming)
+		_spawn_damage_number(heroine, incoming, Color.WHITE, PLAYER_DAMAGE_TEXT_OFFSET)
 		_play_heroine_hit()
 
 	if heroine.has_method("update_hp_state"):
@@ -631,6 +636,15 @@ func _update_player_hp_bar():
 func _update_enemy_hp_bar():
 	if is_instance_valid(enemy_hp_bar) and enemy_hp_bar.has_method("set_player_hp"):
 		enemy_hp_bar.call("set_player_hp", enemy_hp, monster_data.stats.max_hp)
+
+func _spawn_damage_number(target: Node2D, amount: int, color: Color, offset: Vector2):
+	if not is_instance_valid(target) or amount <= 0:
+		return
+	var damage_text := FLOATING_DAMAGE_TEXT_SCENE.instantiate()
+	add_child(damage_text)
+	damage_text.global_position = target.global_position + offset
+	if damage_text.has_method("show_damage"):
+		damage_text.call("show_damage", amount, color)
 
 func _on_card_drag_started(index: int):
 	selected_card_index = index

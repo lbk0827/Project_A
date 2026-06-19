@@ -5,9 +5,9 @@
 [resource]
 script = ExtResource("1_cufl3")
 id = "heavy_slash"
-display_name = "Heavy Slash"
+display_name = "강타"
 cost = 2
-text = "Deal 12 damage."
+text = "피해 12를 줍니다."
 card_type = &"attack"
 requires_target = true
 amount = 12

@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/vfx/floating_damage_text.gd" id="1_te6us"]
+
+[node name="FloatingDamageText" type="Node2D"]
+z_index = 1000
+script = ExtResource("1_te6us")
+
+[node name="DamageLabel" type="Label" parent="." unique_id=1693401888]
+unique_name_in_owner = true
+offset_left = -80.0
+offset_top = -24.0
+offset_right = 80.0
+offset_bottom = 24.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 34
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1

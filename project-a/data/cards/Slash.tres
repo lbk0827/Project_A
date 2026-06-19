@@ -5,9 +5,9 @@
 [resource]
 script = ExtResource("1_4mcsd")
 id = "slash"
-display_name = "Slash"
+display_name = "베기"
 cost = 1
-text = "Deal 6 damage."
+text = "피해 6을 줍니다."
 card_type = &"attack"
 requires_target = true
 amount = 6

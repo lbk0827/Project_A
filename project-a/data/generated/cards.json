@@ -1,9 +1,9 @@
 [
 	{
 		"id": "slash",
-		"display_name": "Slash",
+		"display_name": "베기",
 		"cost": 1,
-		"text": "Deal 6 damage.",
+		"text": "피해 6을 줍니다.",
 		"card_type": "attack",
 		"requires_target": true,
 		"effects": [
@@ -16,9 +16,9 @@
 	},
 	{
 		"id": "guard",
-		"display_name": "Guard",
+		"display_name": "방어",
 		"cost": 1,
-		"text": "Gain 7 block.",
+		"text": "방어도 7을 얻습니다.",
 		"card_type": "skill",
 		"requires_target": false,
 		"effects": [
@@ -31,9 +31,9 @@
 	},
 	{
 		"id": "focus",
-		"display_name": "Focus",
+		"display_name": "집중",
 		"cost": 0,
-		"text": "Draw 1 card. Gain 1 energy.",
+		"text": "카드 1장을 뽑고 에너지 1을 얻습니다.",
 		"card_type": "skill",
 		"requires_target": false,
 		"effects": [
@@ -49,9 +49,9 @@
 	},
 	{
 		"id": "heavy_slash",
-		"display_name": "Heavy Slash",
+		"display_name": "강타",
 		"cost": 2,
-		"text": "Deal 12 damage.",
+		"text": "피해 12를 줍니다.",
 		"card_type": "attack",
 		"requires_target": true,
 		"effects": [
