@@ -662,9 +662,23 @@ func _on_end_turn_pressed():
 	if battle_over or combat_sequence_active:
 		return
 	_discard_hand()
+	combat_sequence_active = true
+	await _force_enemy_action_from_end_turn()
+	combat_sequence_active = false
 	if not battle_over:
 		await _start_player_turn()
 	else:
+		_refresh_ui()
+
+func _force_enemy_action_from_end_turn():
+	if battle_over or enemy_intents.is_empty():
+		return
+	enemy_action_count_remaining = 0
+	_log("End turn forces the enemy action count to 0.")
+	_refresh_ui()
+	await _enemy_turn()
+	if not battle_over:
+		enemy_action_count_remaining = _get_monster_action_count()
 		_refresh_ui()
 
 func _on_restart_pressed():
