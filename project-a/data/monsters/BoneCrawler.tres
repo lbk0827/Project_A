@@ -14,4 +14,6 @@ display_name = "Bone Crawler"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")
 intents = Array[ExtResource("4_heavy")]([ExtResource("4_heavy"), ExtResource("5_stab"), ExtResource("6_brace")])
+action_count = 2
 hp_bar_offset = Vector2(0, -148)
+intent_overlay_offset = Vector2(-14, -48)

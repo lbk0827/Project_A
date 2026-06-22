@@ -208,6 +208,8 @@ _data = {
 
 [node name="MonsterMireImp" type="Node2D"]
 script = ExtResource("1_actor")
+hp_bar_offset = Vector2(0, -164)
+intent_overlay_offset = Vector2(-14, -48)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_mire_imp")

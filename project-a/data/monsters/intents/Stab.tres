@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="EnemyIntentData" load_steps=2 format=3 uid="uid://bn8mki8eb66ab"]
+[gd_resource type="Resource" script_class="EnemyIntentData" format=3 uid="uid://bn8mki8eb66ab"]
 
-[ext_resource type="Script" path="res://scripts/data/enemy_intent_data.gd" id="1_j6xop"]
+[ext_resource type="Script" uid="uid://deq25iy1a8nfv" path="res://scripts/data/enemy_intent_data.gd" id="1_j6xop"]
 
 [resource]
 script = ExtResource("1_j6xop")
 display_name = "Stab"
-intent_type = &"attack"
 amount = 6
+icon_label = "ATK"
+description = "Deal 6 damage."

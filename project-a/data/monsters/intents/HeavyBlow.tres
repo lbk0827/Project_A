@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="EnemyIntentData" load_steps=2 format=3 uid="uid://drj3c0y5cq2xc"]
+[gd_resource type="Resource" script_class="EnemyIntentData" format=3 uid="uid://drj3c0y5cq2xc"]
 
-[ext_resource type="Script" path="res://scripts/data/enemy_intent_data.gd" id="1_2axyr"]
+[ext_resource type="Script" uid="uid://deq25iy1a8nfv" path="res://scripts/data/enemy_intent_data.gd" id="1_2axyr"]
 
 [resource]
 script = ExtResource("1_2axyr")
 display_name = "Heavy Blow"
-intent_type = &"attack"
 amount = 9
+icon_label = "POW"
+description = "Deal 9 heavy damage."

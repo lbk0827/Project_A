@@ -15,4 +15,6 @@ display_name = "Mire Imp"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")
 intents = Array[ExtResource("1_54vcn")]([ExtResource("4_stab"), ExtResource("5_brace"), ExtResource("6_heavy")])
+action_count = 3
 hp_bar_offset = Vector2(0, -164)
+intent_overlay_offset = Vector2(-14, -48)

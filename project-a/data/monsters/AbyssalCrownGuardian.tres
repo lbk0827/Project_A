@@ -14,4 +14,6 @@ display_name = "Abyssal Crown Guardian"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")
 intents = Array[ExtResource("4_heavy")]([ExtResource("4_heavy"), ExtResource("5_brace"), ExtResource("4_heavy"), ExtResource("6_stab")])
+action_count = 3
 hp_bar_offset = Vector2(0, -176)
+intent_overlay_offset = Vector2(-14, -48)
