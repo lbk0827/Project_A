@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://q3cxavnfvd0o"]
 
 [ext_resource type="Script" uid="uid://qdct5rji41m1" path="res://scripts/player/heroine_controller.gd" id="1_m6hok"]
-[ext_resource type="Texture2D" uid="uid://bjwl4rt2i5755" path="res://assets/characters/spritesheets/HeroineSheet2.png" id="2_m6hok"]
+[ext_resource type="Texture2D" uid="uid://bjwl4rt2i5755" path="res://assets/characters/spritesheets/HeroineSheet.png" id="2_m6hok"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pigwg"]
 atlas = ExtResource("2_m6hok")

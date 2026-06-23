@@ -7,6 +7,3 @@ script = ExtResource("1_stats")
 id = "bone_crawler"
 display_name = "Bone Crawler"
 max_hp = 52
-attack_power = 0
-defense_power = 0
-starting_energy = 0

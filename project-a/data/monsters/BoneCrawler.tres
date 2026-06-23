@@ -1,8 +1,9 @@
 [gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://dyplbsnmywexa"]
 
+[ext_resource type="Script" uid="uid://deq25iy1a8nfv" path="res://scripts/data/enemy_intent_data.gd" id="1_084ix"]
 [ext_resource type="Script" uid="uid://b5mireimpdata" path="res://scripts/data/monster_data.gd" id="1_data"]
-[ext_resource type="Resource" uid="uid://bfbonecrawlstat" path="res://data/monsters/BoneCrawlerStats.tres" id="2_stats"]
-[ext_resource type="PackedScene" path="res://scenes/monster/monster_bone_crawler.tscn" id="3_scene"]
+[ext_resource type="Resource" uid="uid://b0pu0e0ivgmdj" path="res://data/monsters/BoneCrawlerStats.tres" id="2_stats"]
+[ext_resource type="PackedScene" uid="uid://vpfl4bse3xqr" path="res://scenes/monster/monster_bone_crawler.tscn" id="3_scene"]
 [ext_resource type="Resource" uid="uid://drj3c0y5cq2xc" path="res://data/monsters/intents/HeavyBlow.tres" id="4_heavy"]
 [ext_resource type="Resource" uid="uid://bn8mki8eb66ab" path="res://data/monsters/intents/Stab.tres" id="5_stab"]
 [ext_resource type="Resource" uid="uid://c50a5vw4ugbbp" path="res://data/monsters/intents/Brace.tres" id="6_brace"]
@@ -13,7 +14,6 @@ id = "bone_crawler"
 display_name = "Bone Crawler"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")
-intents = Array[ExtResource("4_heavy")]([ExtResource("4_heavy"), ExtResource("5_stab"), ExtResource("6_brace")])
+intents = Array[ExtResource("1_084ix")]([ExtResource("4_heavy"), ExtResource("5_stab"), ExtResource("6_brace")])
 action_count = 2
 hp_bar_offset = Vector2(0, -148)
-intent_overlay_offset = Vector2(-14, -48)
