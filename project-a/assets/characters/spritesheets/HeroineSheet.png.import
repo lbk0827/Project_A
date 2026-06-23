@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dycabw54se4tk"
-path="res://.godot/imported/HeroinSheet.png-130dce40ea76c153c7d74262dfb6c60d.ctex"
+uid="uid://bjwl4rt2i5755"
+path="res://.godot/imported/HeroineSheet.png-09765f222091fe37c184679be2034141.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/spritesheets/HeroinSheet.png"
-dest_files=["res://.godot/imported/HeroinSheet.png-130dce40ea76c153c7d74262dfb6c60d.ctex"]
+source_file="res://assets/characters/spritesheets/HeroineSheet.png"
+dest_files=["res://.godot/imported/HeroineSheet.png-09765f222091fe37c184679be2034141.ctex"]
 
 [params]
 
