@@ -28,6 +28,7 @@ var drag_offset := Vector2.ZERO
 var drag_start_global_position := Vector2.ZERO
 var drag_start_rotation := 0.0
 var inactive_offset := Vector2.ZERO
+var rest_rotation_degrees := 0.0
 var settings: CardHandSettings = DEFAULT_SETTINGS
 
 func _ready():
@@ -56,6 +57,11 @@ func set_hand_order(order: int):
 	normal_z_index = order
 	z_index = normal_z_index
 
+func set_rest_rotation(degrees: float):
+	rest_rotation_degrees = degrees
+	if not is_dragging:
+		rotation_degrees = degrees
+
 func set_inactive_offset(target_position: Vector2):
 	if is_dragging:
 		return
@@ -83,13 +89,13 @@ func _on_mouse_entered():
 	if is_disabled or is_dragging or inactive_offset != Vector2.ZERO:
 		return
 	z_index = 100 + normal_z_index
-	_tween_visual(inactive_offset + settings.hover_offset, settings.hover_scale)
+	_tween_visual(inactive_offset + settings.hover_offset, settings.hover_scale, 0.0)
 
 func _on_mouse_exited():
 	if is_dragging:
 		return
 	z_index = normal_z_index
-	_tween_visual(inactive_offset, Vector2.ONE)
+	_tween_visual(inactive_offset, Vector2.ONE, rest_rotation_degrees)
 
 func _input(event: InputEvent):
 	if not is_dragging:
@@ -119,13 +125,14 @@ func _bind_nodes():
 	body_label = %BodyLabel
 	click_area = %ClickArea
 
-func _tween_visual(target_position: Vector2, target_scale: Vector2):
+func _tween_visual(target_position: Vector2, target_scale: Vector2, target_rotation: float):
 	if hover_tween != null:
 		hover_tween.kill()
 	hover_tween = create_tween()
 	hover_tween.set_parallel(true)
 	hover_tween.tween_property(visual_root, "position", target_position, settings.tween_time)
 	hover_tween.tween_property(visual_root, "scale", target_scale, settings.tween_time)
+	hover_tween.tween_property(self, "rotation_degrees", target_rotation, settings.tween_time)
 
 func _reset_visual():
 	if hover_tween != null:
@@ -138,13 +145,15 @@ func _reset_visual():
 func _start_drag(screen_position: Vector2):
 	if hover_tween != null:
 		hover_tween.kill()
+	# Straighten the card upright before dragging so it scales up unrotated.
+	drag_start_rotation = rest_rotation_degrees
+	rotation_degrees = 0.0
 	var grabbed_local_position: Vector2 = visual_root.get_global_transform().affine_inverse() * screen_position
 	is_dragging = true
 	is_targeting_mode = false
 	z_as_relative = false
 	z_index = 1000
 	drag_start_global_position = visual_root.global_position
-	drag_start_rotation = rotation_degrees
 	visual_root.scale = settings.drag_scale
 	var grabbed_screen_position: Vector2 = visual_root.get_global_transform() * grabbed_local_position
 	visual_root.global_position += screen_position - grabbed_screen_position

@@ -591,7 +591,7 @@ func _layout_hand():
 		var theta := deg_to_rad(angle_deg)
 		var bottom_center := HAND_ARC_PIVOT + Vector2(sin(theta), -cos(theta)) * HAND_ARC_RADIUS
 		card.pivot_offset = CARD_BOTTOM_PIVOT
-		card.rotation_degrees = angle_deg
+		card.call("set_rest_rotation", angle_deg)
 		card.position = bottom_center - CARD_BOTTOM_PIVOT
 
 func _play_draw_card_from_deck(index: int):
