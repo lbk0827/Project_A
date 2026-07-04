@@ -17,6 +17,7 @@ const MONSTER_DROP_RADIUS := 90.0
 const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const DAMAGE_TO_ENEMY_COLOR := Color(1.0, 0.9, 0.4)
+const CRIT_COLOR := Color(1.0, 0.5, 0.1)
 const DAMAGE_TO_PLAYER_COLOR := Color(1.0, 0.35, 0.35)
 const BLOCK_GAIN_COLOR := Color(0.55, 0.8, 1.0)
 const BLOCKED_HIT_COLOR := Color(0.7, 0.75, 0.85)
@@ -30,16 +31,7 @@ const MONSTER_DATA_BY_ID := {
 	"bone_crawler": BONE_CRAWLER_DATA,
 	"abyssal_crown_guardian": ABYSSAL_CROWN_GUARDIAN_DATA,
 }
-const CARD_SLASH := preload("res://data/cards/Slash.tres")
-const CARD_GUARD := preload("res://data/cards/Guard.tres")
-const CARD_FOCUS := preload("res://data/cards/Focus.tres")
-const CARD_HEAVY_SLASH := preload("res://data/cards/HeavySlash.tres")
-const CARD_LIBRARY := {
-	"slash": CARD_SLASH,
-	"guard": CARD_GUARD,
-	"focus": CARD_FOCUS,
-	"heavy_slash": CARD_HEAVY_SLASH,
-}
+const CHARACTER_CARDS_PATH := "res://data/generated/character_cards.json"
 const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
 
 @onready var heroine: CharacterBody2D = $Heroine
@@ -60,6 +52,9 @@ var player_block := 0
 var enemy_hp := 0
 var enemy_block := 0
 var energy := 0
+# Temporary +% bonus to Tsuki's attack-card damage for the current turn.
+var _attack_damage_bonus_percent := 0
+var card_library: Dictionary = {}
 var turn_number := 1
 var enemy_intent_index := 0
 var enemy_action_count_remaining := 0
@@ -85,10 +80,38 @@ func _run_state() -> Node:
 	return get_node_or_null("/root/RunState")
 
 func _ready():
+	card_library = _load_card_library()
 	_setup_scene()
 	_setup_monster(_get_selected_monster_data())
 	_build_ui()
 	_start_battle()
+
+func _load_card_library() -> Dictionary:
+	var library: Dictionary = {}
+	var file := FileAccess.open(CHARACTER_CARDS_PATH, FileAccess.READ)
+	if file == null:
+		return library
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	file.close()
+	if not (parsed is Array):
+		return library
+	for entry in parsed:
+		var card := CardData.new()
+		card.id = String(entry.get("id", ""))
+		card.display_name = String(entry.get("display_name", ""))
+		card.cost = int(entry.get("cost", 0))
+		card.text = String(entry.get("text", ""))
+		card.card_type = StringName(String(entry.get("card_type", "skill")))
+		card.effects = entry.get("effects", [])
+		card.requires_target = _derive_requires_target(card.effects)
+		library[card.id] = card
+	return library
+
+func _derive_requires_target(effects: Array) -> bool:
+	for effect in effects:
+		if String(effect.get("type", "")) == "damage" and String(effect.get("target", "enemy")) == "enemy":
+			return true
+	return false
 
 func _setup_scene():
 	player_home_position = heroine.global_position
@@ -190,6 +213,7 @@ func _start_player_turn(is_first_turn := false):
 	combat_sequence_active = true
 	player_block = 0
 	energy = PLAYER_STATS.starting_energy
+	_attack_damage_bonus_percent = 0
 	if not is_first_turn:
 		turn_number += 1
 	_log("Turn %d. Draw %d cards and spend your energy." % [turn_number, DRAW_CARDS_PER_TURN])
@@ -205,17 +229,13 @@ func _build_deck() -> Array[CardData]:
 	var run_state := _run_state()
 	if run_state != null:
 		for card_id in run_state.get_deck():
-			if CARD_LIBRARY.has(card_id):
-				deck.append(CARD_LIBRARY[card_id])
+			if card_library.has(card_id):
+				deck.append(card_library[card_id])
 	if deck.is_empty():
-		# Fallback when the scene is run directly without a RunState deck.
-		for _i in range(4):
-			deck.append(CARD_SLASH)
-		for _i in range(3):
-			deck.append(CARD_GUARD)
-		for _i in range(2):
-			deck.append(CARD_FOCUS)
-		deck.append(CARD_HEAVY_SLASH)
+		# Fallback when the scene is run directly without a RunState deck:
+		# one of every card in the library.
+		for card_id in card_library:
+			deck.append(card_library[card_id])
 	return deck
 
 func _draw_cards(amount: int):
@@ -292,18 +312,71 @@ func _is_enemy_damage_effect(effect: Dictionary) -> bool:
 
 func _apply_instant_effects(effects: Array):
 	for effect in effects:
-		var amount := int(effect.get("amount", 0))
 		match String(effect.get("type", "")):
-			"block":
-				player_block += amount
-				_show_popup(_get_player_screen_position(), "+%d DEF" % amount, BLOCK_GAIN_COLOR, 28)
+			"block", "shield":
+				var block_amount := _compute_shield(effect)
+				player_block += block_amount
+				_show_popup(_get_player_screen_position(), "+%d DEF" % block_amount, BLOCK_GAIN_COLOR, 28)
 			"draw":
-				_draw_cards(amount)
+				_draw_cards_typed(int(effect.get("amount", 0)), String(effect.get("card_type", "")))
 			"energy":
-				energy += amount
-				_show_popup(_get_player_screen_position(), "+%d EP" % amount, Color(0.5, 0.9, 1.0), 28)
+				var gain := int(effect.get("amount", 0))
+				energy += gain
+				_show_popup(_get_player_screen_position(), "+%d EP" % gain, Color(0.5, 0.9, 1.0), 28)
+			"buff":
+				if String(effect.get("buff", "")) == "attack_damage_up":
+					_attack_damage_bonus_percent += int(effect.get("percent", 0))
+					_show_popup(_get_player_screen_position(), "공격 강화", Color(1.0, 0.8, 0.3), 24)
 			"damage":
-				_damage_player(amount)
+				_damage_player(int(effect.get("amount", 0)))
+			# Advanced types (passive, activate_inspiration, ...) are ignored
+			# until the keyword/inspiration runtime is built.
+
+# Computed damage of a single attack effect: percent of attack power (or flat
+# amount), boosted by this turn's attack buff, then rolled for a critical hit.
+func _compute_card_damage(effect: Dictionary) -> Dictionary:
+	var base: int
+	if effect.has("percent"):
+		base = int(round(PLAYER_STATS.attack_power * float(effect["percent"]) / 100.0))
+	else:
+		base = int(effect.get("amount", 0))
+	if _attack_damage_bonus_percent != 0:
+		base = int(round(base * (1.0 + float(_attack_damage_bonus_percent) / 100.0)))
+	var is_crit := randf() < PLAYER_STATS.crit_rate
+	if is_crit:
+		base = int(round(base * PLAYER_STATS.crit_damage))
+	return {"amount": base, "crit": is_crit}
+
+func _compute_shield(effect: Dictionary) -> int:
+	if effect.has("percent"):
+		return int(round(PLAYER_STATS.defense_power * float(effect["percent"]) / 100.0))
+	return int(effect.get("amount", 0))
+
+func _draw_cards_typed(amount: int, card_type: String):
+	if card_type.is_empty():
+		_draw_cards(amount)
+		return
+	for _i in range(amount):
+		if not _draw_typed_card(card_type):
+			return
+
+func _draw_typed_card(card_type: String) -> bool:
+	if hand.size() >= MAX_HAND_SIZE:
+		return false
+	if draw_pile.is_empty():
+		if discard_pile.is_empty():
+			return false
+		draw_pile = discard_pile.duplicate(true)
+		discard_pile.clear()
+		draw_pile.shuffle()
+	for i in range(draw_pile.size() - 1, -1, -1):
+		if String(draw_pile[i].card_type) == card_type:
+			hand.append(draw_pile[i])
+			draw_pile.remove_at(i)
+			return true
+	# No matching type left; draw the top card instead.
+	hand.append(draw_pile.pop_back())
+	return true
 
 func _play_player_attack_sequence(damage_effects: Array):
 	combat_sequence_active = true
@@ -314,7 +387,8 @@ func _play_player_attack_sequence(damage_effects: Array):
 	for effect in damage_effects:
 		if battle_over:
 			break
-		_damage_enemy(int(effect.get("amount", 0)))
+		var hit := _compute_card_damage(effect)
+		_damage_enemy(int(hit["amount"]), bool(hit["crit"]))
 	await get_tree().create_timer(_get_heroine_motion_value("attack_recover_delay", 0.38)).timeout
 	await _return_player_home()
 	combat_sequence_active = false
@@ -369,7 +443,7 @@ func _get_heroine_motion_value(property_name: StringName, fallback: float) -> fl
 		return float(value)
 	return fallback
 
-func _damage_enemy(amount: int):
+func _damage_enemy(amount: int, is_crit := false):
 	var incoming: int = amount
 	if enemy_block > 0:
 		var blocked: int = min(enemy_block, incoming)
@@ -383,8 +457,11 @@ func _damage_enemy(amount: int):
 	if incoming > 0:
 		enemy_hp = max(0, enemy_hp - incoming)
 		_log("Enemy takes %d damage." % incoming)
-		_show_popup(_get_monster_screen_position(), str(incoming), DAMAGE_TO_ENEMY_COLOR, 38)
-		_shake_camera(4.0)
+		var dmg_text := ("%d!" % incoming) if is_crit else str(incoming)
+		var dmg_color := CRIT_COLOR if is_crit else DAMAGE_TO_ENEMY_COLOR
+		var dmg_size := 52 if is_crit else 38
+		_show_popup(_get_monster_screen_position(), dmg_text, dmg_color, dmg_size)
+		_shake_camera(7.0 if is_crit else 4.0)
 		damaged_enemy = true
 
 	if enemy_hp <= 0:

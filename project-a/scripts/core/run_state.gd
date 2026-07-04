@@ -1,7 +1,7 @@
 extends Node
 
 const START_NODE_ID := "start"
-const STARTING_MAX_HP := 40
+const STARTING_MAX_HP := 90
 
 var current_node_id := START_NODE_ID
 var active_combat_node_id := ""
@@ -36,14 +36,17 @@ func add_card_to_deck(card_id: String):
 		get_deck().append(card_id)
 
 func _default_deck() -> Array[String]:
+	# Tsuki's starting deck (card id repeated per its copy count).
 	var starter: Array[String] = []
-	for _i in range(4):
-		starter.append("slash")
-	for _i in range(3):
-		starter.append("guard")
-	for _i in range(2):
-		starter.append("focus")
-	starter.append("heavy_slash")
+	starter.append("long_sword_slash")
+	starter.append("long_sword_slash")
+	starter.append("high_speed_slash")
+	starter.append("let_flow")
+	starter.append("suppress_ready")
+	starter.append("steal_slash")
+	starter.append("feint_strike")
+	starter.append("freezing_blade")
+	starter.append("iceberg_cleave")
 	return starter
 
 func start_combat_node(node_id: String, monster_id := ""):

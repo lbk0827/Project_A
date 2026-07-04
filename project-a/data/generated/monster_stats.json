@@ -2,7 +2,7 @@
 	{
 		"id": "mire_imp",
 		"display_name": "Mire Imp",
-		"max_hp": 44,
+		"max_hp": 500,
 		"attack_power": 0,
 		"defense_power": 0,
 		"crit_rate": 0.0,
@@ -11,7 +11,7 @@
 	{
 		"id": "bone_crawler",
 		"display_name": "Bone Crawler",
-		"max_hp": 52,
+		"max_hp": 800,
 		"attack_power": 0,
 		"defense_power": 0,
 		"crit_rate": 0.0,
@@ -20,7 +20,7 @@
 	{
 		"id": "abyssal_crown_guardian",
 		"display_name": "Abyssal Crown Guardian",
-		"max_hp": 160,
+		"max_hp": 2500,
 		"attack_power": 0,
 		"defense_power": 0,
 		"crit_rate": 0.0,
@@ -29,7 +29,7 @@
 	{
 		"id": "monster_dummy",
 		"display_name": "Training Goblin",
-		"max_hp": 44,
+		"max_hp": 500,
 		"attack_power": 0,
 		"defense_power": 0,
 		"crit_rate": 0.0,

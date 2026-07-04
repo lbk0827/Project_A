@@ -6,4 +6,4 @@
 script = ExtResource("1_stats")
 id = "bone_crawler"
 display_name = "Bone Crawler"
-max_hp = 52
+max_hp = 800

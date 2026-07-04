@@ -6,4 +6,4 @@
 script = ExtResource("1_stats")
 id = "mire_imp"
 display_name = "Mire Imp"
-max_hp = 44
+max_hp = 500

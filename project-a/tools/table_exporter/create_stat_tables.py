@@ -32,10 +32,10 @@ PLAYER_CRIT_DAMAGE = 1.25
 # Monsters currently deal damage through intents (flat amounts), so attack_power
 # is 0 and crit is disabled (0.0 / 1.0) until a design pass sets enemy crit.
 MONSTER_STATS = [
-	("mire_imp", "Mire Imp", 44, 0, 0, 0.0, 1.0),
-	("bone_crawler", "Bone Crawler", 52, 0, 0, 0.0, 1.0),
-	("abyssal_crown_guardian", "Abyssal Crown Guardian", 160, 0, 0, 0.0, 1.0),
-	("monster_dummy", "Training Goblin", 44, 0, 0, 0.0, 1.0),
+	("mire_imp", "Mire Imp", 500, 0, 0, 0.0, 1.0),
+	("bone_crawler", "Bone Crawler", 800, 0, 0, 0.0, 1.0),
+	("abyssal_crown_guardian", "Abyssal Crown Guardian", 2500, 0, 0, 0.0, 1.0),
+	("monster_dummy", "Training Goblin", 500, 0, 0, 0.0, 1.0),
 ]
 
 
