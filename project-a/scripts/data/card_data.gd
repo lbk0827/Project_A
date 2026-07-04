@@ -12,3 +12,9 @@ class_name CardData
 # {"type": "damage", "amount": 6, "target": "enemy"}. Supported types:
 # damage, block, draw, energy. Replaces per-id branching in combat.
 @export var effects: Array = []
+# Keyword tags (보존/유일/영감 등); definitions live in the card_effects table.
+@export var keywords: Array = []
+# Bonus effects applied when this card's inspiration (영감) is active.
+@export var inspiration: Array = []
+# Runtime: whether this hand copy's inspiration is currently active.
+var inspired := false

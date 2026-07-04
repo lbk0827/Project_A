@@ -54,6 +54,8 @@ var enemy_block := 0
 var energy := 0
 # Temporary +% bonus to Tsuki's attack-card damage for the current turn.
 var _attack_damage_bonus_percent := 0
+# 빙점 칼날(강화) passive: playing an inspired card deals bonus AoE this combat.
+var _inspired_play_passive := false
 var card_library: Dictionary = {}
 var turn_number := 1
 var enemy_intent_index := 0
@@ -103,6 +105,10 @@ func _load_card_library() -> Dictionary:
 		card.text = String(entry.get("text", ""))
 		card.card_type = StringName(String(entry.get("card_type", "skill")))
 		card.effects = entry.get("effects", [])
+		var keywords: Variant = entry.get("keywords", [])
+		card.keywords = keywords if keywords is Array else []
+		var inspiration: Variant = entry.get("inspiration", [])
+		card.inspiration = inspiration if inspiration is Array else []
 		card.requires_target = _derive_requires_target(card.effects)
 		library[card.id] = card
 	return library
@@ -186,6 +192,7 @@ func _start_battle():
 	battle_over = false
 	battle_won = false
 	combat_sequence_active = false
+	_inspired_play_passive = false
 	selected_card_index = -1
 	is_card_play_lifted = false
 	is_targeting_active = false
@@ -264,39 +271,64 @@ func _draw_card_to_hand() -> bool:
 		discard_pile.clear()
 		draw_pile.shuffle()
 		_log("Discard pile reshuffled into draw pile.")
-	hand.append(draw_pile.pop_back())
+	hand.append(_instance_for_hand(draw_pile.pop_back()))
 	return true
 
+# Hand cards are per-copy instances so runtime state (inspiration) is not
+# shared between duplicate cards of the same id.
+func _instance_for_hand(card: CardData) -> CardData:
+	var copy: CardData = card.duplicate()
+	copy.inspired = false
+	return copy
+
 func _discard_hand():
+	# Cards with 보존(Retain) stay in hand at end of turn.
+	var kept: Array[CardData] = []
 	for card in hand:
-		discard_pile.append(card)
-	hand.clear()
+		if "보존" in card.keywords:
+			card.inspired = false
+			kept.append(card)
+		else:
+			discard_pile.append(card)
+	hand = kept
 
 func _play_card(index: int):
 	if battle_over or combat_sequence_active or index < 0 or index >= hand.size():
 		return
 
 	var card: CardData = hand[index]
-	var cost: int = card.cost
+	var cost: int = _effective_cost(card)
 	if cost > energy:
 		_log("Not enough energy for %s." % card.display_name)
 		_refresh_ui()
 		return
 
+	var is_inspired: bool = card.inspired
 	energy -= cost
 	hand.remove_at(index)
-	discard_pile.append(card)
+	# Enhance cards install a lasting effect instead of going to discard.
+	if String(card.card_type) != "enhance":
+		discard_pile.append(card)
 	_log("%s 사용." % card.display_name)
 
 	# Split into enemy-attack effects (played through the attack animation) and
-	# instant effects (block/draw/energy applied right away).
+	# instant effects (block/draw/energy applied right away). Passives install
+	# a lasting effect rather than resolving now.
 	var attack_effects: Array = []
 	var instant_effects: Array = []
 	for effect in card.effects:
-		if _is_enemy_damage_effect(effect):
-			attack_effects.append(effect)
+		if String(effect.get("type", "")) == "passive":
+			_install_passive(effect)
+		elif _is_enemy_damage_effect(effect):
+			attack_effects.append(effect.duplicate())
 		else:
 			instant_effects.append(effect)
+
+	if is_inspired:
+		_apply_inspiration(card, attack_effects)
+	# 빙점 칼날 passive: playing an inspired card deals bonus AoE.
+	if is_inspired and _inspired_play_passive:
+		attack_effects.append({ "type": "damage", "percent": 120, "target": "all_enemies" })
 
 	_apply_instant_effects(instant_effects)
 	if not attack_effects.is_empty():
@@ -306,6 +338,50 @@ func _play_card(index: int):
 	if not battle_over:
 		await _tick_enemy_action_count()
 	_refresh_ui()
+
+# Card cost after inspiration cost reductions (e.g. 훔쳐베기 영감: 비용 1 감소).
+func _effective_cost(card: CardData) -> int:
+	var cost: int = card.cost
+	if card.inspired:
+		for entry in card.inspiration:
+			if String(entry.get("type", "")) == "cost_delta":
+				cost += int(entry.get("amount", 0))
+	return max(cost, 0)
+
+# Applies this card's inspiration modifiers to its outgoing attack effects
+# (extra hits, per-hit damage change). Cost changes are handled separately.
+func _apply_inspiration(card: CardData, attack_effects: Array):
+	for entry in card.inspiration:
+		match String(entry.get("type", "")):
+			"add_hit":
+				var base_hits: Array = attack_effects.duplicate()
+				for _i in range(int(entry.get("amount", 0))):
+					for effect in base_hits:
+						attack_effects.append(effect.duplicate())
+			"damage_delta":
+				var delta: float = float(entry.get("percent", 0))
+				for effect in attack_effects:
+					if effect.has("percent"):
+						effect["percent"] = int(round(float(effect["percent"]) * (1.0 + delta / 100.0)))
+
+func _install_passive(effect: Dictionary):
+	if String(effect.get("trigger", "")) == "on_play_inspired_card":
+		_inspired_play_passive = true
+		_show_popup(_get_player_screen_position(), "강화 발동", Color(0.6, 0.85, 1.0), 24)
+
+func _activate_random_inspiration(count: int):
+	var candidates: Array = []
+	for card in hand:
+		if not card.inspired and not card.inspiration.is_empty():
+			candidates.append(card)
+	candidates.shuffle()
+	var activated := 0
+	for i in range(min(count, candidates.size())):
+		candidates[i].inspired = true
+		activated += 1
+	if activated > 0:
+		_show_popup(_get_player_screen_position(), "영감 발동", Color(1.0, 0.85, 0.4), 24)
+		_refresh_ui()
 
 func _is_enemy_damage_effect(effect: Dictionary) -> bool:
 	return String(effect.get("type", "")) == "damage" and String(effect.get("target", "enemy")) != "self"
@@ -329,8 +405,8 @@ func _apply_instant_effects(effects: Array):
 					_show_popup(_get_player_screen_position(), "공격 강화", Color(1.0, 0.8, 0.3), 24)
 			"damage":
 				_damage_player(int(effect.get("amount", 0)))
-			# Advanced types (passive, activate_inspiration, ...) are ignored
-			# until the keyword/inspiration runtime is built.
+			"activate_inspiration":
+				_activate_random_inspiration(int(effect.get("amount", 1)))
 
 # Computed damage of a single attack effect: percent of attack power (or flat
 # amount), boosted by this turn's attack buff, then rolled for a critical hit.
@@ -371,11 +447,11 @@ func _draw_typed_card(card_type: String) -> bool:
 		draw_pile.shuffle()
 	for i in range(draw_pile.size() - 1, -1, -1):
 		if String(draw_pile[i].card_type) == card_type:
-			hand.append(draw_pile[i])
+			hand.append(_instance_for_hand(draw_pile[i]))
 			draw_pile.remove_at(i)
 			return true
 	# No matching type left; draw the top card instead.
-	hand.append(draw_pile.pop_back())
+	hand.append(_instance_for_hand(draw_pile.pop_back()))
 	return true
 
 func _play_player_attack_sequence(damage_effects: Array):
