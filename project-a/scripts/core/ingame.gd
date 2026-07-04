@@ -8,14 +8,11 @@ const CARD_SPACING := -8
 const CARD_FAN_DEGREES := 9.0
 const MONSTER_DROP_RADIUS := 90.0
 const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
-const ENEMY_HP_BAR_SCENE := preload("res://scenes/ui/panel/gauge_hp.tscn")
-const FLOATING_DAMAGE_TEXT_SCENE := preload("res://scenes/vfx/floating_damage_text.tscn")
-const ENEMY_HP_BAR_SCALE := Vector2(0.28, 0.28)
-const COMBAT_HP_BAR_VISUAL_CENTER_OFFSET := Vector2(-18, 0)
-const PLAYER_HP_BAR_OFFSET := Vector2(0, -130)
-const PLAYER_DAMAGE_TEXT_OFFSET := Vector2(0, -104)
-const ENEMY_DAMAGE_TEXT_OFFSET := Vector2(0, -112)
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
+const DAMAGE_TO_ENEMY_COLOR := Color(1.0, 0.9, 0.4)
+const DAMAGE_TO_PLAYER_COLOR := Color(1.0, 0.35, 0.35)
+const BLOCK_GAIN_COLOR := Color(0.55, 0.8, 1.0)
+const BLOCKED_HIT_COLOR := Color(0.7, 0.75, 0.85)
 const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
 const DEFAULT_MONSTER_DATA := preload("res://data/monsters/MireImp.tres")
@@ -44,8 +41,7 @@ var monster_data: MonsterData
 var enemy_intents: Array[EnemyIntentData] = []
 var monster: Node2D
 var monster_sprite: CanvasItem
-var player_hp_bar: Control
-var enemy_hp_bar: Control
+var enemy_status_bar: EnemyStatusBar
 var player_hp := 0
 var player_block := 0
 var enemy_hp := 0
@@ -53,7 +49,6 @@ var enemy_block := 0
 var energy := 0
 var turn_number := 1
 var enemy_intent_index := 0
-var enemy_action_count_remaining := 0
 var battle_over := false
 var battle_won := false
 var combat_sequence_active := false
@@ -66,15 +61,6 @@ var end_turn_button: Button
 var restart_button: Button
 var targeting_dot: Panel
 var targeting_dot_style: StyleBoxFlat
-var enemy_intent_overlay: Control
-var enemy_action_count_label: Label
-var enemy_intent_icon_button: Button
-var enemy_intent_detail_panel: PanelContainer
-var enemy_intent_detail_title: Label
-var enemy_intent_detail_body: Label
-var enemy_intent_tuning_label: Label
-var is_enemy_intent_overlay_dragging := false
-var enemy_intent_overlay_drag_offset := Vector2.ZERO
 var selected_card_index := -1
 var is_card_play_lifted := false
 var is_targeting_active := false
@@ -92,21 +78,12 @@ func _ready():
 
 func _setup_scene():
 	player_home_position = heroine.global_position
-	_setup_player_hp_bar()
 	if is_instance_valid(camera):
 		camera.enabled = true
 		camera.position_smoothing_enabled = true
 		camera.position_smoothing_speed = 6.0
 	if heroine.has_method("set_movement_enabled"):
 		heroine.call("set_movement_enabled", false)
-
-func _setup_player_hp_bar():
-	if is_instance_valid(player_hp_bar):
-		player_hp_bar.queue_free()
-	player_hp_bar = ENEMY_HP_BAR_SCENE.instantiate()
-	heroine.add_child(player_hp_bar)
-	player_hp_bar.scale = ENEMY_HP_BAR_SCALE
-	player_hp_bar.position = _get_combat_hp_bar_position(player_hp_bar, PLAYER_HP_BAR_OFFSET)
 
 func _setup_monster(data: MonsterData):
 	monster_data = data
@@ -120,25 +97,14 @@ func _setup_monster(data: MonsterData):
 	add_child(monster)
 	monster.global_position = monster_spawn.global_position
 	monster_sprite = monster.get_node_or_null("AnimatedSprite2D") as CanvasItem
-	_setup_enemy_hp_bar()
+	_setup_enemy_status_bar()
 
-func _setup_enemy_hp_bar():
-	if is_instance_valid(enemy_hp_bar):
-		enemy_hp_bar.queue_free()
-	enemy_hp_bar = ENEMY_HP_BAR_SCENE.instantiate()
-	monster.add_child(enemy_hp_bar)
-	enemy_hp_bar.scale = ENEMY_HP_BAR_SCALE
-	enemy_hp_bar.position = _get_combat_hp_bar_position(enemy_hp_bar, _get_monster_hp_bar_offset())
-
-func _get_monster_hp_bar_offset() -> Vector2:
-	if is_instance_valid(monster):
-		var value: Variant = monster.get("hp_bar_offset")
-		if value is Vector2:
-			return value
-	return monster_data.hp_bar_offset
-
-func _get_combat_hp_bar_position(hp_bar: Control, offset: Vector2) -> Vector2:
-	return offset - hp_bar.size * hp_bar.scale * 0.5 + COMBAT_HP_BAR_VISUAL_CENTER_OFFSET
+func _setup_enemy_status_bar():
+	if is_instance_valid(enemy_status_bar):
+		enemy_status_bar.queue_free()
+	enemy_status_bar = EnemyStatusBar.new()
+	monster.add_child(enemy_status_bar)
+	enemy_status_bar.position = monster_data.hp_bar_offset - EnemyStatusBar.PANEL_SIZE * 0.5
 
 func _get_selected_monster_data() -> MonsterData:
 	var run_state := _run_state()
@@ -158,110 +124,11 @@ func _build_ui():
 	end_turn_button = battle_ui.get_node("%EndTurnButton")
 	restart_button = battle_ui.get_node("%RestartButton")
 
-	var legacy_player_hp := battle_ui.get_node_or_null("%GaugeHp")
-	if legacy_player_hp is Control:
-		legacy_player_hp.visible = false
-
 	targeting_dot_style = StyleBoxFlat.new()
 	targeting_dot.add_theme_stylebox_override("panel", targeting_dot_style)
 	_apply_targeting_dot_style(false)
-	_build_enemy_intent_overlay()
 	end_turn_button.pressed.connect(_on_end_turn_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
-
-func _build_enemy_intent_overlay():
-	enemy_intent_overlay = Control.new()
-	enemy_intent_overlay.name = "EnemyIntentOverlay"
-	enemy_intent_overlay.custom_minimum_size = Vector2(52, 92)
-	enemy_intent_overlay.size = Vector2(52, 92)
-	enemy_intent_overlay.mouse_filter = Control.MOUSE_FILTER_STOP if _is_intent_overlay_tuning_enabled() else Control.MOUSE_FILTER_IGNORE
-	enemy_intent_overlay.z_index = 80
-	enemy_intent_overlay.gui_input.connect(_on_enemy_intent_overlay_gui_input)
-	ui_root.add_child(enemy_intent_overlay)
-
-	var count_panel := PanelContainer.new()
-	count_panel.position = Vector2(3, 0)
-	count_panel.size = Vector2(46, 46)
-	count_panel.mouse_filter = Control.MOUSE_FILTER_PASS
-	count_panel.add_theme_stylebox_override("panel", _make_intent_panel_style(Color(0.92, 0.12, 0.36, 0.96), Color(1.0, 0.55, 0.75, 1.0), 8))
-	enemy_intent_overlay.add_child(count_panel)
-
-	enemy_action_count_label = Label.new()
-	enemy_action_count_label.add_theme_font_size_override("font_size", 24)
-	enemy_action_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	enemy_action_count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	enemy_action_count_label.custom_minimum_size = Vector2(46, 46)
-	count_panel.add_child(enemy_action_count_label)
-
-	enemy_intent_icon_button = Button.new()
-	enemy_intent_icon_button.position = Vector2(2, 48)
-	enemy_intent_icon_button.size = Vector2(48, 42)
-	enemy_intent_icon_button.focus_mode = Control.FOCUS_NONE
-	enemy_intent_icon_button.add_theme_font_size_override("font_size", 13)
-	enemy_intent_icon_button.add_theme_stylebox_override("normal", _make_intent_panel_style(Color(0.1, 0.16, 0.2, 0.92), Color(0.72, 0.86, 0.9, 0.85), 4))
-	enemy_intent_icon_button.add_theme_stylebox_override("hover", _make_intent_panel_style(Color(0.16, 0.25, 0.31, 0.96), Color(1.0, 0.92, 0.64, 1.0), 4))
-	enemy_intent_icon_button.gui_input.connect(_on_enemy_intent_overlay_gui_input)
-	enemy_intent_icon_button.pressed.connect(_toggle_enemy_intent_detail)
-	enemy_intent_overlay.add_child(enemy_intent_icon_button)
-
-	enemy_intent_detail_panel = PanelContainer.new()
-	enemy_intent_detail_panel.visible = false
-	enemy_intent_detail_panel.position = Vector2(56, 42)
-	enemy_intent_detail_panel.size = Vector2(230, 96)
-	enemy_intent_detail_panel.z_index = 100
-	enemy_intent_detail_panel.add_theme_stylebox_override("panel", _make_intent_panel_style(Color(0.07, 0.09, 0.12, 0.96), Color(0.9, 0.8, 0.56, 0.95), 6))
-	enemy_intent_overlay.add_child(enemy_intent_detail_panel)
-
-	var detail_box := VBoxContainer.new()
-	detail_box.add_theme_constant_override("separation", 6)
-	enemy_intent_detail_panel.add_child(detail_box)
-
-	enemy_intent_detail_title = Label.new()
-	enemy_intent_detail_title.add_theme_font_size_override("font_size", 17)
-	detail_box.add_child(enemy_intent_detail_title)
-
-	enemy_intent_detail_body = Label.new()
-	enemy_intent_detail_body.add_theme_font_size_override("font_size", 13)
-	enemy_intent_detail_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	enemy_intent_detail_body.custom_minimum_size = Vector2(206, 50)
-	detail_box.add_child(enemy_intent_detail_body)
-
-	enemy_intent_tuning_label = Label.new()
-	enemy_intent_tuning_label.visible = _is_intent_overlay_tuning_enabled()
-	enemy_intent_tuning_label.position = Vector2(-26, 93)
-	enemy_intent_tuning_label.size = Vector2(112, 18)
-	enemy_intent_tuning_label.add_theme_font_size_override("font_size", 10)
-	enemy_intent_tuning_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	enemy_intent_tuning_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.62, 0.95))
-	enemy_intent_tuning_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
-	enemy_intent_tuning_label.add_theme_constant_override("shadow_offset_x", 1)
-	enemy_intent_tuning_label.add_theme_constant_override("shadow_offset_y", 1)
-	enemy_intent_overlay.add_child(enemy_intent_tuning_label)
-
-func _process(_delta: float):
-	if is_enemy_intent_overlay_dragging:
-		_update_enemy_intent_overlay_offset_from_mouse()
-
-func _input(event: InputEvent):
-	if not is_enemy_intent_overlay_dragging:
-		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and not event.pressed:
-		_finish_enemy_intent_overlay_drag()
-		get_viewport().set_input_as_handled()
-
-func _make_intent_panel_style(bg_color: Color, border_color: Color, corner_radius: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg_color
-	style.border_color = border_color
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = corner_radius
-	style.corner_radius_top_right = corner_radius
-	style.corner_radius_bottom_right = corner_radius
-	style.corner_radius_bottom_left = corner_radius
-	return style
 
 func _start_battle():
 	draw_pile = _build_starter_deck()
@@ -279,7 +146,6 @@ func _start_battle():
 	energy = PLAYER_STATS.starting_energy
 	turn_number = 1
 	enemy_intent_index = 0
-	enemy_action_count_remaining = _get_monster_action_count()
 	battle_over = false
 	battle_won = false
 	combat_sequence_active = false
@@ -297,8 +163,11 @@ func _start_battle():
 	if monster.has_method("reset_combat_state"):
 		monster.call("reset_combat_state")
 	_reset_monster_visual()
+	if is_instance_valid(enemy_status_bar):
+		enemy_status_bar.visible = true
 	_update_player_hp_bar()
 	_update_enemy_hp_bar()
+	_update_enemy_intent()
 	_log("Battle start. Defeat %s." % monster_data.display_name)
 	_start_player_turn(true)
 
@@ -309,6 +178,8 @@ func _start_player_turn(is_first_turn := false):
 	if not is_first_turn:
 		turn_number += 1
 	_log("Turn %d. Draw %d cards and spend your energy." % [turn_number, DRAW_CARDS_PER_TURN])
+	if is_instance_valid(battle_ui):
+		battle_ui.call("show_turn_banner", "PLAYER TURN", Color(0.65, 0.9, 1.0))
 	_refresh_ui()
 	await _draw_cards_with_animation(DRAW_CARDS_PER_TURN)
 	combat_sequence_active = false
@@ -377,46 +248,21 @@ func _play_card(index: int):
 	match card.id:
 		"slash":
 			_log("Slash deals 6 damage.")
-			await _play_player_attack_sequence(card)
+			_play_player_attack_sequence(card)
 		"heavy_slash":
 			_log("Heavy Slash crashes in for 12 damage.")
-			await _play_player_attack_sequence(card)
+			_play_player_attack_sequence(card)
 		"guard":
 			player_block += card.amount
 			_log("Guard grants %d block." % card.amount)
+			_show_popup(_get_player_screen_position(), "+%d DEF" % card.amount, BLOCK_GAIN_COLOR, 28)
 		"focus":
 			energy += card.amount
 			_draw_cards(1)
 			_log("Focus draws 1 card and refunds 1 energy.")
-
-	if not battle_over:
-		combat_sequence_active = true
-		await _advance_enemy_action_count_after_card()
-		combat_sequence_active = false
+			_show_popup(_get_player_screen_position(), "+%d EP" % card.amount, Color(0.5, 0.9, 1.0), 28)
 
 	_refresh_ui()
-
-func _advance_enemy_action_count_after_card():
-	if battle_over or enemy_intents.is_empty():
-		return
-
-	enemy_action_count_remaining = max(enemy_action_count_remaining - 1, 0)
-	if enemy_action_count_remaining > 0:
-		_log("Enemy action count: %d." % enemy_action_count_remaining)
-		_refresh_ui()
-		return
-
-	_log("Enemy action count reached 0.")
-	_refresh_ui()
-	await _enemy_turn()
-	if not battle_over:
-		enemy_action_count_remaining = _get_monster_action_count()
-		_refresh_ui()
-
-func _get_monster_action_count() -> int:
-	if monster_data == null:
-		return 1
-	return max(monster_data.action_count, 1)
 
 func _play_player_attack_sequence(card: CardData):
 	combat_sequence_active = true
@@ -487,18 +333,25 @@ func _damage_enemy(amount: int):
 		incoming -= blocked
 		if blocked > 0:
 			_log("Enemy blocks %d damage." % blocked)
+			_show_popup(_get_monster_screen_position() + Vector2(0, -40), "BLOCK %d" % blocked, BLOCKED_HIT_COLOR, 24)
 
 	var damaged_enemy := false
 	if incoming > 0:
 		enemy_hp = max(0, enemy_hp - incoming)
 		_log("Enemy takes %d damage." % incoming)
-		_spawn_damage_number(monster, incoming, Color.WHITE, ENEMY_DAMAGE_TEXT_OFFSET)
+		_show_popup(_get_monster_screen_position(), str(incoming), DAMAGE_TO_ENEMY_COLOR, 38)
+		_shake_camera(4.0)
 		damaged_enemy = true
 
 	if enemy_hp <= 0:
 		battle_over = true
 		battle_won = true
 		_update_enemy_hp_bar()
+		if is_instance_valid(enemy_status_bar):
+			enemy_status_bar.clear_intent()
+		if is_instance_valid(battle_ui):
+			battle_ui.call("hide_monster_info")
+			battle_ui.call("show_turn_banner", "VICTORY", Color(1.0, 0.85, 0.4))
 		end_turn_button.visible = false
 		restart_button.text = "Victory - Map"
 		restart_button.visible = true
@@ -520,11 +373,13 @@ func _damage_player(amount: int):
 		incoming -= blocked
 		if blocked > 0:
 			_log("You block %d damage." % blocked)
+			_show_popup(_get_player_screen_position() + Vector2(0, -40), "BLOCK %d" % blocked, BLOCKED_HIT_COLOR, 24)
 
 	if incoming > 0:
 		player_hp = max(0, player_hp - incoming)
 		_log("You take %d damage." % incoming)
-		_spawn_damage_number(heroine, incoming, Color.WHITE, PLAYER_DAMAGE_TEXT_OFFSET)
+		_show_popup(_get_player_screen_position(), str(incoming), DAMAGE_TO_PLAYER_COLOR, 38)
+		_shake_camera(7.0)
 		_play_heroine_hit()
 
 	if heroine.has_method("update_hp_state"):
@@ -539,6 +394,9 @@ func _damage_player(amount: int):
 		end_turn_button.visible = false
 		restart_button.text = "Defeat - Restart"
 		restart_button.visible = true
+		if is_instance_valid(battle_ui):
+			battle_ui.call("hide_monster_info")
+			battle_ui.call("show_turn_banner", "DEFEAT", Color(1.0, 0.35, 0.35))
 		if heroine.has_method("play_dead_animation"):
 			heroine.call("play_dead_animation")
 		_log("You have fallen.")
@@ -555,8 +413,11 @@ func _enemy_turn():
 		"block":
 			enemy_block += intent.amount
 			_log("Enemy uses %s and gains %d block." % [intent.display_name, intent.amount])
+			_show_popup(_get_monster_screen_position(), "+%d DEF" % intent.amount, BLOCK_GAIN_COLOR, 28)
+			_update_enemy_hp_bar()
 
 	enemy_intent_index = (enemy_intent_index + 1) % enemy_intents.size()
+	_update_enemy_intent()
 
 func _play_monster_attack_sequence(amount: int):
 	combat_sequence_active = true
@@ -661,24 +522,17 @@ func _on_card_dropped(index: int, screen_position: Vector2):
 func _on_end_turn_pressed():
 	if battle_over or combat_sequence_active:
 		return
-	_discard_hand()
 	combat_sequence_active = true
-	await _force_enemy_action_from_end_turn()
-	combat_sequence_active = false
-	if not battle_over:
-		await _start_player_turn()
-	else:
-		_refresh_ui()
-
-func _force_enemy_action_from_end_turn():
-	if battle_over or enemy_intents.is_empty():
-		return
-	enemy_action_count_remaining = 0
-	_log("End turn forces the enemy action count to 0.")
+	_discard_hand()
+	if is_instance_valid(battle_ui):
+		battle_ui.call("show_turn_banner", "ENEMY TURN", Color(1.0, 0.55, 0.5))
 	_refresh_ui()
+	await get_tree().create_timer(0.6).timeout
+	combat_sequence_active = false
 	await _enemy_turn()
 	if not battle_over:
-		enemy_action_count_remaining = _get_monster_action_count()
+		_start_player_turn()
+	else:
 		_refresh_ui()
 
 func _on_restart_pressed():
@@ -691,13 +545,13 @@ func _refresh_ui():
 	end_turn_button.disabled = battle_over or combat_sequence_active
 	_reset_hand_drag_state()
 	if is_instance_valid(battle_ui):
-		battle_ui.call("set_energy", energy)
+		battle_ui.call("set_energy", energy, PLAYER_STATS.starting_energy)
 		battle_ui.call("set_hand_count", hand.size(), MAX_HAND_SIZE)
 		battle_ui.call("set_deck_count", draw_pile.size())
 		battle_ui.call("set_tomb_count", discard_pile.size())
+		battle_ui.call("set_turn", turn_number)
 	_update_player_hp_bar()
 	_update_enemy_hp_bar()
-	_update_enemy_intent_overlay()
 
 	for child in hand_container.get_children():
 		child.queue_free()
@@ -750,134 +604,22 @@ func _play_draw_card_from_deck(index: int):
 
 func _log(message: String):
 	battle_log.append(message)
+	if is_instance_valid(battle_ui) and battle_ui.has_method("show_toast"):
+		battle_ui.call("show_toast", message)
 
-func _update_enemy_intent_overlay():
-	if not is_instance_valid(enemy_intent_overlay):
-		return
-	var has_intent := not battle_over and is_instance_valid(monster) and not enemy_intents.is_empty()
-	enemy_intent_overlay.visible = has_intent
-	if not has_intent:
-		if is_instance_valid(enemy_intent_detail_panel):
-			enemy_intent_detail_panel.visible = false
-		return
-
-	var intent: EnemyIntentData = enemy_intents[enemy_intent_index]
-	enemy_intent_overlay.position = _get_enemy_intent_overlay_position()
-	enemy_action_count_label.text = str(enemy_action_count_remaining)
-	enemy_intent_icon_button.text = _get_intent_icon_label(intent)
-	enemy_intent_detail_title.text = "%s (%s)" % [intent.display_name, _get_intent_type_label(intent)]
-	enemy_intent_detail_body.text = _get_intent_description(intent)
-	_update_enemy_intent_tuning_label()
-
-func _get_enemy_intent_overlay_position() -> Vector2:
-	var hp_bar_screen_rect := _get_enemy_hp_bar_screen_rect()
-	if hp_bar_screen_rect.size != Vector2.ZERO:
-		return hp_bar_screen_rect.position + _get_monster_intent_overlay_offset()
-	return _get_monster_screen_position() + Vector2(-48, -210)
-
-func _get_monster_intent_overlay_offset() -> Vector2:
-	if is_instance_valid(monster):
-		var value: Variant = monster.get("intent_overlay_offset")
-		if value is Vector2:
-			return value
-	return monster_data.intent_overlay_offset
-
-func _get_enemy_hp_bar_screen_rect() -> Rect2:
-	if not is_instance_valid(enemy_hp_bar):
-		return Rect2()
-
-	var hp_progress := enemy_hp_bar.get_node_or_null("%HpBar")
-	var hp_control := hp_progress as Control
-	if hp_control == null:
-		hp_control = enemy_hp_bar
-
-	var canvas_transform := get_viewport().get_canvas_transform()
-	var rect := hp_control.get_global_rect()
-	return Rect2(canvas_transform * rect.position, rect.size * canvas_transform.get_scale())
-
-func _on_enemy_intent_overlay_gui_input(event: InputEvent):
-	if not _is_intent_overlay_tuning_enabled():
-		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
-		if event.pressed:
-			is_enemy_intent_overlay_dragging = true
-			enemy_intent_overlay_drag_offset = get_viewport().get_mouse_position() - enemy_intent_overlay.position
-			get_viewport().set_input_as_handled()
-		else:
-			_finish_enemy_intent_overlay_drag()
-			get_viewport().set_input_as_handled()
-
-func _update_enemy_intent_overlay_offset_from_mouse():
-	if monster_data == null:
-		return
-	var hp_bar_screen_rect := _get_enemy_hp_bar_screen_rect()
-	if hp_bar_screen_rect.size == Vector2.ZERO:
-		return
-	var target_position := get_viewport().get_mouse_position() - enemy_intent_overlay_drag_offset
-	var tuned_offset := target_position - hp_bar_screen_rect.position
-	monster_data.intent_overlay_offset = tuned_offset
-	if is_instance_valid(monster):
-		monster.set("intent_overlay_offset", tuned_offset)
-	enemy_intent_overlay.position = target_position
-	_update_enemy_intent_tuning_label()
-
-func _finish_enemy_intent_overlay_drag():
-	if not is_enemy_intent_overlay_dragging:
-		return
-	is_enemy_intent_overlay_dragging = false
-	_log("Intent overlay offset: %s" % _format_vector2(monster_data.intent_overlay_offset))
-	_update_enemy_intent_tuning_label()
-
-func _update_enemy_intent_tuning_label():
-	if not is_instance_valid(enemy_intent_tuning_label):
-		return
-	enemy_intent_tuning_label.visible = _is_intent_overlay_tuning_enabled()
-	if monster_data == null:
-		enemy_intent_tuning_label.text = ""
-	else:
-		enemy_intent_tuning_label.text = _format_vector2(_get_monster_intent_overlay_offset())
-
-func _is_intent_overlay_tuning_enabled() -> bool:
-	return OS.is_debug_build()
-
-func _format_vector2(value: Vector2) -> String:
-	return "(%.0f, %.0f)" % [value.x, value.y]
-
-func _toggle_enemy_intent_detail():
-	if not is_instance_valid(enemy_intent_detail_panel):
-		return
-	enemy_intent_detail_panel.visible = not enemy_intent_detail_panel.visible
-
-func _get_intent_icon_label(intent: EnemyIntentData) -> String:
-	if not intent.icon_label.is_empty():
-		return intent.icon_label
-	match intent.intent_type:
-		"attack":
-			return "ATK"
-		"block":
-			return "SHD"
-		_:
-			return "ACT"
-
-func _get_intent_type_label(intent: EnemyIntentData) -> String:
-	match intent.intent_type:
-		"attack":
-			return "Attack"
-		"block":
-			return "Shield"
-		_:
-			return "Action"
-
-func _get_intent_description(intent: EnemyIntentData) -> String:
-	if not intent.description.is_empty():
-		return intent.description
-	match intent.intent_type:
-		"attack":
-			return "Deal %d damage when the action count reaches 0." % intent.amount
-		"block":
-			return "Gain %d shield when the action count reaches 0." % intent.amount
-		_:
-			return "Triggers when the action count reaches 0."
+func _unhandled_input(event: InputEvent):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if not is_instance_valid(battle_ui):
+			return
+		if battle_over or is_targeting_active:
+			return
+		if _is_monster_drop_position(event.position):
+			if battle_ui.call("is_monster_info_visible"):
+				battle_ui.call("hide_monster_info")
+			else:
+				battle_ui.call("show_monster_info", monster_data.display_name, enemy_intents, enemy_intent_index)
+		elif battle_ui.call("is_monster_info_visible"):
+			battle_ui.call("hide_monster_info")
 
 func _get_card_rotation(index: int, count: int) -> float:
 	if count <= 1:
@@ -912,21 +654,41 @@ func _reset_monster_visual():
 		monster_sprite.modulate = Color.WHITE
 
 func _update_player_hp_bar():
-	if is_instance_valid(player_hp_bar) and player_hp_bar.has_method("set_player_hp"):
-		player_hp_bar.call("set_player_hp", player_hp, PLAYER_STATS.max_hp)
+	if is_instance_valid(battle_ui):
+		battle_ui.call("set_player_status", player_hp, PLAYER_STATS.max_hp, player_block)
 
 func _update_enemy_hp_bar():
-	if is_instance_valid(enemy_hp_bar) and enemy_hp_bar.has_method("set_player_hp"):
-		enemy_hp_bar.call("set_player_hp", enemy_hp, monster_data.stats.max_hp)
+	if is_instance_valid(enemy_status_bar):
+		enemy_status_bar.set_status(enemy_hp, monster_data.stats.max_hp, enemy_block)
 
-func _spawn_damage_number(target: Node2D, amount: int, color: Color, offset: Vector2):
-	if not is_instance_valid(target) or amount <= 0:
+func _update_enemy_intent():
+	if not is_instance_valid(enemy_status_bar) or enemy_intents.is_empty():
 		return
-	var damage_text := FLOATING_DAMAGE_TEXT_SCENE.instantiate()
-	add_child(damage_text)
-	damage_text.global_position = target.global_position + offset
-	if damage_text.has_method("show_damage"):
-		damage_text.call("show_damage", amount, color)
+	if battle_over:
+		enemy_status_bar.clear_intent()
+		return
+	var intent: EnemyIntentData = enemy_intents[enemy_intent_index]
+	enemy_status_bar.set_intent(intent.intent_type, intent.amount, intent.display_name)
+
+func _show_popup(screen_position: Vector2, text: String, color: Color, font_size: int = 34):
+	if is_instance_valid(battle_ui):
+		battle_ui.call("show_damage_popup", screen_position, text, color, font_size)
+
+func _get_player_screen_position() -> Vector2:
+	if not is_instance_valid(heroine):
+		return Vector2.ZERO
+	return get_viewport().get_canvas_transform() * (heroine.global_position + Vector2(0, -90))
+
+func _shake_camera(intensity: float):
+	if not is_instance_valid(camera):
+		return
+	var tween := create_tween()
+	var steps := 4
+	for i in range(steps):
+		var strength := intensity * float(steps - i) / float(steps)
+		var shake_offset := Vector2(randf_range(-strength, strength), randf_range(-strength, strength))
+		tween.tween_property(camera, "offset", shake_offset, 0.04)
+	tween.tween_property(camera, "offset", Vector2.ZERO, 0.05)
 
 func _on_card_drag_started(index: int):
 	selected_card_index = index

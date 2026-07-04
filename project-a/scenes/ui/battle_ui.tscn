@@ -1,10 +1,8 @@
 [gd_scene format=3 uid="uid://03cesb1ldchw"]
 
 [ext_resource type="Script" uid="uid://3a8ggbjtnxms" path="res://scripts/ui/battle_ui.gd" id="1_3n0va"]
-[ext_resource type="PackedScene" uid="uid://b5gyn0cse1v0o" path="res://scenes/ui/panel/gauge_hp.tscn" id="2_3n0va"]
 [ext_resource type="PackedScene" uid="uid://psmnvvf2shg5" path="res://scenes/ui/panel/deck_hand.tscn" id="3_n8d6p"]
 [ext_resource type="PackedScene" uid="uid://bft3xg2qxagt2" path="res://scenes/ui/panel/deck_tomb.tscn" id="4_tomb"]
-[ext_resource type="PackedScene" uid="uid://drn821ax3cwok" path="res://scenes/ui/panel/energy_ui.tscn" id="5_energy"]
 
 [node name="BattleUI" type="CanvasLayer" unique_id=1257733836]
 script = ExtResource("1_3n0va")
@@ -18,31 +16,23 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="GaugeHp" parent="UIRoot" unique_id=751932984 instance=ExtResource("2_3n0va")]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 28.0
-offset_top = 24.0
-offset_right = 433.20547
-offset_bottom = 160.0
-
 [node name="DeckHand" parent="UIRoot" unique_id=2055485183 instance=ExtResource("3_n8d6p")]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 40.0
-offset_top = 413.0
-offset_right = 288.0
-offset_bottom = 743.0
-scale = Vector2(0.6, 0.6)
+offset_left = 14.0
+offset_top = 376.0
+offset_right = 262.0
+offset_bottom = 706.0
+scale = Vector2(0.5, 0.5)
 
 [node name="DeckTomb" parent="UIRoot" unique_id=1769514194 instance=ExtResource("4_tomb")]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 1104.0
-offset_top = 413.00003
-offset_right = 1352.0
-offset_bottom = 743.0
-scale = Vector2(0.6, 0.6)
+offset_left = 1138.0
+offset_top = 376.0
+offset_right = 1386.0
+offset_bottom = 706.0
+scale = Vector2(0.5, 0.5)
 
 [node name="HandContainer" type="HBoxContainer" parent="UIRoot" unique_id=1446994566]
 unique_name_in_owner = true
@@ -62,21 +52,6 @@ size_flags_horizontal = 4
 theme_override_constants/separation = -8
 alignment = 1
 
-[node name="EnergyUI" parent="UIRoot" unique_id=1349080146 instance=ExtResource("5_energy")]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -600.0
-offset_top = -111.0
-offset_right = -456.0
-offset_bottom = -41.0
-grow_horizontal = 2
-grow_vertical = 0
-
 [node name="TargetingDot" type="Panel" parent="UIRoot" unique_id=830027811]
 unique_name_in_owner = true
 visible = false
@@ -86,23 +61,23 @@ mouse_filter = 2
 
 [node name="EndTurnButton" type="Button" parent="UIRoot" unique_id=871907251]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 48)
+custom_minimum_size = Vector2(104, 104)
 layout_mode = 0
-offset_left = 1101.0
-offset_top = 632.0
-offset_right = 1251.0
-offset_bottom = 680.0
+offset_left = 1132.0
+offset_top = 566.0
+offset_right = 1236.0
+offset_bottom = 670.0
 focus_mode = 0
-text = "End Turn"
+text = "END"
 
 [node name="RestartButton" type="Button" parent="UIRoot" unique_id=1376823299]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(190, 46)
+custom_minimum_size = Vector2(176, 50)
 layout_mode = 0
-offset_left = 1040.0
-offset_top = 575.0
-offset_right = 1230.0
-offset_bottom = 621.0
+offset_left = 1096.0
+offset_top = 496.0
+offset_right = 1272.0
+offset_bottom = 546.0
 focus_mode = 0
 text = "Restart Battle"
