@@ -6,6 +6,7 @@ signal card_dropped(index: int, screen_position: Vector2)
 
 const ATTACK_FRAME := preload("res://scenes/ui/cards/CardFrame_Attack.tres")
 const SKILL_FRAME := preload("res://scenes/ui/cards/CardFrame_Skill.tres")
+const ENHANCE_FRAME := preload("res://scenes/ui/cards/CardFrame_Enhance.tres")
 const DEFAULT_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const NORMAL_MODULATE := Color.WHITE
 const DISABLED_MODULATE := Color(0.58, 0.58, 0.58, 0.92)
@@ -49,7 +50,13 @@ func set_card(card: CardData, index: int, disabled: bool, hand_settings: CardHan
 	card_index = index
 	is_disabled = disabled
 	settings = hand_settings
-	frame.texture = ATTACK_FRAME if card.card_type == &"attack" else SKILL_FRAME
+	match card.card_type:
+		&"attack":
+			frame.texture = ATTACK_FRAME
+		&"enhance":
+			frame.texture = ENHANCE_FRAME
+		_:
+			frame.texture = SKILL_FRAME
 	var art_path := "res://assets/card/cardart/%s.png" % card.id
 	art.texture = load(art_path) if ResourceLoader.exists(art_path) else null
 	cost_label.text = str(card.cost)
