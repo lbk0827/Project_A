@@ -41,6 +41,7 @@ var banner_label: Label
 var banner_tween: Tween
 var monster_info_panel: Panel
 var monster_info_name_label: Label
+var monster_info_count_label: Label
 var monster_info_rows: VBoxContainer
 
 func _ready():
@@ -427,9 +428,10 @@ func show_toast(message: String):
 	tween.tween_property(toast, "modulate:a", 0.0, 0.45)
 	tween.tween_callback(toast.queue_free)
 
-func show_monster_info(monster_name: String, intents: Array, next_intent_index: int):
+func show_monster_info(monster_name: String, intents: Array, next_intent_index: int, action_count_remaining: int = 0):
 	_ensure_monster_info_panel()
 	monster_info_name_label.text = monster_name
+	monster_info_count_label.text = "다음 행동까지 %d회 후 발동" % max(action_count_remaining, 0)
 	for child in monster_info_rows.get_children():
 		child.free()
 	for i in range(intents.size()):
@@ -477,6 +479,14 @@ func _ensure_monster_info_panel():
 	subtitle.add_theme_color_override("font_color", Color(0.6, 0.75, 0.95, 0.85))
 	subtitle.position = Vector2(16, 38)
 	monster_info_panel.add_child(subtitle)
+
+	monster_info_count_label = Label.new()
+	monster_info_count_label.add_theme_font_size_override("font_size", 12)
+	monster_info_count_label.add_theme_color_override("font_color", Color(1.0, 0.62, 0.78))
+	monster_info_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	monster_info_count_label.position = Vector2(150, 37)
+	monster_info_count_label.size = Vector2(166, 18)
+	monster_info_panel.add_child(monster_info_count_label)
 
 	var close_button := Button.new()
 	close_button.text = "X"

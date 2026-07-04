@@ -49,6 +49,7 @@ var enemy_block := 0
 var energy := 0
 var turn_number := 1
 var enemy_intent_index := 0
+var enemy_action_count_remaining := 0
 var battle_over := false
 var battle_won := false
 var combat_sequence_active := false
@@ -165,6 +166,7 @@ func _start_battle():
 	_reset_monster_visual()
 	if is_instance_valid(enemy_status_bar):
 		enemy_status_bar.visible = true
+	enemy_action_count_remaining = _get_monster_action_count()
 	_update_player_hp_bar()
 	_update_enemy_hp_bar()
 	_update_enemy_intent()
@@ -248,10 +250,10 @@ func _play_card(index: int):
 	match card.id:
 		"slash":
 			_log("Slash deals 6 damage.")
-			_play_player_attack_sequence(card)
+			await _play_player_attack_sequence(card)
 		"heavy_slash":
 			_log("Heavy Slash crashes in for 12 damage.")
-			_play_player_attack_sequence(card)
+			await _play_player_attack_sequence(card)
 		"guard":
 			player_block += card.amount
 			_log("Guard grants %d block." % card.amount)
@@ -262,6 +264,9 @@ func _play_card(index: int):
 			_log("Focus draws 1 card and refunds 1 energy.")
 			_show_popup(_get_player_screen_position(), "+%d EP" % card.amount, Color(0.5, 0.9, 1.0), 28)
 
+	_refresh_ui()
+	if not battle_over:
+		await _tick_enemy_action_count()
 	_refresh_ui()
 
 func _play_player_attack_sequence(card: CardData):
@@ -510,11 +515,11 @@ func _on_card_dropped(index: int, screen_position: Vector2):
 	_reset_hand_drag_state()
 	if not card.requires_target:
 		if was_play_lifted:
-			_play_card(index)
+			await _play_card(index)
 		return
 
 	if was_monster_targeted:
-		_play_card(index)
+		await _play_card(index)
 	else:
 		_log("%s needs a target." % card.display_name)
 		_refresh_ui()
@@ -524,12 +529,9 @@ func _on_end_turn_pressed():
 		return
 	combat_sequence_active = true
 	_discard_hand()
-	if is_instance_valid(battle_ui):
-		battle_ui.call("show_turn_banner", "ENEMY TURN", Color(1.0, 0.55, 0.5))
 	_refresh_ui()
-	await get_tree().create_timer(0.6).timeout
 	combat_sequence_active = false
-	await _enemy_turn()
+	await _tick_enemy_action_count()
 	if not battle_over:
 		_start_player_turn()
 	else:
@@ -617,7 +619,7 @@ func _unhandled_input(event: InputEvent):
 			if battle_ui.call("is_monster_info_visible"):
 				battle_ui.call("hide_monster_info")
 			else:
-				battle_ui.call("show_monster_info", monster_data.display_name, enemy_intents, enemy_intent_index)
+				battle_ui.call("show_monster_info", monster_data.display_name, enemy_intents, enemy_intent_index, enemy_action_count_remaining)
 		elif battle_ui.call("is_monster_info_visible"):
 			battle_ui.call("hide_monster_info")
 
@@ -668,7 +670,35 @@ func _update_enemy_intent():
 		enemy_status_bar.clear_intent()
 		return
 	var intent: EnemyIntentData = enemy_intents[enemy_intent_index]
-	enemy_status_bar.set_intent(intent.intent_type, intent.amount, intent.display_name)
+	enemy_status_bar.set_intent(intent.intent_type, intent.amount, enemy_action_count_remaining, intent.display_name)
+
+func _get_monster_action_count() -> int:
+	if monster_data == null:
+		return 1
+	return max(monster_data.action_count, 1)
+
+# Ticks the enemy action counter down by one "time unit" (a card played or the
+# turn ended). When it reaches zero the monster performs its telegraphed intent,
+# then the counter resets and the intent advances to the next in the cycle.
+func _tick_enemy_action_count():
+	if battle_over or enemy_intents.is_empty():
+		return
+	enemy_action_count_remaining = max(enemy_action_count_remaining - 1, 0)
+	if enemy_action_count_remaining > 0:
+		_update_enemy_intent()
+		_refresh_ui()
+		return
+	combat_sequence_active = true
+	if is_instance_valid(battle_ui):
+		battle_ui.call("show_turn_banner", "ENEMY TURN", Color(1.0, 0.55, 0.5))
+	_refresh_ui()
+	await get_tree().create_timer(0.5).timeout
+	combat_sequence_active = false
+	await _enemy_turn()
+	if not battle_over:
+		enemy_action_count_remaining = _get_monster_action_count()
+	_update_enemy_intent()
+	_refresh_ui()
 
 func _show_popup(screen_position: Vector2, text: String, color: Color, font_size: int = 34):
 	if is_instance_valid(battle_ui):
