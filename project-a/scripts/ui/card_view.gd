@@ -30,6 +30,7 @@ var drag_start_global_position := Vector2.ZERO
 var drag_start_rotation := 0.0
 var inactive_offset := Vector2.ZERO
 var rest_rotation_degrees := 0.0
+var inspired_glow: Panel
 var settings: CardHandSettings = DEFAULT_SETTINGS
 
 func _ready():
@@ -88,6 +89,32 @@ func _fit_label(label: Label, max_size: int, min_size: int):
 func set_hand_order(order: int):
 	normal_z_index = order
 	z_index = normal_z_index
+
+# Highlights a card whose inspiration (영감) is active and shows the reduced cost.
+func set_inspired_state(is_inspired: bool, effective_cost: int):
+	_bind_nodes()
+	cost_label.text = str(effective_cost)
+	if is_inspired:
+		cost_label.add_theme_color_override("font_color", Color(0.55, 1.0, 0.85))
+	else:
+		cost_label.remove_theme_color_override("font_color")
+	_ensure_inspired_glow()
+	inspired_glow.visible = is_inspired
+
+func _ensure_inspired_glow():
+	if inspired_glow != null:
+		return
+	inspired_glow = Panel.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(1.0, 0.85, 0.4, 0.0)
+	style.border_color = Color(1.0, 0.85, 0.4, 0.95)
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(6)
+	inspired_glow.add_theme_stylebox_override("panel", style)
+	inspired_glow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	inspired_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inspired_glow.visible = false
+	visual_root.add_child(inspired_glow)
 
 func set_rest_rotation(degrees: float):
 	rest_rotation_degrees = degrees

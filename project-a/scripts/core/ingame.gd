@@ -752,8 +752,10 @@ func _refresh_ui():
 
 	for i in range(hand.size()):
 		var card: CardData = hand[i]
+		var effective_cost: int = _effective_cost(card)
 		var card_view: Control = CARD_VIEW_SCENE.instantiate()
-		card_view.call("set_card", card, i, battle_over or combat_sequence_active or card.cost > energy, CARD_HAND_SETTINGS)
+		card_view.call("set_card", card, i, battle_over or combat_sequence_active or effective_cost > energy, CARD_HAND_SETTINGS)
+		card_view.call("set_inspired_state", card.inspired, effective_cost)
 		card_view.call("set_hand_order", i)
 		card_view.connect("card_drag_started", Callable(self, "_on_card_drag_started"))
 		card_view.connect("card_drag_moved", Callable(self, "_on_card_drag_moved"))
