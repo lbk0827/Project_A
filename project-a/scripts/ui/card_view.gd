@@ -40,6 +40,8 @@ func _ready():
 		click_area.mouse_entered.connect(_on_mouse_entered)
 	if not click_area.mouse_exited.is_connected(_on_mouse_exited):
 		click_area.mouse_exited.connect(_on_mouse_exited)
+	# Refit once in-tree, when label sizes are valid.
+	_set_body_expanded(false)
 
 func set_card(card: CardData, index: int, disabled: bool, hand_settings: CardHandSettings = DEFAULT_SETTINGS):
 	_bind_nodes()
@@ -54,7 +56,34 @@ func set_card(card: CardData, index: int, disabled: bool, hand_settings: CardHan
 	body_label.text = card.text
 	click_area.disabled = disabled
 	modulate = DISABLED_MODULATE if disabled else NORMAL_MODULATE
+	# Small cards show the name only; the description appears when enlarged.
+	_set_body_expanded(false)
 	_reset_visual()
+
+# Refits the name and description so text never spills past the card frame
+# (font shrinks to fit its box). The description is always shown.
+func _set_body_expanded(_expanded: bool):
+	if body_label == null:
+		return
+	body_label.visible = true
+	_fit_label(name_label, 11, 6)
+	_fit_label(body_label, 13, 7)
+
+func _fit_label(label: Label, max_size: int, min_size: int):
+	if label == null or label.text.is_empty():
+		return
+	var font := label.get_theme_font(&"font")
+	if font == null:
+		return
+	var avail := label.size
+	if avail.x <= 1.0 or avail.y <= 1.0:
+		label.add_theme_font_size_override("font_size", max_size)
+		return
+	for font_size in range(max_size, min_size - 1, -1):
+		if font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_CENTER, avail.x, font_size).y <= avail.y:
+			label.add_theme_font_size_override("font_size", font_size)
+			return
+	label.add_theme_font_size_override("font_size", min_size)
 
 func set_hand_order(order: int):
 	normal_z_index = order
@@ -93,12 +122,14 @@ func _on_mouse_entered():
 		return
 	z_index = 100 + normal_z_index
 	_tween_visual(inactive_offset + settings.hover_offset, settings.hover_scale, 0.0)
+	_set_body_expanded(true)
 
 func _on_mouse_exited():
 	if is_dragging:
 		return
 	z_index = normal_z_index
 	_tween_visual(inactive_offset, Vector2.ONE, rest_rotation_degrees)
+	_set_body_expanded(false)
 
 func _input(event: InputEvent):
 	if not is_dragging:
@@ -162,6 +193,7 @@ func _start_drag(screen_position: Vector2):
 	var grabbed_screen_position: Vector2 = visual_root.get_global_transform() * grabbed_local_position
 	visual_root.global_position += screen_position - grabbed_screen_position
 	drag_offset = screen_position - visual_root.global_position
+	_set_body_expanded(true)
 	card_drag_started.emit(card_index)
 	card_drag_moved.emit(card_index, screen_position)
 	get_viewport().set_input_as_handled()
@@ -175,3 +207,4 @@ func _end_drag():
 	z_index = normal_z_index
 	visual_root.global_position = drag_start_global_position
 	_reset_visual()
+	_set_body_expanded(false)
