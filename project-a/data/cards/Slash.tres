@@ -11,3 +11,4 @@ text = "피해 6을 줍니다."
 card_type = &"attack"
 requires_target = true
 amount = 6
+effects = [{ "type": "damage", "amount": 6, "target": "enemy" }]

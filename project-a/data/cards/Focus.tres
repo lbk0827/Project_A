@@ -11,3 +11,4 @@ text = "카드 1장을 뽑고 에너지 1을 얻습니다."
 card_type = &"skill"
 requires_target = false
 amount = 1
+effects = [{ "type": "draw", "amount": 1 }, { "type": "energy", "amount": 1 }]

@@ -253,36 +253,55 @@ func _play_card(index: int):
 	energy -= cost
 	hand.remove_at(index)
 	discard_pile.append(card)
+	_log("%s 사용." % card.display_name)
 
-	match card.id:
-		"slash":
-			_log("Slash deals 6 damage.")
-			await _play_player_attack_sequence(card)
-		"heavy_slash":
-			_log("Heavy Slash crashes in for 12 damage.")
-			await _play_player_attack_sequence(card)
-		"guard":
-			player_block += card.amount
-			_log("Guard grants %d block." % card.amount)
-			_show_popup(_get_player_screen_position(), "+%d DEF" % card.amount, BLOCK_GAIN_COLOR, 28)
-		"focus":
-			energy += card.amount
-			_draw_cards(1)
-			_log("Focus draws 1 card and refunds 1 energy.")
-			_show_popup(_get_player_screen_position(), "+%d EP" % card.amount, Color(0.5, 0.9, 1.0), 28)
+	# Split into enemy-attack effects (played through the attack animation) and
+	# instant effects (block/draw/energy applied right away).
+	var attack_effects: Array = []
+	var instant_effects: Array = []
+	for effect in card.effects:
+		if _is_enemy_damage_effect(effect):
+			attack_effects.append(effect)
+		else:
+			instant_effects.append(effect)
+
+	_apply_instant_effects(instant_effects)
+	if not attack_effects.is_empty():
+		await _play_player_attack_sequence(attack_effects)
 
 	_refresh_ui()
 	if not battle_over:
 		await _tick_enemy_action_count()
 	_refresh_ui()
 
-func _play_player_attack_sequence(card: CardData):
+func _is_enemy_damage_effect(effect: Dictionary) -> bool:
+	return String(effect.get("type", "")) == "damage" and String(effect.get("target", "enemy")) != "self"
+
+func _apply_instant_effects(effects: Array):
+	for effect in effects:
+		var amount := int(effect.get("amount", 0))
+		match String(effect.get("type", "")):
+			"block":
+				player_block += amount
+				_show_popup(_get_player_screen_position(), "+%d DEF" % amount, BLOCK_GAIN_COLOR, 28)
+			"draw":
+				_draw_cards(amount)
+			"energy":
+				energy += amount
+				_show_popup(_get_player_screen_position(), "+%d EP" % amount, Color(0.5, 0.9, 1.0), 28)
+			"damage":
+				_damage_player(amount)
+
+func _play_player_attack_sequence(damage_effects: Array):
 	combat_sequence_active = true
 	_refresh_ui()
 	await _move_player_to_attack_position()
 	_play_heroine_attack()
 	await get_tree().create_timer(_get_heroine_motion_value("attack_impact_delay", 0.18)).timeout
-	_damage_enemy(card.amount)
+	for effect in damage_effects:
+		if battle_over:
+			break
+		_damage_enemy(int(effect.get("amount", 0)))
 	await get_tree().create_timer(_get_heroine_motion_value("attack_recover_delay", 0.38)).timeout
 	await _return_player_home()
 	combat_sequence_active = false

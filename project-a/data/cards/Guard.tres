@@ -11,3 +11,4 @@ text = "방어도 7을 얻습니다."
 card_type = &"skill"
 requires_target = false
 amount = 7
+effects = [{ "type": "block", "amount": 7, "target": "self" }]
