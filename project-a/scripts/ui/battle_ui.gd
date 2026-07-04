@@ -19,7 +19,7 @@ const MAX_TOASTS := 4
 @onready var ui_root: Control = %UIRoot
 @onready var deck_hand: Control = %DeckHand
 @onready var deck_tomb: Control = %DeckTomb
-@onready var hand_container: HBoxContainer = %HandContainer
+@onready var hand_container: Control = %HandContainer
 @onready var targeting_dot: Panel = %TargetingDot
 @onready var end_turn_button: Button = %EndTurnButton
 @onready var restart_button: Button = %RestartButton
@@ -33,6 +33,7 @@ var energy_segments: Array[Panel] = []
 var energy_segment_container: VBoxContainer
 var energy_max := 0
 var energy_orb_label: Label
+var hand_rail: HandRail
 var hand_count_label: Label
 var turn_chip_label: Label
 var toast_container: VBoxContainer
@@ -48,6 +49,7 @@ var monster_info_rows: VBoxContainer
 func _ready():
 	_build_player_panel()
 	_build_energy_gauge()
+	_build_hand_rail()
 	_build_energy_orb()
 	_build_hand_counter()
 	_build_turn_chip()
@@ -238,34 +240,31 @@ func _rebuild_energy_segments(max_energy: int):
 		energy_segment_container.add_child(segment)
 		energy_segments.append(segment)
 
-func _build_energy_orb():
-	# Card-play energy: just the number centered below the hand, with thin
-	# accent lines flanking it (no badge), matching the reference layout.
-	_add_energy_accent_line(Vector2(500, 668), Vector2(104, 2))
-	_add_energy_accent_line(Vector2(676, 668), Vector2(104, 2))
+func _build_hand_rail():
+	# Foreground arch rail that occludes the lower part of the fanned cards.
+	hand_rail = HandRail.new()
+	hand_rail.position = Vector2(360, 660)
+	hand_rail.size = Vector2(560, 60)
+	hand_rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hand_rail.z_index = 150
+	ui_root.add_child(hand_rail)
 
+func _build_energy_orb():
+	# Card-play energy: just the number, sitting on top of the arch rail line
+	# (poking above the bright edge) so it reads clearly.
 	energy_orb_label = Label.new()
 	energy_orb_label.text = "0"
-	energy_orb_label.add_theme_font_size_override("font_size", 44)
-	energy_orb_label.add_theme_color_override("font_color", Color(0.9, 0.96, 1.0))
-	energy_orb_label.add_theme_color_override("font_outline_color", Color(0.1, 0.42, 0.78, 0.92))
-	energy_orb_label.add_theme_constant_override("outline_size", 6)
+	energy_orb_label.add_theme_font_size_override("font_size", 46)
+	energy_orb_label.add_theme_color_override("font_color", Color(0.96, 0.99, 1.0))
+	energy_orb_label.add_theme_color_override("font_outline_color", Color(0.06, 0.24, 0.5, 0.96))
+	energy_orb_label.add_theme_constant_override("outline_size", 8)
 	energy_orb_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	energy_orb_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	energy_orb_label.size = Vector2(92, 54)
-	energy_orb_label.position = Vector2(640 - 46, 644)
+	energy_orb_label.size = Vector2(96, 50)
+	energy_orb_label.position = Vector2(640 - 48, 640)
 	energy_orb_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	energy_orb_label.z_index = 500
 	ui_root.add_child(energy_orb_label)
-
-func _add_energy_accent_line(line_position: Vector2, line_size: Vector2):
-	var line := ColorRect.new()
-	line.color = Color(0.55, 0.82, 1.0, 0.4)
-	line.position = line_position
-	line.size = line_size
-	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	line.z_index = 499
-	ui_root.add_child(line)
 
 func _build_hand_counter():
 	hand_count_label = Label.new()
@@ -281,8 +280,8 @@ func _build_hand_counter():
 	style.content_margin_bottom = 1.0
 	hand_count_label.add_theme_stylebox_override("normal", style)
 	hand_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hand_count_label.size = Vector2(108, 24)
-	hand_count_label.position = Vector2(640 - 54, 692)
+	hand_count_label.size = Vector2(108, 22)
+	hand_count_label.position = Vector2(640 - 54, 700)
 	hand_count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hand_count_label.z_index = 500
 	ui_root.add_child(hand_count_label)

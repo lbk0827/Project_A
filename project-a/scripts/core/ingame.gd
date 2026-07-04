@@ -5,7 +5,14 @@ const DRAW_CARDS_PER_TURN := 3
 const DRAW_CARD_DELAY := 0.12
 const DRAW_CARD_ANIMATION_TIME := 0.28
 const CARD_SPACING := -8
-const CARD_FAN_DEGREES := 13.0
+# Hand cards are laid out on a circular arc around a pivot far below the screen,
+# so the fan reads as a convex (dome) arch with the middle card highest.
+const HAND_ARC_PIVOT := Vector2(640, 1368)
+const HAND_ARC_RADIUS := 680.0
+const HAND_CARD_ANGLE_STEP := 9.5
+const CARD_BOTTOM_PIVOT := Vector2(65, 184)
+const HAND_TOP_Y := 468.0
+const HAND_CENTER_SCREEN := Vector2(640, 560)
 const MONSTER_DROP_RADIUS := 90.0
 const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
@@ -57,7 +64,7 @@ var player_home_position := Vector2.ZERO
 
 var battle_ui: CanvasLayer
 var ui_root: Control
-var hand_container: HBoxContainer
+var hand_container: Control
 var end_turn_button: Button
 var restart_button: Button
 var targeting_dot: Panel
@@ -563,13 +570,29 @@ func _refresh_ui():
 		var card_view: Control = CARD_VIEW_SCENE.instantiate()
 		card_view.call("set_card", card, i, battle_over or combat_sequence_active or card.cost > energy, CARD_HAND_SETTINGS)
 		card_view.call("set_hand_order", i)
-		card_view.rotation_degrees = _get_card_rotation(i, hand.size())
 		card_view.connect("card_drag_started", Callable(self, "_on_card_drag_started"))
 		card_view.connect("card_drag_moved", Callable(self, "_on_card_drag_moved"))
 		card_view.connect("card_dropped", Callable(self, "_on_card_dropped"))
 		hand_container.add_child(card_view)
 		if i == draw_animation_card_index:
 			card_view.modulate.a = 0.0
+
+	_layout_hand()
+
+func _layout_hand():
+	var cards: Array = []
+	for child in hand_container.get_children():
+		if child is Control and not child.is_queued_for_deletion():
+			cards.append(child)
+	var count := cards.size()
+	for i in range(count):
+		var card: Control = cards[i]
+		var angle_deg := (float(i) - float(count - 1) * 0.5) * HAND_CARD_ANGLE_STEP
+		var theta := deg_to_rad(angle_deg)
+		var bottom_center := HAND_ARC_PIVOT + Vector2(sin(theta), -cos(theta)) * HAND_ARC_RADIUS
+		card.pivot_offset = CARD_BOTTOM_PIVOT
+		card.rotation_degrees = angle_deg
+		card.position = bottom_center - CARD_BOTTOM_PIVOT
 
 func _play_draw_card_from_deck(index: int):
 	await get_tree().process_frame
@@ -586,6 +609,7 @@ func _play_draw_card_from_deck(index: int):
 	proxy_card.call("set_card", card, index, false, CARD_HAND_SETTINGS)
 	proxy_card.call("set_hand_order", 700 + index)
 	proxy_card.size = target_card.size
+	proxy_card.pivot_offset = target_card.pivot_offset
 	proxy_card.z_as_relative = false
 	proxy_card.z_index = 700 + index
 	proxy_card.rotation_degrees = 0.0
@@ -623,11 +647,6 @@ func _unhandled_input(event: InputEvent):
 		elif battle_ui.call("is_monster_info_visible"):
 			battle_ui.call("hide_monster_info")
 
-func _get_card_rotation(index: int, count: int) -> float:
-	if count <= 1:
-		return 0.0
-	var hand_center := float(count - 1) * 0.5
-	return (float(index) - hand_center) / hand_center * CARD_FAN_DEGREES
 
 func _is_monster_drop_position(screen_position: Vector2) -> bool:
 	if not is_instance_valid(monster):
@@ -745,10 +764,7 @@ func _on_card_drag_moved(index: int, screen_position: Vector2):
 	_update_inactive_cards(is_card_play_lifted)
 
 func _is_card_play_lifted(screen_position: Vector2) -> bool:
-	if not is_instance_valid(hand_container):
-		return false
-	var hand_top := hand_container.get_global_rect().position.y
-	return screen_position.y <= hand_top - CARD_HAND_SETTINGS.play_lift_threshold
+	return screen_position.y <= HAND_TOP_Y - CARD_HAND_SETTINGS.play_lift_threshold
 
 func _update_inactive_cards(should_lower: bool):
 	for child in hand_container.get_children():
@@ -788,9 +804,7 @@ func _get_card_view(index: int) -> Control:
 	return null
 
 func _get_targeting_card_center() -> Vector2:
-	if not is_instance_valid(hand_container):
-		return ui_root.get_global_rect().get_center()
-	return hand_container.get_global_rect().get_center() + CARD_HAND_SETTINGS.targeting_card_screen_offset
+	return HAND_CENTER_SCREEN + CARD_HAND_SETTINGS.targeting_card_screen_offset
 
 func _update_targeting_dot(screen_position: Vector2):
 	if not is_instance_valid(targeting_dot):
@@ -815,9 +829,7 @@ func _get_deck_screen_position() -> Vector2:
 		var deck_hand := battle_ui.get_node_or_null("%DeckHand")
 		if deck_hand is Control:
 			return deck_hand.get_global_rect().get_center()
-	if is_instance_valid(hand_container):
-		return hand_container.get_global_rect().get_center()
-	return Vector2.ZERO
+	return HAND_CENTER_SCREEN
 
 func _apply_targeting_dot_style(is_targeted: bool):
 	if targeting_dot_style == null:
