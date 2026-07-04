@@ -34,6 +34,12 @@ const CARD_SLASH := preload("res://data/cards/Slash.tres")
 const CARD_GUARD := preload("res://data/cards/Guard.tres")
 const CARD_FOCUS := preload("res://data/cards/Focus.tres")
 const CARD_HEAVY_SLASH := preload("res://data/cards/HeavySlash.tres")
+const CARD_LIBRARY := {
+	"slash": CARD_SLASH,
+	"guard": CARD_GUARD,
+	"focus": CARD_FOCUS,
+	"heavy_slash": CARD_HEAVY_SLASH,
+}
 const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
 
 @onready var heroine: CharacterBody2D = $Heroine
@@ -139,7 +145,7 @@ func _build_ui():
 	restart_button.pressed.connect(_on_restart_pressed)
 
 func _start_battle():
-	draw_pile = _build_starter_deck()
+	draw_pile = _build_deck()
 	draw_pile.shuffle()
 	discard_pile.clear()
 	hand.clear()
@@ -194,15 +200,22 @@ func _start_player_turn(is_first_turn := false):
 	combat_sequence_active = false
 	_refresh_ui()
 
-func _build_starter_deck() -> Array[CardData]:
+func _build_deck() -> Array[CardData]:
 	var deck: Array[CardData] = []
-	for _i in range(4):
-		deck.append(CARD_SLASH)
-	for _i in range(3):
-		deck.append(CARD_GUARD)
-	for _i in range(2):
-		deck.append(CARD_FOCUS)
-	deck.append(CARD_HEAVY_SLASH)
+	var run_state := _run_state()
+	if run_state != null:
+		for card_id in run_state.get_deck():
+			if CARD_LIBRARY.has(card_id):
+				deck.append(CARD_LIBRARY[card_id])
+	if deck.is_empty():
+		# Fallback when the scene is run directly without a RunState deck.
+		for _i in range(4):
+			deck.append(CARD_SLASH)
+		for _i in range(3):
+			deck.append(CARD_GUARD)
+		for _i in range(2):
+			deck.append(CARD_FOCUS)
+		deck.append(CARD_HEAVY_SLASH)
 	return deck
 
 func _draw_cards(amount: int):

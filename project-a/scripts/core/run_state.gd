@@ -11,6 +11,9 @@ var run_cleared := false
 var max_hp := STARTING_MAX_HP
 var current_hp := STARTING_MAX_HP
 var gold := 0
+# The run's persistent deck as a list of card ids. Grows via combat rewards and
+# carries across battles.
+var deck: Array[String] = []
 
 func reset_run():
 	current_node_id = START_NODE_ID
@@ -21,6 +24,27 @@ func reset_run():
 	max_hp = STARTING_MAX_HP
 	current_hp = max_hp
 	gold = 0
+	deck = _default_deck()
+
+func get_deck() -> Array[String]:
+	if deck.is_empty():
+		deck = _default_deck()
+	return deck
+
+func add_card_to_deck(card_id: String):
+	if not card_id.is_empty():
+		get_deck().append(card_id)
+
+func _default_deck() -> Array[String]:
+	var starter: Array[String] = []
+	for _i in range(4):
+		starter.append("slash")
+	for _i in range(3):
+		starter.append("guard")
+	for _i in range(2):
+		starter.append("focus")
+	starter.append("heavy_slash")
+	return starter
 
 func start_combat_node(node_id: String, monster_id := ""):
 	active_combat_node_id = node_id
