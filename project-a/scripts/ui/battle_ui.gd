@@ -32,6 +32,7 @@ var energy_value_label: Label
 var energy_segments: Array[Panel] = []
 var energy_segment_container: VBoxContainer
 var energy_max := 0
+var energy_orb_label: Label
 var hand_count_label: Label
 var turn_chip_label: Label
 var toast_container: VBoxContainer
@@ -47,6 +48,7 @@ var monster_info_rows: VBoxContainer
 func _ready():
 	_build_player_panel()
 	_build_energy_gauge()
+	_build_energy_orb()
 	_build_hand_counter()
 	_build_turn_chip()
 	_build_toast_container()
@@ -183,6 +185,18 @@ func _build_energy_gauge():
 	ep_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(ep_label)
 
+	# The left EP gauge is the character skill resource, not the card energy.
+	# Its charge mechanic is not implemented yet, so it displays a placeholder.
+	var ep_caption := Label.new()
+	ep_caption.text = "SKILL"
+	ep_caption.add_theme_font_size_override("font_size", 9)
+	ep_caption.add_theme_color_override("font_color", Color(0.55, 0.72, 0.9, 0.7))
+	ep_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ep_caption.position = Vector2(0, 22)
+	ep_caption.size = Vector2(88, 12)
+	ep_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(ep_caption)
+
 	energy_value_label = Label.new()
 	energy_value_label.text = "0"
 	energy_value_label.add_theme_font_size_override("font_size", 40)
@@ -190,17 +204,21 @@ func _build_energy_gauge():
 	energy_value_label.add_theme_color_override("font_outline_color", Color(0.05, 0.15, 0.35, 0.9))
 	energy_value_label.add_theme_constant_override("outline_size", 5)
 	energy_value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	energy_value_label.position = Vector2(0, 22)
-	energy_value_label.size = Vector2(88, 48)
+	energy_value_label.position = Vector2(0, 34)
+	energy_value_label.size = Vector2(88, 44)
 	energy_value_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(energy_value_label)
 
 	energy_segment_container = VBoxContainer.new()
 	energy_segment_container.add_theme_constant_override("separation", 4)
-	energy_segment_container.position = Vector2(24, 78)
-	energy_segment_container.size = Vector2(40, 74)
+	energy_segment_container.position = Vector2(24, 82)
+	energy_segment_container.size = Vector2(40, 70)
 	energy_segment_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(energy_segment_container)
+
+	# Placeholder charge display until the skill-resource system exists.
+	_rebuild_energy_segments(3)
+	energy_value_label.text = "0"
 
 func _rebuild_energy_segments(max_energy: int):
 	energy_max = max_energy
@@ -220,22 +238,51 @@ func _rebuild_energy_segments(max_energy: int):
 		energy_segment_container.add_child(segment)
 		energy_segments.append(segment)
 
+func _build_energy_orb():
+	# Card-play energy: just the number centered below the hand, with thin
+	# accent lines flanking it (no badge), matching the reference layout.
+	_add_energy_accent_line(Vector2(500, 668), Vector2(104, 2))
+	_add_energy_accent_line(Vector2(676, 668), Vector2(104, 2))
+
+	energy_orb_label = Label.new()
+	energy_orb_label.text = "0"
+	energy_orb_label.add_theme_font_size_override("font_size", 44)
+	energy_orb_label.add_theme_color_override("font_color", Color(0.9, 0.96, 1.0))
+	energy_orb_label.add_theme_color_override("font_outline_color", Color(0.1, 0.42, 0.78, 0.92))
+	energy_orb_label.add_theme_constant_override("outline_size", 6)
+	energy_orb_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	energy_orb_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	energy_orb_label.size = Vector2(92, 54)
+	energy_orb_label.position = Vector2(640 - 46, 644)
+	energy_orb_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	energy_orb_label.z_index = 500
+	ui_root.add_child(energy_orb_label)
+
+func _add_energy_accent_line(line_position: Vector2, line_size: Vector2):
+	var line := ColorRect.new()
+	line.color = Color(0.55, 0.82, 1.0, 0.4)
+	line.position = line_position
+	line.size = line_size
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.z_index = 499
+	ui_root.add_child(line)
+
 func _build_hand_counter():
 	hand_count_label = Label.new()
 	hand_count_label.text = "0 / 7"
-	hand_count_label.add_theme_font_size_override("font_size", 18)
+	hand_count_label.add_theme_font_size_override("font_size", 17)
 	hand_count_label.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0, 0.95))
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.05, 0.07, 0.11, 0.8)
+	style.bg_color = Color(0.05, 0.07, 0.11, 0.82)
 	style.border_color = PANEL_BORDER_COLOR
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(12)
-	style.content_margin_left = 16.0
-	style.content_margin_right = 16.0
-	style.content_margin_top = 2.0
-	style.content_margin_bottom = 2.0
+	style.set_corner_radius_all(11)
+	style.content_margin_top = 1.0
+	style.content_margin_bottom = 1.0
 	hand_count_label.add_theme_stylebox_override("normal", style)
-	hand_count_label.position = Vector2(604, 688)
+	hand_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hand_count_label.size = Vector2(108, 24)
+	hand_count_label.position = Vector2(640 - 54, 692)
 	hand_count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hand_count_label.z_index = 500
 	ui_root.add_child(hand_count_label)
@@ -368,14 +415,14 @@ func set_player_status(current_hp: int, max_hp: int, block: int):
 	if block > 0:
 		player_block_label.text = "DEF %d" % block
 
+# Card-play energy is shown as the bottom-center number. The left EP gauge is a
+# separate character skill resource and is not driven from here.
 func set_energy(current_energy: int, max_energy: int = 3):
-	energy_value_label.text = str(max(current_energy, 0))
-	if max_energy != energy_max:
-		_rebuild_energy_segments(max_energy)
-	for i in range(energy_segments.size()):
-		var style: StyleBoxFlat = energy_segments[i].get_theme_stylebox("panel")
-		var filled: bool = (energy_segments.size() - 1 - i) < current_energy
-		style.bg_color = EP_FILL_COLOR if filled else EP_EMPTY_COLOR
+	if energy_orb_label == null:
+		return
+	energy_orb_label.text = str(max(current_energy, 0))
+	var dim := current_energy <= 0
+	energy_orb_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6) if dim else Color(0.9, 0.96, 1.0))
 
 func set_hand_count(current_count: int, max_count: int):
 	hand_count_label.text = "%d / %d" % [max(current_count, 0), max(max_count, 0)]
