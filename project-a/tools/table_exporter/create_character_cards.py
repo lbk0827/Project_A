@@ -25,35 +25,35 @@ def _effects(*items) -> str:
 
 # character, id, display_name, cost, card_type, text, copies, keywords, effects, inspiration
 CHARACTER_CARDS = [
-	("heroine", "long_sword_slash", "장검 베기", 1, "attack", "피해 100%.", 2,
+	("tsuki","long_sword_slash", "장검 베기", 1, "attack", "피해 100%.", 2,
 		[], _effects({"type": "damage", "percent": 100, "target": "enemy"}), None),
-	("heroine", "high_speed_slash", "고속 베기", 2, "attack", "피해 220%.", 1,
+	("tsuki","high_speed_slash", "고속 베기", 2, "attack", "피해 220%.", 1,
 		[], _effects({"type": "damage", "percent": 220, "target": "enemy"}), None),
-	("heroine", "let_flow", "흘려 보내기", 1, "skill", "실드 100%.", 1,
+	("tsuki","let_flow", "흘려 보내기", 1, "skill", "실드 100%.", 1,
 		[], _effects({"type": "shield", "percent": 100, "target": "self"}), None),
-	("heroine", "suppress_ready", "제압 준비", 0, "skill",
+	("tsuki","suppress_ready", "제압 준비", 0, "skill",
 		"자신의 공격 카드 드로우 1. 1턴간 자신의 공격 카드 피해량 40% 증가.", 1,
 		[], _effects(
 			{"type": "draw", "card_type": "attack", "amount": 1},
 			{"type": "buff", "buff": "attack_damage_up", "percent": 40, "duration_turns": 1, "scope": "own_attack"},
 		), None),
-	("heroine", "steal_slash", "훔쳐베기", 2, "attack", "모든 적 피해 220%. 영감: 비용 1 감소.", 1,
+	("tsuki","steal_slash", "훔쳐베기", 2, "attack", "모든 적 피해 220%. 영감: 비용 1 감소.", 1,
 		["영감"], _effects({"type": "damage", "percent": 220, "target": "all_enemies"}),
 		_effects({"type": "cost_delta", "amount": -1})),
-	("heroine", "feint_strike", "눈속임 일격", 1, "attack",
+	("tsuki","feint_strike", "눈속임 일격", 1, "attack",
 		"[보존] 피해 180%. 핸드의 무작위 자신의 카드 1장의 영감 효과를 활성화.", 1,
 		["보존"], _effects(
 			{"type": "damage", "percent": 180, "target": "enemy"},
 			{"type": "activate_inspiration", "target": "random_own_in_hand", "amount": 1},
 		), None),
-	("heroine", "freezing_blade", "빙점 칼날", 1, "enhance",
+	("tsuki","freezing_blade", "빙점 칼날", 1, "enhance",
 		"[유일] 자신의 영감 효과가 활성화된 카드 사용 시 모든 적에게 피해 120%.", 1,
 		["유일"], _effects({
 			"type": "passive",
 			"trigger": "on_play_inspired_card",
 			"effect": {"type": "damage", "percent": 120, "target": "all_enemies"},
 		}), None),
-	("heroine", "iceberg_cleave", "빙산 가르기", 1, "attack",
+	("tsuki","iceberg_cleave", "빙산 가르기", 1, "attack",
 		"모든 적 피해 180%. 영감: 타격 1회 추가, 피해량 20% 감소.", 1,
 		["영감"], _effects({"type": "damage", "percent": 180, "target": "all_enemies"}),
 		_effects(

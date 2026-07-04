@@ -1,5 +1,6 @@
 [
 	{
+		"character": "tsuki",
 		"level": 1,
 		"attack_power": 160,
 		"defense_power": 45,
@@ -8,6 +9,7 @@
 		"crit_damage": 1.25
 	},
 	{
+		"character": "tsuki",
 		"level": 10,
 		"attack_power": 195,
 		"defense_power": 58,
@@ -16,6 +18,7 @@
 		"crit_damage": 1.25
 	},
 	{
+		"character": "tsuki",
 		"level": 20,
 		"attack_power": 249,
 		"defense_power": 77,
@@ -24,6 +27,7 @@
 		"crit_damage": 1.25
 	},
 	{
+		"character": "tsuki",
 		"level": 30,
 		"attack_power": 304,
 		"defense_power": 97,
@@ -32,6 +36,7 @@
 		"crit_damage": 1.25
 	},
 	{
+		"character": "tsuki",
 		"level": 40,
 		"attack_power": 358,
 		"defense_power": 116,
@@ -40,6 +45,7 @@
 		"crit_damage": 1.25
 	},
 	{
+		"character": "tsuki",
 		"level": 50,
 		"attack_power": 413,
 		"defense_power": 136,
@@ -48,6 +54,7 @@
 		"crit_damage": 1.25
 	},
 	{
+		"character": "tsuki",
 		"level": 60,
 		"attack_power": 467,
 		"defense_power": 155,

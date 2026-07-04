@@ -4,8 +4,8 @@
 
 [resource]
 script = ExtResource("1_3q5wk")
-id = "player"
-display_name = "Heroine"
+id = "tsuki"
+display_name = "츠키"
 max_hp = 40
 attack_power = 0
 defense_power = 0

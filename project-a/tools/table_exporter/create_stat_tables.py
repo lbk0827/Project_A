@@ -41,12 +41,12 @@ MONSTER_STATS = [
 
 def build_player_growth(sheet) -> None:
 	sheet.append([None])
-	sheet.append(["#data", "level", "attack_power", "defense_power", "max_hp", "crit_rate", "crit_damage"])
-	sheet.append([None, "key,int", "int", "int", "int", "float", "float"])
-	sheet.append([None, "data", "data", "data", "data", "data", "data"])
+	sheet.append(["#data", "character", "level", "attack_power", "defense_power", "max_hp", "crit_rate", "crit_damage"])
+	sheet.append([None, "string", "key,int", "int", "int", "int", "float", "float"])
+	sheet.append([None, "data", "data", "data", "data", "data", "data", "data"])
 	for level, atk, defense, hp in PLAYER_GROWTH:
-		sheet.append([None, level, atk, defense, hp, PLAYER_CRIT_RATE, PLAYER_CRIT_DAMAGE])
-	_apply_widths(sheet, {"B": 8, "C": 14, "D": 14, "E": 10, "F": 12, "G": 12})
+		sheet.append([None, "tsuki", level, atk, defense, hp, PLAYER_CRIT_RATE, PLAYER_CRIT_DAMAGE])
+	_apply_widths(sheet, {"B": 10, "C": 8, "D": 14, "E": 14, "F": 10, "G": 12, "H": 12})
 
 
 def build_monster_stats(sheet) -> None:

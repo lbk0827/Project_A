@@ -1,6 +1,6 @@
 [
 	{
-		"character": "heroine",
+		"character": "tsuki",
 		"id": "long_sword_slash",
 		"display_name": "장검 베기",
 		"cost": 1,
@@ -18,7 +18,7 @@
 		"inspiration": null
 	},
 	{
-		"character": "heroine",
+		"character": "tsuki",
 		"id": "high_speed_slash",
 		"display_name": "고속 베기",
 		"cost": 2,
@@ -36,7 +36,7 @@
 		"inspiration": null
 	},
 	{
-		"character": "heroine",
+		"character": "tsuki",
 		"id": "let_flow",
 		"display_name": "흘려 보내기",
 		"cost": 1,
@@ -54,7 +54,7 @@
 		"inspiration": null
 	},
 	{
-		"character": "heroine",
+		"character": "tsuki",
 		"id": "suppress_ready",
 		"display_name": "제압 준비",
 		"cost": 0,
@@ -79,7 +79,7 @@
 		"inspiration": null
 	},
 	{
-		"character": "heroine",
+		"character": "tsuki",
 		"id": "steal_slash",
 		"display_name": "훔쳐베기",
 		"cost": 2,
@@ -104,7 +104,7 @@
 		]
 	},
 	{
-		"character": "heroine",
+		"character": "tsuki",
 		"id": "feint_strike",
 		"display_name": "눈속임 일격",
 		"cost": 1,
@@ -129,7 +129,7 @@
 		"inspiration": null
 	},
 	{
-		"character": "heroine",
+		"character": "tsuki",
 		"id": "freezing_blade",
 		"display_name": "빙점 칼날",
 		"cost": 1,
@@ -153,7 +153,7 @@
 		"inspiration": null
 	},
 	{
-		"character": "heroine",
+		"character": "tsuki",
 		"id": "iceberg_cleave",
 		"display_name": "빙산 가르기",
 		"cost": 1,

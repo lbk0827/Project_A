@@ -103,7 +103,7 @@ func _build_player_panel():
 	portrait_frame.add_child(portrait)
 
 	var name_label := Label.new()
-	name_label.text = "HEROINE"
+	name_label.text = "츠키"
 	name_label.add_theme_font_size_override("font_size", 13)
 	name_label.add_theme_color_override("font_color", Color(0.75, 0.88, 1.0, 0.95))
 	name_label.position = Vector2(98, 8)
