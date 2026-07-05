@@ -44,10 +44,18 @@ const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres
 const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
 const DEFAULT_MONSTER_DATA := preload("res://data/monsters/MireImp.tres")
 const BONE_CRAWLER_DATA := preload("res://data/monsters/BoneCrawler.tres")
+const BOG_STALKER_DATA := preload("res://data/monsters/BogStalker.tres")
+const GRAVEBOUND_CRAWLER_DATA := preload("res://data/monsters/GraveboundCrawler.tres")
+const FROST_REVENANT_DATA := preload("res://data/monsters/FrostRevenant.tres")
+const CROWN_ACOLYTE_DATA := preload("res://data/monsters/CrownAcolyte.tres")
 const ABYSSAL_CROWN_GUARDIAN_DATA := preload("res://data/monsters/AbyssalCrownGuardian.tres")
 const MONSTER_DATA_BY_ID := {
 	"mire_imp": DEFAULT_MONSTER_DATA,
 	"bone_crawler": BONE_CRAWLER_DATA,
+	"bog_stalker": BOG_STALKER_DATA,
+	"gravebound_crawler": GRAVEBOUND_CRAWLER_DATA,
+	"frost_revenant": FROST_REVENANT_DATA,
+	"crown_acolyte": CROWN_ACOLYTE_DATA,
 	"abyssal_crown_guardian": ABYSSAL_CROWN_GUARDIAN_DATA,
 }
 const CHARACTER_CARDS_PATH := "res://data/generated/character_cards.json"
@@ -181,7 +189,7 @@ func _get_encounter_datas() -> Array:
 		if not monster_id.is_empty() and MONSTER_DATA_BY_ID.has(monster_id):
 			data = MONSTER_DATA_BY_ID[monster_id]
 	# Placeholder encounter groups: boss fights solo, others spawn two enemies.
-	if data == ABYSSAL_CROWN_GUARDIAN_DATA:
+	if data == ABYSSAL_CROWN_GUARDIAN_DATA or data == FROST_REVENANT_DATA or data == CROWN_ACOLYTE_DATA:
 		return [data]
 	return [data, data]
 

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://nxia3g2jv05g"]
+
+[ext_resource type="Script" uid="uid://deq25iy1a8nfv" path="res://scripts/data/enemy_intent_data.gd" id="1_intent"]
+[ext_resource type="Script" uid="uid://b5mireimpdata" path="res://scripts/data/monster_data.gd" id="1_data"]
+[ext_resource type="Resource" uid="uid://crownacolystats" path="res://data/monsters/CrownAcolyteStats.tres" id="2_stats"]
+[ext_resource type="PackedScene" path="res://scenes/monster/monster_crown_acolyte.tscn" id="3_scene"]
+[ext_resource type="Resource" uid="uid://drj3c0y5cq2xc" path="res://data/monsters/intents/HeavyBlow.tres" id="4_heavy"]
+[ext_resource type="Resource" uid="uid://c50a5vw4ugbbp" path="res://data/monsters/intents/Brace.tres" id="5_brace"]
+
+[resource]
+script = ExtResource("1_data")
+id = "crown_acolyte"
+display_name = "Crown Acolyte"
+stats = ExtResource("2_stats")
+scene = ExtResource("3_scene")
+intents = Array[ExtResource("1_intent")]([ExtResource("4_heavy"), ExtResource("5_brace"), ExtResource("4_heavy")])
+action_count = 2
+hp_bar_offset = Vector2(0, -196)

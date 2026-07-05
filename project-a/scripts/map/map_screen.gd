@@ -14,11 +14,11 @@ const EDGE_LOCKED_COLOR := Color(0.36, 0.42, 0.48, 0.34)
 
 var map_nodes := [
 	{"id": "start", "type": "start", "label": "Start", "pos": Vector2(120, 360), "next": ["battle_1", "event_1"]},
-	{"id": "battle_1", "type": "battle", "label": "Battle", "monster_id": "mire_imp", "pos": Vector2(310, 255), "next": ["treasure_1", "battle_2"]},
+	{"id": "battle_1", "type": "battle", "label": "Battle", "monster_id": "bog_stalker", "pos": Vector2(310, 255), "next": ["treasure_1", "battle_2"]},
 	{"id": "event_1", "type": "event", "label": "Event", "pos": Vector2(310, 465), "next": ["battle_2"]},
 	{"id": "treasure_1", "type": "treasure", "label": "Treasure", "pos": Vector2(510, 210), "next": ["elite_1"]},
-	{"id": "battle_2", "type": "battle", "label": "Battle", "monster_id": "bone_crawler", "pos": Vector2(510, 420), "next": ["elite_1", "rest_1"]},
-	{"id": "elite_1", "type": "elite", "label": "Elite", "monster_id": "bone_crawler", "pos": Vector2(725, 280), "next": ["rest_1"]},
+	{"id": "battle_2", "type": "battle", "label": "Battle", "monster_id": "gravebound_crawler", "pos": Vector2(510, 420), "next": ["elite_1", "rest_1"]},
+	{"id": "elite_1", "type": "elite", "label": "Elite", "monster_id": "frost_revenant", "pos": Vector2(725, 280), "next": ["rest_1"]},
 	{"id": "rest_1", "type": "rest", "label": "Rest", "pos": Vector2(910, 390), "next": ["boss_1"]},
 	{"id": "boss_1", "type": "boss", "label": "Boss", "monster_id": "abyssal_crown_guardian", "pos": Vector2(1115, 320), "next": []},
 ]

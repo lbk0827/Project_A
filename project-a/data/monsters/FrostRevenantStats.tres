@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="CombatantStats" format=3 uid="uid://fr0strevenantstats"]
+
+[ext_resource type="Script" uid="uid://b8npudhjf7id2" path="res://scripts/data/combatant_stats.gd" id="1_stats"]
+
+[resource]
+script = ExtResource("1_stats")
+id = "frost_revenant"
+display_name = "Frost Revenant"
+max_hp = 1200
