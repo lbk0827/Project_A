@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bogstalkerscn"]
 
 [ext_resource type="Script" uid="uid://bqv5dcgl6dwiu" path="res://scripts/monster/monster_actor.gd" id="1_actor"]
-[ext_resource type="Texture2D" path="res://assets/monster/spriteSheet/MonsterBogStalker.png" id="2_sheet"]
+[ext_resource type="Texture2D" uid="uid://dr2oissehg5ye" path="res://assets/monster/spriteSheet/MonsterBogStalker.png" id="2_sheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_0"]
 atlas = ExtResource("2_sheet")
@@ -80,7 +80,7 @@ animations = [{
 }],
 "loop": false,
 "name": &"Attack",
-"speed": 12.0
+"speed": 13.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -97,12 +97,12 @@ animations = [{
 }],
 "loop": true,
 "name": &"Idle",
-"speed": 4.0
+"speed": 5.0
 }]
 
 [sub_resource type="Animation" id="Animation_death"]
 resource_name = "Death"
-length = 0.42
+length = 0.48
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -110,10 +110,10 @@ tracks/0/path = NodePath("AnimatedSprite2D:modulate")
 tracks/0/interp = 2
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.42),
+"times": PackedFloat32Array(0, 0.48),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Color(1, 1, 1, 1), Color(0.45, 0.45, 0.45, 0.22)]
+"values": [Color(1, 1, 1, 1), Color(0.25, 0.42, 0.24, 0.18)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -122,10 +122,10 @@ tracks/1/path = NodePath("AnimatedSprite2D:scale")
 tracks/1/interp = 2
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.42),
+"times": PackedFloat32Array(0, 0.48),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(1.08, 0.9)]
+"values": [Vector2(0.95, 0.95), Vector2(1.05, 0.82)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -134,10 +134,10 @@ tracks/2/path = NodePath("AnimatedSprite2D:position")
 tracks/2/interp = 2
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.42),
+"times": PackedFloat32Array(0, 0.48),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(0, 0), Vector2(0, 18)]
+"values": [Vector2(0, 0), Vector2(0, 20)]
 }
 
 [sub_resource type="Animation" id="Animation_hit"]
@@ -153,7 +153,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.05, 0.19),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Color(1, 1, 1, 1), Color(1, 0.28, 0.24, 1), Color(1, 1, 1, 1)]
+"values": [Color(1, 1, 1, 1), Color(0.65, 1, 0.36, 1), Color(1, 1, 1, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -165,7 +165,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.05, 0.19),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector2(0, 0), Vector2(-14, 0), Vector2(0, 0)]
+"values": [Vector2(0, 0), Vector2(-16, 2), Vector2(0, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_spawn"]
@@ -181,7 +181,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.18),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+"values": [Color(0.46, 0.9, 0.44, 0), Color(1, 1, 1, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -193,7 +193,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.18),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(0.92, 0.92), Vector2(1, 1)]
+"values": [Vector2(0.82, 0.98), Vector2(0.95, 0.95)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_reactions"]
@@ -209,8 +209,16 @@ radius = 82.0
 [node name="MonsterBogStalker" type="Node2D" unique_id=1634608613]
 script = ExtResource("1_actor")
 attack_offset_from_target = Vector2(132, 0)
+approach_time = 0.3
 attack_impact_delay = 0.18
+attack_recover_delay = 0.32
 return_time = 0.26
+source_faces_left = true
+hit_flash_color = Color(0.65, 1, 0.36, 1)
+hit_shake_distance = 16.0
+death_fade_time = 0.48
+death_drop_distance = 20.0
+death_scale = Vector2(1.05, 0.82)
 hp_bar_offset = Vector2(-95.3, -158)
 intent_overlay_offset = Vector2(-14, 0)
 
@@ -221,7 +229,6 @@ sprite_frames = SubResource("SpriteFrames_bog_stalker")
 animation = &"Attack"
 frame = 7
 frame_progress = 1.0
-flip_h = true
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=2707625]
 libraries/ = SubResource("AnimationLibrary_reactions")
