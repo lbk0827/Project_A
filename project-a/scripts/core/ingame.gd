@@ -683,13 +683,17 @@ func _enemy_turn():
 		var intent: EnemyIntentData = enemy.intents[enemy.intent_index]
 		match intent.intent_type:
 			"attack":
-				await _play_enemy_attack_sequence(enemy, intent.amount)
+				await _play_enemy_attack_sequence(enemy, _enemy_attack_damage(enemy, intent))
 			"block":
 				enemy.block += intent.amount
 				_show_popup(_enemy_screen_position(enemy), "+%d DEF" % intent.amount, BLOCK_GAIN_COLOR, 28)
 				_update_enemy_bar(enemy)
 		enemy.intent_index = (enemy.intent_index + 1) % enemy.intents.size()
 		_update_enemy_bar(enemy)
+
+# Attack intent damage = the monster's attack_power scaled by the intent percent.
+func _enemy_attack_damage(enemy: CombatEnemy, intent: EnemyIntentData) -> int:
+	return int(round(enemy.data.stats.attack_power * float(intent.amount) / 100.0))
 
 func _play_enemy_attack_sequence(enemy: CombatEnemy, amount: int):
 	combat_sequence_active = true
@@ -902,7 +906,7 @@ func _unhandled_input(event: InputEvent):
 			if battle_ui.call("is_monster_info_visible"):
 				battle_ui.call("hide_monster_info")
 			else:
-				battle_ui.call("show_monster_info", clicked.data.display_name, clicked.intents, clicked.intent_index, enemy_action_count_remaining)
+				battle_ui.call("show_monster_info", clicked.data.display_name, clicked.intents, clicked.intent_index, enemy_action_count_remaining, clicked.data.stats.attack_power)
 		elif battle_ui.call("is_monster_info_visible"):
 			battle_ui.call("hide_monster_info")
 

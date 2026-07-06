@@ -7,3 +7,4 @@ script = ExtResource("1_stats")
 id = "frost_revenant"
 display_name = "Frost Revenant"
 max_hp = 1200
+attack_power = 24

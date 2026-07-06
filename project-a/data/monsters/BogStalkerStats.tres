@@ -7,3 +7,4 @@ script = ExtResource("1_stats")
 id = "bog_stalker"
 display_name = "Bog Stalker"
 max_hp = 650
+attack_power = 16

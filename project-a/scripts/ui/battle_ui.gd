@@ -474,14 +474,14 @@ func show_toast(message: String):
 	tween.tween_property(toast, "modulate:a", 0.0, 0.45)
 	tween.tween_callback(toast.queue_free)
 
-func show_monster_info(monster_name: String, intents: Array, next_intent_index: int, action_count_remaining: int = 0):
+func show_monster_info(monster_name: String, intents: Array, next_intent_index: int, action_count_remaining: int = 0, attack_power: int = 0):
 	_ensure_monster_info_panel()
 	monster_info_name_label.text = monster_name
 	monster_info_count_label.text = "다음 행동까지 %d회 후 발동" % max(action_count_remaining, 0)
 	for child in monster_info_rows.get_children():
 		child.free()
 	for i in range(intents.size()):
-		monster_info_rows.add_child(_make_intent_row(intents[i], i, i == next_intent_index))
+		monster_info_rows.add_child(_make_intent_row(intents[i], i, i == next_intent_index, attack_power))
 	monster_info_panel.size = Vector2(360, 66 + intents.size() * 42 + 8)
 	monster_info_panel.visible = true
 	monster_info_panel.modulate = Color(1, 1, 1, 0)
@@ -550,7 +550,7 @@ func _ensure_monster_info_panel():
 	monster_info_rows.add_theme_constant_override("separation", 6)
 	monster_info_panel.add_child(monster_info_rows)
 
-func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool) -> Panel:
+func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool, attack_power: int = 0) -> Panel:
 	var row := Panel.new()
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.1, 0.14, 0.22, 0.9) if is_next else Color(0.06, 0.08, 0.13, 0.7)
@@ -580,7 +580,10 @@ func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool) -> Pan
 
 	var effect_label := Label.new()
 	var is_attack: bool = intent.intent_type == &"attack"
-	effect_label.text = ("ATK %d" if is_attack else "DEF %d") % intent.amount
+	if is_attack:
+		effect_label.text = "ATK %d" % int(round(attack_power * float(intent.amount) / 100.0))
+	else:
+		effect_label.text = "DEF %d" % intent.amount
 	effect_label.add_theme_font_size_override("font_size", 13)
 	effect_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.98))
 	var chip_style := StyleBoxFlat.new()

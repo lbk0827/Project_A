@@ -6,6 +6,6 @@
 script = ExtResource("1_jup3t")
 display_name = "Brace"
 intent_type = &"block"
-amount = 5
+amount = 80
 icon_label = "SHD"
-description = "Gain 5 shield."
+description = "실드 80 획득."

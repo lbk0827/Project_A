@@ -7,3 +7,4 @@ script = ExtResource("1_stats")
 id = "gravebound_crawler"
 display_name = "Gravebound Crawler"
 max_hp = 950
+attack_power = 20
