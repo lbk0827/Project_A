@@ -127,16 +127,20 @@ def export_workbook(
     exported_count = 0
 
     for sheet in workbook.worksheets:
-        if sheet.max_row < EXPORT_FLAG_ROW:
+        if sheet.max_row is None or sheet.max_column is None:
+            sheet.calculate_dimension(force=True)
+        max_row = sheet.max_row or 0
+        max_column = sheet.max_column or 0
+        if max_row < EXPORT_FLAG_ROW:
             continue
         if normalize_text(sheet.cell(HEADER_KIND_ROW, 1).value).lower() != "#data":
             continue
 
-        schema = parse_schema(workbook_path, sheet, errors)
+        schema = parse_schema(workbook_path, sheet, errors, max_column)
         if not schema:
             continue
 
-        rows = parse_rows(workbook_path, sheet, schema, errors)
+        rows = parse_rows(workbook_path, sheet, schema, errors, max_row)
         if errors:
             continue
 
@@ -151,12 +155,12 @@ def export_workbook(
 
 
 def parse_schema(
-    workbook_path: Path, sheet: Any, errors: list[ExportError]
+    workbook_path: Path, sheet: Any, errors: list[ExportError], max_column: int
 ) -> list[ColumnSchema]:
     schema: list[ColumnSchema] = []
     seen_names: set[str] = set()
 
-    for column in range(FIRST_FIELD_COLUMN, sheet.max_column + 1):
+    for column in range(FIRST_FIELD_COLUMN, max_column + 1):
         raw_name = sheet.cell(FIELD_NAME_ROW, column).value
         raw_type = sheet.cell(FIELD_TYPE_ROW, column).value
         raw_export = sheet.cell(EXPORT_FLAG_ROW, column).value
@@ -235,13 +239,14 @@ def parse_rows(
     sheet: Any,
     schema: list[ColumnSchema],
     errors: list[ExportError],
+    max_row: int,
 ) -> list[dict[str, Any]]:
     key_column = next(column for column in schema if column.is_key)
     exported_columns = [column for column in schema if column.export]
     rows: list[dict[str, Any]] = []
     seen_keys: set[str] = set()
 
-    for row in range(DATA_START_ROW, sheet.max_row + 1):
+    for row in range(DATA_START_ROW, max_row + 1):
         marker = normalize_text(sheet.cell(row, 1).value).lower()
         if marker == "skip":
             continue
