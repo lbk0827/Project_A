@@ -14,8 +14,11 @@ const DISABLED_MODULATE := Color(0.58, 0.58, 0.58, 0.92)
 var visual_root: Control
 var frame: TextureRect
 var art: TextureRect
+var type_strip: ColorRect
 var cost_label: Label
 var name_label: Label
+var keyword_label: Label
+var type_label: Label
 var body_label: Label
 var click_area: Button
 
@@ -57,10 +60,15 @@ func set_card(card: CardData, index: int, disabled: bool, hand_settings: CardHan
 			frame.texture = ENHANCE_FRAME
 		_:
 			frame.texture = SKILL_FRAME
-	var art_path := "res://assets/card/cardart/%s.png" % card.id
+	_apply_type_style(card.card_type)
+	var art_path := "res://assets/card/cardart_full/%s.png" % card.id
+	if not ResourceLoader.exists(art_path):
+		art_path = "res://assets/card/cardart/%s.png" % card.id
 	art.texture = load(art_path) if ResourceLoader.exists(art_path) else null
 	cost_label.text = str(card.cost)
 	name_label.text = card.display_name
+	keyword_label.text = _keyword_text(card)
+	type_label.text = "[%s]" % _type_text(card.card_type)
 	body_label.text = card.text
 	click_area.disabled = disabled
 	modulate = DISABLED_MODULATE if disabled else NORMAL_MODULATE
@@ -74,8 +82,10 @@ func _set_body_expanded(_expanded: bool):
 	if body_label == null:
 		return
 	body_label.visible = true
-	_fit_label(name_label, 11, 6)
-	_fit_label(body_label, 13, 7)
+	_fit_label(name_label, 13, 7)
+	_fit_label(keyword_label, 10, 7)
+	_fit_label(type_label, 10, 7)
+	_fit_label(body_label, 11, 7)
 
 func _fit_label(label: Label, max_size: int, min_size: int):
 	if label == null or label.text.is_empty():
@@ -189,10 +199,47 @@ func _bind_nodes():
 	visual_root = %VisualRoot
 	frame = %Frame
 	art = %ArtRect
+	type_strip = %TypeStrip
 	cost_label = %CostLabel
 	name_label = %NameLabel
+	keyword_label = %KeywordLabel
+	type_label = %TypeLabel
 	body_label = %BodyLabel
 	click_area = %ClickArea
+
+func _apply_type_style(card_type: StringName):
+	var accent := Color(0.55, 0.95, 1.0, 1.0)
+	match card_type:
+		&"attack":
+			accent = Color(1.0, 0.32, 0.24, 1.0)
+		&"enhance":
+			accent = Color(0.58, 1.0, 0.72, 1.0)
+		_:
+			accent = Color(0.48, 0.86, 1.0, 1.0)
+	if type_strip != null:
+		type_strip.color = accent
+	if type_label != null:
+		type_label.add_theme_color_override("font_color", accent.lightened(0.18))
+
+func _type_text(card_type: StringName) -> String:
+	match card_type:
+		&"attack":
+			return "공격"
+		&"enhance":
+			return "강화"
+		_:
+			return "기술"
+
+func _keyword_text(card: CardData) -> String:
+	var labels: Array[String] = []
+	if not card.keywords.is_empty():
+		for keyword in card.keywords:
+			labels.append(String(keyword))
+	if not card.inspiration.is_empty():
+		labels.append("영감")
+	if labels.is_empty():
+		labels.append(_type_text(card.card_type))
+	return " / ".join(labels)
 
 func _tween_visual(target_position: Vector2, target_scale: Vector2, target_rotation: float):
 	if hover_tween != null:

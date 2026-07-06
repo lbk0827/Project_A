@@ -23,12 +23,35 @@ pivot_offset = Vector2(65, 150)
 unique_name_in_owner = true
 texture_filter = 1
 layout_mode = 0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 118.0
-offset_bottom = 128.0
+offset_right = 130.0
+offset_bottom = 184.0
 expand_mode = 1
 stretch_mode = 6
+
+[node name="TopScrim" type="ColorRect" parent="VisualRoot" unique_id=2024660598]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 130.0
+offset_bottom = 42.0
+color = Color(0.02, 0.025, 0.035, 0.62)
+mouse_filter = 2
+
+[node name="BodyScrim" type="ColorRect" parent="VisualRoot" unique_id=2024660599]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 111.0
+offset_right = 130.0
+offset_bottom = 184.0
+color = Color(0.02, 0.025, 0.035, 0.74)
+mouse_filter = 2
+
+[node name="TypeStrip" type="ColorRect" parent="VisualRoot" unique_id=2024660600]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 5.0
+offset_bottom = 184.0
+color = Color(0.9, 0.22, 0.2, 1)
+mouse_filter = 2
 
 [node name="Frame" type="TextureRect" parent="VisualRoot" unique_id=2024660597]
 unique_name_in_owner = true
@@ -36,16 +59,20 @@ layout_mode = 0
 offset_right = 130.0
 offset_bottom = 184.0
 texture = ExtResource("1_djckl")
+modulate = Color(1, 1, 1, 0.22)
 stretch_mode = 5
 
 [node name="CostLabel" type="Label" parent="VisualRoot" unique_id=508847678]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 5.0
-offset_top = 2.0
-offset_right = 37.0
-offset_bottom = 36.0
-theme_override_font_sizes/font_size = 24
+offset_left = 6.0
+offset_top = 1.0
+offset_right = 38.0
+offset_bottom = 35.0
+theme_override_colors/font_color = Color(0.75, 0.93, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0.08, 0.12, 0.95)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 27
 text = "1"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -53,27 +80,61 @@ vertical_alignment = 1
 [node name="NameLabel" type="Label" parent="VisualRoot" unique_id=730278389]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 122.0
-offset_bottom = 32.0
+offset_left = 40.0
+offset_top = 5.0
+offset_right = 123.0
+offset_bottom = 24.0
+theme_override_colors/font_color = Color(1, 0.88, 0.54, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 11
-text = "베기"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+text = "Slash"
+horizontal_alignment = 0
 vertical_alignment = 1
 autowrap_mode = 3
+
+[node name="KeywordLabel" type="Label" parent="VisualRoot" unique_id=730278390]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 41.0
+offset_top = 24.0
+offset_right = 124.0
+offset_bottom = 39.0
+theme_override_colors/font_color = Color(0.74, 1, 0.86, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 10
+text = "Attack"
+horizontal_alignment = 0
+vertical_alignment = 1
+
+[node name="TypeLabel" type="Label" parent="VisualRoot" unique_id=730278391]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 116.0
+offset_right = 106.0
+offset_bottom = 132.0
+theme_override_colors/font_color = Color(1, 0.78, 0.38, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.82)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 10
+text = "[Attack]"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="BodyLabel" type="Label" parent="VisualRoot" unique_id=462371920]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 16.0
-offset_top = 130.0
-offset_right = 114.0
-offset_bottom = 181.0
-theme_override_font_sizes/font_size = 12
-text = "피해 6을 줍니다."
+offset_left = 13.0
+offset_top = 132.0
+offset_right = 117.0
+offset_bottom = 179.0
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 11
+text = "Deal damage."
 horizontal_alignment = 1
 vertical_alignment = 0
 autowrap_mode = 3
