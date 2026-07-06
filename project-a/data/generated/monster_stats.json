@@ -3,7 +3,7 @@
 		"id": "abyssal_crown_guardian",
 		"display_name": "Abyssal Crown Guardian",
 		"max_hp": 2500,
-		"attack_power": 0,
+		"attack_power": 30,
 		"defense_power": 0,
 		"crit_rate": 0.0,
 		"crit_damage": 1.0
@@ -12,43 +12,7 @@
 		"id": "bog_stalker",
 		"display_name": "Bog Stalker",
 		"max_hp": 650,
-		"attack_power": 0,
-		"defense_power": 0,
-		"crit_rate": 0.0,
-		"crit_damage": 1.0
-	},
-	{
-		"id": "bone_crawler",
-		"display_name": "Bone Crawler",
-		"max_hp": 800,
-		"attack_power": 0,
-		"defense_power": 0,
-		"crit_rate": 0.0,
-		"crit_damage": 1.0
-	},
-	{
-		"id": "crown_acolyte",
-		"display_name": "Crown Acolyte",
-		"max_hp": 1400,
-		"attack_power": 0,
-		"defense_power": 0,
-		"crit_rate": 0.0,
-		"crit_damage": 1.0
-	},
-	{
-		"id": "frost_revenant",
-		"display_name": "Frost Revenant",
-		"max_hp": 1200,
-		"attack_power": 0,
-		"defense_power": 0,
-		"crit_rate": 0.0,
-		"crit_damage": 1.0
-	},
-	{
-		"id": "gravebound_crawler",
-		"display_name": "Gravebound Crawler",
-		"max_hp": 950,
-		"attack_power": 0,
+		"attack_power": 16,
 		"defense_power": 0,
 		"crit_rate": 0.0,
 		"crit_damage": 1.0
@@ -57,7 +21,43 @@
 		"id": "mire_imp",
 		"display_name": "Mire Imp",
 		"max_hp": 500,
-		"attack_power": 0,
+		"attack_power": 14,
+		"defense_power": 0,
+		"crit_rate": 0.0,
+		"crit_damage": 1.0
+	},
+	{
+		"id": "bone_crawler",
+		"display_name": "Bone Crawler",
+		"max_hp": 800,
+		"attack_power": 18,
+		"defense_power": 0,
+		"crit_rate": 0.0,
+		"crit_damage": 1.0
+	},
+	{
+		"id": "crown_acolyte",
+		"display_name": "Crown Acolyte",
+		"max_hp": 1400,
+		"attack_power": 28,
+		"defense_power": 0,
+		"crit_rate": 0.0,
+		"crit_damage": 1.0
+	},
+	{
+		"id": "frost_revenant",
+		"display_name": "Frost Revenant",
+		"max_hp": 1200,
+		"attack_power": 24,
+		"defense_power": 0,
+		"crit_rate": 0.0,
+		"crit_damage": 1.0
+	},
+	{
+		"id": "gravebound_crawler",
+		"display_name": "Gravebound Crawler",
+		"max_hp": 950,
+		"attack_power": 20,
 		"defense_power": 0,
 		"crit_rate": 0.0,
 		"crit_damage": 1.0

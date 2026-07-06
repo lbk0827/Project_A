@@ -1,0 +1,74 @@
+[
+	{
+		"id": "mire_imp",
+		"display_name": "Mire Imp",
+		"action_count": 3,
+		"intents": [
+			"stab",
+			"brace",
+			"heavy_blow"
+		]
+	},
+	{
+		"id": "bog_stalker",
+		"display_name": "Bog Stalker",
+		"action_count": 2,
+		"intents": [
+			"stab",
+			"stab",
+			"heavy_blow"
+		]
+	},
+	{
+		"id": "bone_crawler",
+		"display_name": "Bone Crawler",
+		"action_count": 2,
+		"intents": [
+			"heavy_blow",
+			"stab",
+			"brace"
+		]
+	},
+	{
+		"id": "gravebound_crawler",
+		"display_name": "Gravebound Crawler",
+		"action_count": 3,
+		"intents": [
+			"brace",
+			"stab",
+			"heavy_blow"
+		]
+	},
+	{
+		"id": "frost_revenant",
+		"display_name": "Frost Revenant",
+		"action_count": 2,
+		"intents": [
+			"brace",
+			"heavy_blow",
+			"stab",
+			"heavy_blow"
+		]
+	},
+	{
+		"id": "crown_acolyte",
+		"display_name": "Crown Acolyte",
+		"action_count": 2,
+		"intents": [
+			"heavy_blow",
+			"brace",
+			"heavy_blow"
+		]
+	},
+	{
+		"id": "abyssal_crown_guardian",
+		"display_name": "Abyssal Crown Guardian",
+		"action_count": 3,
+		"intents": [
+			"heavy_blow",
+			"brace",
+			"heavy_blow",
+			"stab"
+		]
+	}
+]
