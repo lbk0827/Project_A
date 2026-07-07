@@ -4,15 +4,11 @@ signal card_drag_started(index: int)
 signal card_drag_moved(index: int, screen_position: Vector2)
 signal card_dropped(index: int, screen_position: Vector2)
 
-const ATTACK_FRAME := preload("res://scenes/ui/cards/CardFrame_Attack.tres")
-const SKILL_FRAME := preload("res://scenes/ui/cards/CardFrame_Skill.tres")
-const ENHANCE_FRAME := preload("res://scenes/ui/cards/CardFrame_Enhance.tres")
 const DEFAULT_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const NORMAL_MODULATE := Color.WHITE
 const DISABLED_MODULATE := Color(0.58, 0.58, 0.58, 0.92)
 
 var visual_root: Control
-var frame: TextureRect
 var art: TextureRect
 var type_strip: ColorRect
 var cost_label: Label
@@ -53,17 +49,8 @@ func set_card(card: CardData, index: int, disabled: bool, hand_settings: CardHan
 	card_index = index
 	is_disabled = disabled
 	settings = hand_settings
-	match card.card_type:
-		&"attack":
-			frame.texture = ATTACK_FRAME
-		&"enhance":
-			frame.texture = ENHANCE_FRAME
-		_:
-			frame.texture = SKILL_FRAME
 	_apply_type_style(card.card_type)
 	var art_path := "res://assets/card/cardart_full/%s.png" % card.id
-	if not ResourceLoader.exists(art_path):
-		art_path = "res://assets/card/cardart/%s.png" % card.id
 	art.texture = load(art_path) if ResourceLoader.exists(art_path) else null
 	cost_label.text = str(card.cost)
 	name_label.text = card.display_name
@@ -194,10 +181,9 @@ func _on_click_area_gui_input(event: InputEvent):
 		_start_drag(get_global_mouse_position())
 
 func _bind_nodes():
-	if frame != null:
+	if visual_root != null:
 		return
 	visual_root = %VisualRoot
-	frame = %Frame
 	art = %ArtRect
 	type_strip = %TypeStrip
 	cost_label = %CostLabel
