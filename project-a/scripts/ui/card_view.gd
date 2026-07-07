@@ -256,7 +256,7 @@ func _start_drag(screen_position: Vector2):
 	z_as_relative = false
 	z_index = 1000
 	drag_start_global_position = visual_root.global_position
-	visual_root.scale = settings.drag_scale
+	visual_root.scale = Vector2.ONE
 	var grabbed_screen_position: Vector2 = visual_root.get_global_transform() * grabbed_local_position
 	visual_root.global_position += screen_position - grabbed_screen_position
 	drag_offset = screen_position - visual_root.global_position

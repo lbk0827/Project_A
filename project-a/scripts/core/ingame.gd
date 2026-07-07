@@ -35,6 +35,7 @@ const HAND_CENTER_SCREEN := Vector2(640, 560)
 const MONSTER_DROP_RADIUS := 90.0
 const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
+const CARD_PREVIEW_SCENE := preload("res://scenes/ui/cards/CardViewLarge.tscn")
 const DAMAGE_TO_ENEMY_COLOR := Color(1.0, 0.9, 0.4)
 const CRIT_COLOR := Color(1.0, 0.5, 0.1)
 const DAMAGE_TO_PLAYER_COLOR := Color(1.0, 0.35, 0.35)
@@ -98,6 +99,7 @@ var selected_card_index := -1
 var is_card_play_lifted := false
 var is_targeting_active := false
 var draw_animation_card_index := -1
+var card_preview_large: Control
 
 func _run_state() -> Node:
 	return get_node_or_null("/root/RunState")
@@ -1005,6 +1007,7 @@ func _on_card_drag_started(index: int):
 	is_card_play_lifted = false
 	is_targeting_active = false
 	targeted_enemy = null
+	_show_large_card_preview(index, get_viewport().get_mouse_position())
 	_update_inactive_cards(false)
 
 func _on_card_drag_moved(index: int, screen_position: Vector2):
@@ -1017,8 +1020,10 @@ func _on_card_drag_moved(index: int, screen_position: Vector2):
 			_start_targeting_card(index, screen_position)
 			return
 		if is_targeting_active:
+			_anchor_large_card_preview(_get_targeting_card_center())
 			_update_targeting_dot(screen_position)
 			return
+	_update_large_card_preview_position(screen_position)
 	if should_lift == is_card_play_lifted:
 		return
 	is_card_play_lifted = should_lift
@@ -1041,6 +1046,7 @@ func _reset_hand_drag_state():
 	is_card_play_lifted = false
 	is_targeting_active = false
 	targeted_enemy = null
+	_hide_large_card_preview()
 	if is_instance_valid(targeting_dot):
 		targeting_dot.visible = false
 	_update_inactive_cards(false)
@@ -1056,7 +1062,51 @@ func _start_targeting_card(index: int, screen_position: Vector2):
 	var card_view := _get_card_view(index)
 	if card_view != null:
 		card_view.call("set_targeting_anchor", _get_targeting_card_center())
+	_anchor_large_card_preview(_get_targeting_card_center())
 	_update_targeting_dot(screen_position)
+
+func _show_large_card_preview(index: int, screen_position: Vector2):
+	_hide_large_card_preview()
+	if index < 0 or index >= hand.size() or not is_instance_valid(ui_root):
+		return
+	var card: CardData = hand[index]
+	card_preview_large = CARD_PREVIEW_SCENE.instantiate()
+	card_preview_large.z_as_relative = false
+	card_preview_large.z_index = 1050
+	card_preview_large.modulate.a = 0.0
+	card_preview_large.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui_root.add_child(card_preview_large)
+	var effective_cost := _effective_cost(card)
+	card_preview_large.call("set_card", card, effective_cost)
+	card_preview_large.call("set_inspired_state", card.inspired, effective_cost)
+	_update_large_card_preview_position(screen_position)
+	var tween := create_tween()
+	tween.tween_property(card_preview_large, "modulate:a", 1.0, 0.08)
+
+func _update_large_card_preview_position(screen_position: Vector2):
+	if not is_instance_valid(card_preview_large):
+		return
+	var preview_size := card_preview_large.size
+	var target_position := screen_position - Vector2(preview_size.x * 0.5, preview_size.y * 0.82)
+	card_preview_large.global_position = _clamp_preview_position(target_position, preview_size)
+
+func _anchor_large_card_preview(center_position: Vector2):
+	if not is_instance_valid(card_preview_large):
+		return
+	var preview_size := card_preview_large.size
+	card_preview_large.global_position = _clamp_preview_position(center_position - preview_size * 0.5, preview_size)
+
+func _clamp_preview_position(position: Vector2, preview_size: Vector2) -> Vector2:
+	var viewport_size := get_viewport().get_visible_rect().size
+	return Vector2(
+		clamp(position.x, 8.0, max(8.0, viewport_size.x - preview_size.x - 8.0)),
+		clamp(position.y, 8.0, max(8.0, viewport_size.y - preview_size.y - 8.0))
+	)
+
+func _hide_large_card_preview():
+	if is_instance_valid(card_preview_large):
+		card_preview_large.queue_free()
+	card_preview_large = null
 
 func _get_card_view(index: int) -> Control:
 	for child in hand_container.get_children():
