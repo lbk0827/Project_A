@@ -1,0 +1,93 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/splash_screen.gd" id="1_splash"]
+
+[node name="SplashScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_splash")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.018, 0.02, 0.027, 1)
+
+[node name="AccentGlow" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -270.0
+offset_top = -112.0
+offset_right = 270.0
+offset_bottom = 112.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.42, 0.34, 0.2, 0.08)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LogoStack" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="StudioLabel" type="Label" parent="Center/LogoStack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.86, 0.62, 1)
+theme_override_font_sizes/font_size = 66
+text = "STUDIO BK"
+horizontal_alignment = 1
+
+[node name="LineRow" type="HBoxContainer" parent="Center/LogoStack"]
+custom_minimum_size = Vector2(430, 3)
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="LineLeft" type="ColorRect" parent="Center/LogoStack/LineRow"]
+custom_minimum_size = Vector2(166, 3)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.95, 0.78, 0.38, 1)
+
+[node name="LineRight" type="ColorRect" parent="Center/LogoStack/LineRow"]
+custom_minimum_size = Vector2(166, 3)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.52, 0.77, 0.86, 1)
+
+[node name="MarkLabel" type="Label" parent="Center/LogoStack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.74, 0.8, 0.84, 0.92)
+theme_override_font_sizes/font_size = 17
+text = "Prototype Build"
+horizontal_alignment = 1
+
+[node name="FadeRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.015, 0.016, 0.022, 1)
