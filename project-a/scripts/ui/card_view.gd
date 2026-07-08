@@ -253,6 +253,7 @@ func _start_drag(screen_position: Vector2):
 	var grabbed_local_position: Vector2 = visual_root.get_global_transform().affine_inverse() * screen_position
 	is_dragging = true
 	is_targeting_mode = false
+	visual_root.visible = false
 	z_as_relative = false
 	z_index = 1000
 	drag_start_global_position = visual_root.global_position
@@ -268,6 +269,7 @@ func _start_drag(screen_position: Vector2):
 func _end_drag():
 	is_dragging = false
 	is_targeting_mode = false
+	visual_root.visible = true
 	top_level = false
 	rotation_degrees = drag_start_rotation
 	z_as_relative = true
