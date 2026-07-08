@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-const HEROINE_SHEET := preload("res://assets/characters/spritesheets/HeroineSheet.png")
+const HEROINE_SHEET := preload("res://assets/characters/spritesheets/HeroineSheet_TsukiNew.png")
 const PORTRAIT_REGION := Rect2(30, 0, 70, 64)
 const PANEL_BG_COLOR := Color(0.05, 0.07, 0.11, 0.74)
 const PANEL_BORDER_COLOR := Color(0.4, 0.65, 0.9, 0.4)
