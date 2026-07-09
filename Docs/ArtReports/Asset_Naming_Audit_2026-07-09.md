@@ -32,14 +32,14 @@ This audit lists runtime image assets that still do not follow the naming policy
 | `project-a/assets/ui/ui_map.png` | Policy compliant |
 | `project-a/assets/ui/ui_sheet.png` | Policy compliant |
 | `project-a/assets/vfx/fx_heroine_slash.png` | Policy compliant |
-| `project-a/assets/monster/spriteSheet/abyssal_crown_guardian_spritesheet.png` | Policy compliant |
-| `project-a/assets/monster/spriteSheet/bog_stalker_spritesheet.png` | Policy compliant |
-| `project-a/assets/monster/spriteSheet/bone_crawler_spritesheet.png` | Policy compliant |
-| `project-a/assets/monster/spriteSheet/crown_acolyte_spritesheet.png` | Policy compliant |
-| `project-a/assets/monster/spriteSheet/frost_revenant_spritesheet.png` | Policy compliant |
-| `project-a/assets/monster/spriteSheet/gravebound_crawler_spritesheet.png` | Policy compliant |
-| `project-a/assets/monster/spriteSheet/mire_imp_spritesheet.png` | Policy compliant |
-| `project-a/assets/monster/spriteSheet/monster_dummy_spritesheet.png` | Policy compliant |
+| `project-a/assets/monster/spritesheets/abyssal_crown_guardian_spritesheet.png` | Policy compliant |
+| `project-a/assets/monster/spritesheets/bog_stalker_spritesheet.png` | Policy compliant |
+| `project-a/assets/monster/spritesheets/bone_crawler_spritesheet.png` | Policy compliant |
+| `project-a/assets/monster/spritesheets/crown_acolyte_spritesheet.png` | Policy compliant |
+| `project-a/assets/monster/spritesheets/frost_revenant_spritesheet.png` | Policy compliant |
+| `project-a/assets/monster/spritesheets/gravebound_crawler_spritesheet.png` | Policy compliant |
+| `project-a/assets/monster/spritesheets/mire_imp_spritesheet.png` | Policy compliant |
+| `project-a/assets/monster/spritesheets/monster_dummy_spritesheet.png` | Policy compliant |
 | `project-a/assets/characters/spritesheets/tsuki_spritesheet.png` | Policy compliant |
 | `project-a/assets/characters/spritesheets/card_magician_spritesheet.png` | Policy compliant |
 | `project-a/assets/card/cardframe/card_frame_dummy.png` | Policy compliant |
@@ -58,4 +58,4 @@ This audit lists runtime image assets that still do not follow the naming policy
 
 Runtime image naming is now policy-compliant for the audited set.
 
-Possible follow-up: normalize folder casing such as `project-a/assets/monster/spriteSheet`.
+Folder names are also normalized for the audited runtime image set.

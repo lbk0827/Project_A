@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cdaocbbsojh8d"]
 
 [ext_resource type="Script" uid="uid://bqv5dcgl6dwiu" path="res://scripts/monster/monster_actor.gd" id="1_actor"]
-[ext_resource type="Texture2D" uid="uid://u5xtadc4lqj8" path="res://assets/monster/spriteSheet/crown_acolyte_spritesheet.png" id="2_sheet"]
+[ext_resource type="Texture2D" uid="uid://u5xtadc4lqj8" path="res://assets/monster/spritesheets/crown_acolyte_spritesheet.png" id="2_sheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_0"]
 atlas = ExtResource("2_sheet")

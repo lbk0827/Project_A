@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://u5xtadc4lqj8"
-path="res://.godot/imported/crown_acolyte_spritesheet.png-beb6cd3febe078fab86737c85d77cddf.ctex"
+path="res://.godot/imported/crown_acolyte_spritesheet.png-2ff794624e6e2b8e48b98d25f11130ac.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/monster/spriteSheet/crown_acolyte_spritesheet.png"
-dest_files=["res://.godot/imported/crown_acolyte_spritesheet.png-beb6cd3febe078fab86737c85d77cddf.ctex"]
+source_file="res://assets/monster/spritesheets/crown_acolyte_spritesheet.png"
+dest_files=["res://.godot/imported/crown_acolyte_spritesheet.png-2ff794624e6e2b8e48b98d25f11130ac.ctex"]
 
 [params]
 

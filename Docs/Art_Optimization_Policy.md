@@ -17,7 +17,7 @@
 | 폴더 | 역할 | 빌드 포함 |
 | --- | --- | --- |
 | `project-a/assets/card/cardart_full` | 게임에서 쓰는 카드 풀오버레이 | 포함 |
-| `project-a/assets/monster/spriteSheet` | 게임에서 쓰는 몬스터 스프라이트시트 | 포함 |
+| `project-a/assets/monster/spritesheets` | 게임에서 쓰는 몬스터 스프라이트시트 | 포함 |
 | `project-a/assets/characters/spritesheets` | 게임에서 쓰는 캐릭터 스프라이트시트 | 포함 |
 | `project-a/assets/ui` | 게임에서 쓰는 UI atlas와 배경 | 포함 |
 | `project-a/assets/stage` | 게임에서 쓰는 배경/스테이지 | 포함 |
@@ -51,7 +51,7 @@ Docs/ArtReference/
 
 ## 몬스터 스프라이트시트 정책
 
-- 사용 폴더: `project-a/assets/monster/spriteSheet`
+- 사용 폴더: `project-a/assets/monster/spritesheets`
 - 실제 전투 화면 표시 크기를 기준으로 최대 해상도를 정합니다.
 - 현재 960px급 시트는 유지 가능하지만, 신규 몬스터는 표시 크기 대비 과도한 여백과 프레임 낭비를 피합니다.
 - 프레임 수가 늘어나는 애니메이션은 카드 풀아트보다 용량 증가가 빠르므로 먼저 최적화 대상이 됩니다.
@@ -91,7 +91,7 @@ Docs/ArtReference/
 - 큰 preview/full 이미지
 - 예전 버전 백업
 
-최종 적용이 끝난 이미지는 `cardart_full`, `monster/spriteSheet`, `ui` 등 런타임 폴더에만 남깁니다.
+최종 적용이 끝난 이미지는 `cardart_full`, `monster/spritesheets`, `ui` 등 런타임 폴더에만 남깁니다.
 
 ## 작업 순서
 
@@ -123,7 +123,7 @@ Docs/ArtOptimizationAB/
 대표 샘플:
 
 - 카드: `assets/card/cardart_full/tsuki_high_speed_slash.png`
-- 몬스터: `assets/monster/spriteSheet/crown_acolyte_spritesheet.png`
+- 몬스터: `assets/monster/spritesheets/crown_acolyte_spritesheet.png`
 - UI: `assets/ui/ui_sheet.png`
 
 1차 결과:

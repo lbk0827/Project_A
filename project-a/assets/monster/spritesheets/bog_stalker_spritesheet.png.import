@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dh4o1hqsr42em"
-path="res://.godot/imported/frost_revenant_spritesheet.png-5d2478fa9f496714cf5b980a5b570da0.ctex"
+uid="uid://dr2oissehg5ye"
+path="res://.godot/imported/bog_stalker_spritesheet.png-d168699491f880c866cad9a4e9c6dde7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/monster/spriteSheet/frost_revenant_spritesheet.png"
-dest_files=["res://.godot/imported/frost_revenant_spritesheet.png-5d2478fa9f496714cf5b980a5b570da0.ctex"]
+source_file="res://assets/monster/spritesheets/bog_stalker_spritesheet.png"
+dest_files=["res://.godot/imported/bog_stalker_spritesheet.png-d168699491f880c866cad9a4e9c6dde7.ctex"]
 
 [params]
 

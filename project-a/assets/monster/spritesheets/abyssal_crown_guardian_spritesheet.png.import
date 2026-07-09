@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b3hftgp71hrik"
-path="res://.godot/imported/abyssal_crown_guardian_spritesheet.png-9e6f63cf9280fff6fd988ec9f6c78265.ctex"
+path="res://.godot/imported/abyssal_crown_guardian_spritesheet.png-354d6a08916238b6b90716bc419c2dad.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/monster/spriteSheet/abyssal_crown_guardian_spritesheet.png"
-dest_files=["res://.godot/imported/abyssal_crown_guardian_spritesheet.png-9e6f63cf9280fff6fd988ec9f6c78265.ctex"]
+source_file="res://assets/monster/spritesheets/abyssal_crown_guardian_spritesheet.png"
+dest_files=["res://.godot/imported/abyssal_crown_guardian_spritesheet.png-354d6a08916238b6b90716bc419c2dad.ctex"]
 
 [params]
 

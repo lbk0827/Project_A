@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bkb2bqs56vfbw"
-path="res://.godot/imported/monster_dummy_spritesheet.png-358ed178dde3fa26f943128a165a520f.ctex"
+uid="uid://71u85y2li028"
+path="res://.godot/imported/gravebound_crawler_spritesheet.png-44ff4e3fabd1be807a2aa69665a8ad99.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/monster/spriteSheet/monster_dummy_spritesheet.png"
-dest_files=["res://.godot/imported/monster_dummy_spritesheet.png-358ed178dde3fa26f943128a165a520f.ctex"]
+source_file="res://assets/monster/spritesheets/gravebound_crawler_spritesheet.png"
+dest_files=["res://.godot/imported/gravebound_crawler_spritesheet.png-44ff4e3fabd1be807a2aa69665a8ad99.ctex"]
 
 [params]
 

@@ -7,7 +7,7 @@ Godot 런타임에서 사용하는 이미지의 1차 import 기준입니다. 원
 | 분류 | 대상 | compress/mode | lossy_quality | mipmaps |
 | --- | --- | ---: | ---: | --- |
 | 카드 풀오버레이 | `project-a/assets/card/cardart_full/*.png` | 1 | 0.95 | on |
-| 몬스터 스프라이트시트 | `project-a/assets/monster/spriteSheet/*.png` | 1 | 0.95 | off |
+| 몬스터 스프라이트시트 | `project-a/assets/monster/spritesheets/*.png` | 1 | 0.95 | off |
 | 캐릭터 스프라이트시트 | `project-a/assets/characters/spritesheets/*.png` | 1 | 0.95 | off |
 | 배경성 이미지 | `bg_title.png`, `ui_map.png`, `stage/*.png` | 1 | 0.95 | on |
 | UI atlas | `ui_sheet.png` | 0 | 0.7 | off |

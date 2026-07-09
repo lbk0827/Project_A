@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://coarhl0mkytfr"]
 
 [ext_resource type="Script" uid="uid://bqv5dcgl6dwiu" path="res://scripts/monster/monster_actor.gd" id="1_1uvy5"]
-[ext_resource type="Texture2D" uid="uid://bkb2bqs56vfbw" path="res://assets/monster/spriteSheet/monster_dummy_spritesheet.png" id="1_rk3jy"]
+[ext_resource type="Texture2D" uid="uid://bkb2bqs56vfbw" path="res://assets/monster/spritesheets/monster_dummy_spritesheet.png" id="1_rk3jy"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1uvy5"]
 atlas = ExtResource("1_rk3jy")

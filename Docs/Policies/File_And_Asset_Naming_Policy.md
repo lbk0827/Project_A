@@ -126,7 +126,7 @@ card_magician_spritesheet.png
 Runtime monster spritesheets live here:
 
 ```text
-project-a/assets/monster/spriteSheet/
+project-a/assets/monster/spritesheets/
 ```
 
 Use:
