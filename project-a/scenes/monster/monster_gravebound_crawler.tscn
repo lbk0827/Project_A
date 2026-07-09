@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://ipo4op0ppd02"]
 
 [ext_resource type="Script" uid="uid://bqv5dcgl6dwiu" path="res://scripts/monster/monster_actor.gd" id="1_actor"]
-[ext_resource type="Texture2D" uid="uid://71u85y2li028" path="res://assets/monster/spriteSheet/MonsterGraveboundCrawler.png" id="2_sheet"]
+[ext_resource type="Texture2D" uid="uid://71u85y2li028" path="res://assets/monster/spriteSheet/gravebound_crawler_spritesheet.png" id="2_sheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_0"]
 atlas = ExtResource("2_sheet")

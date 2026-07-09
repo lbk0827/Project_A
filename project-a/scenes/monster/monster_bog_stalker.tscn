@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bogstalkerscn"]
 
 [ext_resource type="Script" uid="uid://bqv5dcgl6dwiu" path="res://scripts/monster/monster_actor.gd" id="1_actor"]
-[ext_resource type="Texture2D" uid="uid://dr2oissehg5ye" path="res://assets/monster/spriteSheet/MonsterBogStalker.png" id="2_sheet"]
+[ext_resource type="Texture2D" uid="uid://dr2oissehg5ye" path="res://assets/monster/spriteSheet/bog_stalker_spritesheet.png" id="2_sheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_0"]
 atlas = ExtResource("2_sheet")

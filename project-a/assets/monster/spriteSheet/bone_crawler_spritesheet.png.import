@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://oakld0o1c7bk"
-path="res://.godot/imported/MonsterBoneCrawler.png-6719720228d2279dec43a588ef5b280c.ctex"
+path="res://.godot/imported/bone_crawler_spritesheet.png-a6663477eb423277e29e8de6ef8d7c05.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/monster/spriteSheet/MonsterBoneCrawler.png"
-dest_files=["res://.godot/imported/MonsterBoneCrawler.png-6719720228d2279dec43a588ef5b280c.ctex"]
+source_file="res://assets/monster/spriteSheet/bone_crawler_spritesheet.png"
+dest_files=["res://.godot/imported/bone_crawler_spritesheet.png-a6663477eb423277e29e8de6ef8d7c05.ctex"]
 
 [params]
 

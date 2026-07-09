@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dh4o1hqsr42em"
-path="res://.godot/imported/MonsterFrostRevenant.png-54af9c46fa56bc6e46bd9f48dd384387.ctex"
+uid="uid://u5xtadc4lqj8"
+path="res://.godot/imported/crown_acolyte_spritesheet.png-beb6cd3febe078fab86737c85d77cddf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/monster/spriteSheet/MonsterFrostRevenant.png"
-dest_files=["res://.godot/imported/MonsterFrostRevenant.png-54af9c46fa56bc6e46bd9f48dd384387.ctex"]
+source_file="res://assets/monster/spriteSheet/crown_acolyte_spritesheet.png"
+dest_files=["res://.godot/imported/crown_acolyte_spritesheet.png-beb6cd3febe078fab86737c85d77cddf.ctex"]
 
 [params]
 

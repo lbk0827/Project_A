@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bkb2bqs56vfbw"
-path="res://.godot/imported/MonsterDummy.png-ef88e541dbbc9ecd59f1f7565ade6eac.ctex"
+uid="uid://dr2oissehg5ye"
+path="res://.godot/imported/bog_stalker_spritesheet.png-4289aa7c6afae6f768c4c09dc2d9bf0c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/monster/spriteSheet/MonsterDummy.png"
-dest_files=["res://.godot/imported/MonsterDummy.png-ef88e541dbbc9ecd59f1f7565ade6eac.ctex"]
+source_file="res://assets/monster/spriteSheet/bog_stalker_spritesheet.png"
+dest_files=["res://.godot/imported/bog_stalker_spritesheet.png-4289aa7c6afae6f768c4c09dc2d9bf0c.ctex"]
 
 [params]
 

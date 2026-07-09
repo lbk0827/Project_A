@@ -123,7 +123,7 @@ Docs/ArtOptimizationAB/
 대표 샘플:
 
 - 카드: `assets/card/cardart_full/tsuki_high_speed_slash.png`
-- 몬스터: `assets/monster/spriteSheet/MonsterCrownAcolyte.png`
+- 몬스터: `assets/monster/spriteSheet/crown_acolyte_spritesheet.png`
 - UI: `assets/ui/ui_sheet.png`
 
 1차 결과:

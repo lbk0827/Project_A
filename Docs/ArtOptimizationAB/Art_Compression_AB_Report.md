@@ -5,7 +5,7 @@
 ## ??
 
 - `card_high_speed_slash`: `project-a/assets/card/cardart_full/tsuki_high_speed_slash.png` (1023x1537, 2640.4 KiB)
-- `monster_crown_acolyte`: `project-a/assets/monster/spriteSheet/MonsterCrownAcolyte.png` (960x1280, 1593.5 KiB)
+- `monster_crown_acolyte`: `project-a/assets/monster/spriteSheet/crown_acolyte_spritesheet.png` (960x1280, 1593.5 KiB)
 - `ui_sheet`: `project-a/assets/ui/ui_sheet.png` (1944x1564, 1155.1 KiB)
 
 ## ??/?? ??

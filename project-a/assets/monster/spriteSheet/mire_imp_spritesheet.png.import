@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b3hftgp71hrik"
-path="res://.godot/imported/MonsterAbyssalCrownGuardian.png-70b5cb03306009c825fa107198b18e20.ctex"
+uid="uid://c1umireimpsht"
+path="res://.godot/imported/mire_imp_spritesheet.png-79dc2d57ed07907ff6986cf7a73f02e6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/monster/spriteSheet/MonsterAbyssalCrownGuardian.png"
-dest_files=["res://.godot/imported/MonsterAbyssalCrownGuardian.png-70b5cb03306009c825fa107198b18e20.ctex"]
+source_file="res://assets/monster/spriteSheet/mire_imp_spritesheet.png"
+dest_files=["res://.godot/imported/mire_imp_spritesheet.png-79dc2d57ed07907ff6986cf7a73f02e6.ctex"]
 
 [params]
 

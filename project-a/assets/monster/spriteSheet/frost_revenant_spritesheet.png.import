@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://71u85y2li028"
-path="res://.godot/imported/MonsterGraveboundCrawler.png-da6de59200fb44b40afd96821e5454ff.ctex"
+uid="uid://dh4o1hqsr42em"
+path="res://.godot/imported/frost_revenant_spritesheet.png-5d2478fa9f496714cf5b980a5b570da0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/monster/spriteSheet/MonsterGraveboundCrawler.png"
-dest_files=["res://.godot/imported/MonsterGraveboundCrawler.png-da6de59200fb44b40afd96821e5454ff.ctex"]
+source_file="res://assets/monster/spriteSheet/frost_revenant_spritesheet.png"
+dest_files=["res://.godot/imported/frost_revenant_spritesheet.png-5d2478fa9f496714cf5b980a5b570da0.ctex"]
 
 [params]
 
