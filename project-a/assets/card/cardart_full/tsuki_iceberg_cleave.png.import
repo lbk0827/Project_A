@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c3xwcgvmwuvwn"
-path="res://.godot/imported/freezing_blade.png-cbcd34c6ef53a5447601e1073e0a890f.ctex"
+uid="uid://ejp4f4b1e1tb"
+path="res://.godot/imported/tsuki_iceberg_cleave.png-66b714abc820b666be555360dbde0de5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/card/cardart_full/freezing_blade.png"
-dest_files=["res://.godot/imported/freezing_blade.png-cbcd34c6ef53a5447601e1073e0a890f.ctex"]
+source_file="res://assets/card/cardart_full/tsuki_iceberg_cleave.png"
+dest_files=["res://.godot/imported/tsuki_iceberg_cleave.png-66b714abc820b666be555360dbde0de5.ctex"]
 
 [params]
 

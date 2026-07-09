@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ejp4f4b1e1tb"
-path="res://.godot/imported/iceberg_cleave.png-10727862f07dff33c314115392cc46a9.ctex"
+uid="uid://be44x57g3shrl"
+path="res://.godot/imported/tsuki_feint_strike.png-af20d8a0724daf8d882daa65cef01d16.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/card/cardart_full/iceberg_cleave.png"
-dest_files=["res://.godot/imported/iceberg_cleave.png-10727862f07dff33c314115392cc46a9.ctex"]
+source_file="res://assets/card/cardart_full/tsuki_feint_strike.png"
+dest_files=["res://.godot/imported/tsuki_feint_strike.png-af20d8a0724daf8d882daa65cef01d16.ctex"]
 
 [params]
 

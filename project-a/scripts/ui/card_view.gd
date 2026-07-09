@@ -50,7 +50,7 @@ func set_card(card: CardData, index: int, disabled: bool, hand_settings: CardHan
 	is_disabled = disabled
 	settings = hand_settings
 	_apply_type_style(card.card_type)
-	var art_path := "res://assets/card/cardart_full/%s.png" % card.id
+	var art_path := _card_art_path(card)
 	art.texture = load(art_path) if ResourceLoader.exists(art_path) else null
 	cost_label.text = str(card.cost)
 	name_label.text = card.display_name
@@ -206,6 +206,14 @@ func _apply_type_style(card_type: StringName):
 		type_strip.color = accent
 	if type_label != null:
 		type_label.add_theme_color_override("font_color", accent.lightened(0.18))
+
+func _card_art_path(card: CardData) -> String:
+	var character_id := card.character.strip_edges()
+	if not character_id.is_empty():
+		var character_path := "res://assets/card/cardart_full/%s_%s.png" % [character_id, card.id]
+		if ResourceLoader.exists(character_path):
+			return character_path
+	return "res://assets/card/cardart_full/%s.png" % card.id
 
 func _type_text(card_type: StringName) -> String:
 	match card_type:

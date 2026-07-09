@@ -9,8 +9,8 @@ Godot 런타임에서 사용하는 이미지의 1차 import 기준입니다. 원
 | 카드 풀오버레이 | `project-a/assets/card/cardart_full/*.png` | 1 | 0.95 | on |
 | 몬스터 스프라이트시트 | `project-a/assets/monster/spriteSheet/*.png` | 1 | 0.95 | off |
 | 캐릭터 스프라이트시트 | `project-a/assets/characters/spritesheets/*.png` | 1 | 0.95 | off |
-| 배경성 이미지 | `BG_Title.png`, `UIMap.png`, `stage/*.png` | 1 | 0.95 | on |
-| UI atlas/icon | `UISheet.png`, `UIStatusIcon.png` | 0 | 0.7 | off |
+| 배경성 이미지 | `bg_title.png`, `ui_map.png`, `stage/*.png` | 1 | 0.95 | on |
+| UI atlas/icon | `ui_sheet.png`, `UIStatusIcon.png` | 0 | 0.7 | off |
 
 `compress/mode=1`은 Godot의 lossy texture import를 사용합니다. UI atlas와 아이콘은 작은 선, 프레임, 글자 주변 아티팩트가 잘 보일 수 있어 lossless로 유지합니다.
 
@@ -22,7 +22,7 @@ Godot reimport 후 `.ctex` 샘플 크기:
 | --- | ---: | ---: |
 | `high_speed_slash.ctex` | 약 2.03 MB | 약 786 KB |
 | `MonsterCrownAcolyte.ctex` | 약 1.32 MB | 약 589 KB |
-| `UISheet.ctex` | 약 569 KB | 약 569 KB |
+| `ui_sheet.ctex` | 약 569 KB | 약 569 KB |
 
 전체 `.ctex` 합계는 약 60.56 MB에서 약 45.15 MB로 감소했습니다.
 

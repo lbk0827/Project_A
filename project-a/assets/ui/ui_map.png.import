@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://be44x57g3shrl"
-path="res://.godot/imported/feint_strike.png-8e6b03eaf9fe7f5bf3cda9386651d2d2.ctex"
+uid="uid://bvmiur5u7cavu"
+path="res://.godot/imported/ui_map.png-8fbcaf3a7ee1eff6b95e1f0e37732a56.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/card/cardart_full/feint_strike.png"
-dest_files=["res://.godot/imported/feint_strike.png-8e6b03eaf9fe7f5bf3cda9386651d2d2.ctex"]
+source_file="res://assets/ui/ui_map.png"
+dest_files=["res://.godot/imported/ui_map.png-8fbcaf3a7ee1eff6b95e1f0e37732a56.ctex"]
 
 [params]
 

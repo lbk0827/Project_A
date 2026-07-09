@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dltbsc4yvia26"
-path="res://.godot/imported/BG_Title.png-7c3002517af1e91c2ded1b2ac4f7a180.ctex"
+uid="uid://b8xybjwcq1aet"
+path="res://.godot/imported/tsuki_let_flow.png-68a0a283ce07d478762130fcd373429b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/BG_Title.png"
-dest_files=["res://.godot/imported/BG_Title.png-7c3002517af1e91c2ded1b2ac4f7a180.ctex"]
+source_file="res://assets/card/cardart_full/tsuki_let_flow.png"
+dest_files=["res://.godot/imported/tsuki_let_flow.png-68a0a283ce07d478762130fcd373429b.ctex"]
 
 [params]
 

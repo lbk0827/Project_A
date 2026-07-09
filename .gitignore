@@ -25,6 +25,8 @@ editor_settings-4.tres
 *.translation
 *.tmp
 *.log
+__pycache__/
+*.pyc
 
 # macOS 시스템 파일
 .DS_Store

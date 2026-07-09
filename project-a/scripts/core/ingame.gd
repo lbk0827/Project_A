@@ -123,6 +123,7 @@ func _load_card_library() -> Dictionary:
 	for entry in parsed:
 		var card := CardData.new()
 		card.id = String(entry.get("id", ""))
+		card.character = String(entry.get("character", ""))
 		card.display_name = String(entry.get("display_name", ""))
 		card.cost = int(entry.get("cost", 0))
 		card.text = String(entry.get("text", ""))

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ceicko8y2thcj"
-path="res://.godot/imported/long_sword_slash.png-7836c7fe2c50efa28848a6a9cf4ead7c.ctex"
+uid="uid://ccqd3ac0oac11"
+path="res://.godot/imported/tsuki_steal_slash.png-31d8efcbc29d3bfeab7c7b3a162496e9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/card/cardart_full/long_sword_slash.png"
-dest_files=["res://.godot/imported/long_sword_slash.png-7836c7fe2c50efa28848a6a9cf4ead7c.ctex"]
+source_file="res://assets/card/cardart_full/tsuki_steal_slash.png"
+dest_files=["res://.godot/imported/tsuki_steal_slash.png-31d8efcbc29d3bfeab7c7b3a162496e9.ctex"]
 
 [params]
 

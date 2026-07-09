@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ccqd3ac0oac11"
-path="res://.godot/imported/steal_slash.png-1e336f457779a5fa52acd09c043567c3.ctex"
+uid="uid://b6h2yk28pplxh"
+path="res://.godot/imported/stage_1.png-0009dd4162b779f76f6206a90d4b826b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/card/cardart_full/steal_slash.png"
-dest_files=["res://.godot/imported/steal_slash.png-1e336f457779a5fa52acd09c043567c3.ctex"]
+source_file="res://assets/stage/stage_1.png"
+dest_files=["res://.godot/imported/stage_1.png-0009dd4162b779f76f6206a90d4b826b.ctex"]
 
 [params]
 

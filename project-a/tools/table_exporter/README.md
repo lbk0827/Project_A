@@ -41,6 +41,12 @@ Usage from `project-a`:
 python tools/table_exporter/table_exporter.py --input-dir tables/excel --output-dir data/generated --clean
 ```
 
+Validate generated Tsuki card data and runtime card art:
+
+```powershell
+python tools/table_exporter/validate_card_assets.py
+```
+
 On Windows, you can also run:
 
 ```powershell

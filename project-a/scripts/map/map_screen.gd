@@ -2,7 +2,7 @@
 extends Control
 
 const INGAME_SCENE_PATH := "res://scenes/core/ingame/ingame.tscn"
-const MAP_ATLAS := preload("res://assets/ui/UIMap.png")
+const MAP_ATLAS := preload("res://assets/ui/ui_map.png")
 const NODE_SIZE := Vector2(86, 86)
 const BOSS_NODE_SIZE := Vector2(108, 108)
 const SELECTABLE_COLOR := Color(1.0, 0.92, 0.52, 1.0)

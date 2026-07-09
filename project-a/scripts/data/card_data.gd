@@ -2,6 +2,7 @@ extends Resource
 class_name CardData
 
 @export var id := ""
+@export var character := ""
 @export var display_name := ""
 @export var cost := 0
 @export_multiline var text := ""

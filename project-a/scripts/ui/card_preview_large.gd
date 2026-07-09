@@ -15,7 +15,7 @@ func _ready():
 func set_card(card: CardData, effective_cost: int = -1):
 	_bind_nodes()
 	_apply_type_style(card.card_type)
-	var art_path := "res://assets/card/cardart_full/%s.png" % card.id
+	var art_path := _card_art_path(card)
 	art.texture = load(art_path) if ResourceLoader.exists(art_path) else null
 	cost_label.text = str(card.cost if effective_cost < 0 else effective_cost)
 	name_label.text = card.display_name
@@ -78,6 +78,14 @@ func _apply_type_style(card_type: StringName):
 			accent = Color(0.48, 0.86, 1.0, 1.0)
 	type_strip.color = accent
 	type_label.add_theme_color_override("font_color", accent.lightened(0.18))
+
+func _card_art_path(card: CardData) -> String:
+	var character_id := card.character.strip_edges()
+	if not character_id.is_empty():
+		var character_path := "res://assets/card/cardart_full/%s_%s.png" % [character_id, card.id]
+		if ResourceLoader.exists(character_path):
+			return character_path
+	return "res://assets/card/cardart_full/%s.png" % card.id
 
 func _type_text(card_type: StringName) -> String:
 	match card_type:

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b8xybjwcq1aet"
-path="res://.godot/imported/let_flow.png-a38e9455f8be82e929e9afe941b1b7bf.ctex"
+uid="uid://c3xwcgvmwuvwn"
+path="res://.godot/imported/tsuki_freezing_blade.png-10b8c31d2c3accb11d959a02ec404e3c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/card/cardart_full/let_flow.png"
-dest_files=["res://.godot/imported/let_flow.png-a38e9455f8be82e929e9afe941b1b7bf.ctex"]
+source_file="res://assets/card/cardart_full/tsuki_freezing_blade.png"
+dest_files=["res://.godot/imported/tsuki_freezing_blade.png-10b8c31d2c3accb11d959a02ec404e3c.ctex"]
 
 [params]
 

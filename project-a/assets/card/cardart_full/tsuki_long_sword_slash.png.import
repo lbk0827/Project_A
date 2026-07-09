@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bvmiur5u7cavu"
-path="res://.godot/imported/UIMap.png-d724e63f15bdf650f97f57ac6a9a6dd3.ctex"
+uid="uid://ceicko8y2thcj"
+path="res://.godot/imported/tsuki_long_sword_slash.png-6c0b8298f65d9ac729795e19206c8258.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/UIMap.png"
-dest_files=["res://.godot/imported/UIMap.png-d724e63f15bdf650f97f57ac6a9a6dd3.ctex"]
+source_file="res://assets/card/cardart_full/tsuki_long_sword_slash.png"
+dest_files=["res://.godot/imported/tsuki_long_sword_slash.png-6c0b8298f65d9ac729795e19206c8258.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://82fp48qur2e6"
-path="res://.godot/imported/FX_HeroineSlash.png-3d4e397ad02b5d575ba934b7a5ffd8c9.ctex"
+uid="uid://b7kclx72fuqjj"
+path="res://.godot/imported/ui_sheet.png-3202c77d3af469556141b5628732a921.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/vfx/FX_HeroineSlash.png"
-dest_files=["res://.godot/imported/FX_HeroineSlash.png-3d4e397ad02b5d575ba934b7a5ffd8c9.ctex"]
+source_file="res://assets/ui/ui_sheet.png"
+dest_files=["res://.godot/imported/ui_sheet.png-3202c77d3af469556141b5628732a921.ctex"]
 
 [params]
 

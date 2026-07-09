@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://duoi5gf2320qw"
-path="res://.godot/imported/suppress_ready.png-26c5d64a9db7d8660dfd97f0e2fe191b.ctex"
+uid="uid://dfsd1nmr1rytw"
+path="res://.godot/imported/tsuki_high_speed_slash.png-930eb6f5ad167b9c83cccd55b2366f72.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/card/cardart_full/suppress_ready.png"
-dest_files=["res://.godot/imported/suppress_ready.png-26c5d64a9db7d8660dfd97f0e2fe191b.ctex"]
+source_file="res://assets/card/cardart_full/tsuki_high_speed_slash.png"
+dest_files=["res://.godot/imported/tsuki_high_speed_slash.png-930eb6f5ad167b9c83cccd55b2366f72.ctex"]
 
 [params]
 
