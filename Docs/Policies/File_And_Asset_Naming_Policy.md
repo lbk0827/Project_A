@@ -68,7 +68,7 @@ Final.png
 new_card.png
 CardArt2.png
 빙점 칼날.png
-HeroineSheet_TsukiNew.png
+tsuki_spritesheet.png
 ```
 
 Rules:

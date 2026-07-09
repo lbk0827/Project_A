@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dtq8f7mc4hp2x"]
 
-[ext_resource type="Texture2D" uid="uid://b4m8fvaqk3n2p" path="res://assets/characters/spritesheets/HeroineSheet_CardMagician.png" id="1_sheet"]
+[ext_resource type="Texture2D" uid="uid://b4m8fvaqk3n2p" path="res://assets/characters/spritesheets/card_magician_spritesheet.png" id="1_sheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_0"]
 atlas = ExtResource("1_sheet")

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://s1c6klj4dkea"
-path="res://.godot/imported/HeroineSheet_TsukiNew.png-e4fae495615e4758100e098363de0642.ctex"
+uid="uid://b4m8fvaqk3n2p"
+path="res://.godot/imported/card_magician_spritesheet.png-b503c716fa3737af8c68127ac401e590.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/spritesheets/HeroineSheet_TsukiNew.png"
-dest_files=["res://.godot/imported/HeroineSheet_TsukiNew.png-e4fae495615e4758100e098363de0642.ctex"]
+source_file="res://assets/characters/spritesheets/card_magician_spritesheet.png"
+dest_files=["res://.godot/imported/card_magician_spritesheet.png-b503c716fa3737af8c68127ac401e590.ctex"]
 
 [params]
 
