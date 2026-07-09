@@ -8,12 +8,12 @@ This audit lists runtime image assets that still do not follow the naming policy
 | Area | Runtime images | Status |
 | --- | ---: | --- |
 | Card art | 8 | Done: `tsuki_<card_id>.png` |
-| Card frame | 1 | Rename candidate |
-| Character spritesheets | 5 | Referenced runtime files renamed; archive candidates remain |
+| Card frame | 1 | Done: `card_frame_dummy.png` |
+| Character spritesheets | 2 | Referenced runtime files renamed; unused candidates archived |
 | Monster spritesheets | 8 | Done: `<monster_id>_spritesheet.png` |
 | Stage | 1 | Done: `stage_1.png` |
-| UI | 4 | Core files renamed, one possible unused file |
-| VFX | 2 | Main referenced file renamed, one possible unused file |
+| UI | 3 | Core files renamed; unused candidate archived |
+| VFX | 1 | Referenced file renamed; unused candidate archived |
 
 ## Completed
 
@@ -42,26 +42,20 @@ This audit lists runtime image assets that still do not follow the naming policy
 | `project-a/assets/monster/spriteSheet/monster_dummy_spritesheet.png` | Policy compliant |
 | `project-a/assets/characters/spritesheets/tsuki_spritesheet.png` | Policy compliant |
 | `project-a/assets/characters/spritesheets/card_magician_spritesheet.png` | Policy compliant |
+| `project-a/assets/card/cardframe/card_frame_dummy.png` | Policy compliant |
 
-## Recommended Runtime Renames
+## Archived Runtime Candidates
 
-| Current path | Recommended path | Reference notes |
+| Original path | Archive path | Reference notes |
 | --- | --- | --- |
-| `project-a/assets/card/cardframe/CardDummy.png` | `project-a/assets/card/cardframe/card_frame_dummy.png` | Referenced by `CardFrame_*.tres` |
-| `project-a/assets/characters/spritesheets/HeroineSheet_TsukiNew_chromakey.png` | `Docs/ArtSource/characters/spritesheets/tsuki_spritesheet_chromakey_source.png` | No direct runtime reference found |
-| `project-a/assets/characters/spritesheets/HeroineSheet_CardMagician_chromakey.png` | `Docs/ArtSource/characters/spritesheets/card_magician_spritesheet_chromakey_source.png` | No direct runtime reference found |
-| `project-a/assets/characters/spritesheets/HeroineSheet.png` | `Docs/ArtArchive/2026-07-09_asset_naming_candidates/characters/HeroineSheet.png` | No direct runtime reference found |
-| `project-a/assets/ui/UIStatusIcon.png` | `project-a/assets/ui/ui_status_icon.png` or archive | No direct runtime reference found |
-| `project-a/assets/vfx/FX_Slash.png` | `project-a/assets/vfx/fx_slash.png` or archive | No direct runtime reference found |
+| `project-a/assets/characters/spritesheets/HeroineSheet.png` | `Docs/ArtArchive/2026-07-09_unused_runtime_candidates/project-a/assets/characters/spritesheets/HeroineSheet.png` | No direct runtime reference found |
+| `project-a/assets/characters/spritesheets/HeroineSheet_TsukiNew_chromakey.png` | `Docs/ArtArchive/2026-07-09_unused_runtime_candidates/project-a/assets/characters/spritesheets/HeroineSheet_TsukiNew_chromakey.png` | No direct runtime reference found |
+| `project-a/assets/characters/spritesheets/HeroineSheet_CardMagician_chromakey.png` | `Docs/ArtArchive/2026-07-09_unused_runtime_candidates/project-a/assets/characters/spritesheets/HeroineSheet_CardMagician_chromakey.png` | No direct runtime reference found |
+| `project-a/assets/ui/UIStatusIcon.png` | `Docs/ArtArchive/2026-07-09_unused_runtime_candidates/project-a/assets/ui/UIStatusIcon.png` | No direct runtime reference found |
+| `project-a/assets/vfx/FX_Slash.png` | `Docs/ArtArchive/2026-07-09_unused_runtime_candidates/project-a/assets/vfx/FX_Slash.png` | No direct runtime reference found |
 
 ## Suggested Next Migration Batch
 
-Next, archive or rename likely unused runtime files after one more reference pass:
+Runtime image naming is now policy-compliant for the audited set.
 
-Leave possible unused files for a separate archive pass:
-
-- `HeroineSheet.png`
-- `HeroineSheet_TsukiNew_chromakey.png`
-- `HeroineSheet_CardMagician_chromakey.png`
-- `UIStatusIcon.png`
-- `FX_Slash.png`
+Possible follow-up: normalize folder casing such as `project-a/assets/monster/spriteSheet`.

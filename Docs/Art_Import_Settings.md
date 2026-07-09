@@ -10,7 +10,7 @@ Godot 런타임에서 사용하는 이미지의 1차 import 기준입니다. 원
 | 몬스터 스프라이트시트 | `project-a/assets/monster/spriteSheet/*.png` | 1 | 0.95 | off |
 | 캐릭터 스프라이트시트 | `project-a/assets/characters/spritesheets/*.png` | 1 | 0.95 | off |
 | 배경성 이미지 | `bg_title.png`, `ui_map.png`, `stage/*.png` | 1 | 0.95 | on |
-| UI atlas/icon | `ui_sheet.png`, `UIStatusIcon.png` | 0 | 0.7 | off |
+| UI atlas | `ui_sheet.png` | 0 | 0.7 | off |
 
 `compress/mode=1`은 Godot의 lossy texture import를 사용합니다. UI atlas와 아이콘은 작은 선, 프레임, 글자 주변 아티팩트가 잘 보일 수 있어 lossless로 유지합니다.
 

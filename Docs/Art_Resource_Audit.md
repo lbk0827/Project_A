@@ -52,6 +52,6 @@
 
 ## 다음 후보
 
-- `CardFrame_*.tres`가 더 이상 실제로 쓰이지 않는지 추적한 뒤 `card/cardframe/CardDummy.png` 제거 여부 결정
+- `CardFrame_*.tres`가 실제로 쓰이는 동안 `card/cardframe/card_frame_dummy.png` 유지
 - 카드 확대 화면에서 q95와 q90을 추가 비교
 - 새 몬스터 추가 시 q95를 기본값으로 쓰고, 전투 화면에서 차이가 없을 때 q90 후보 비교
