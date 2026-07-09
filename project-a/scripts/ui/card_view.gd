@@ -54,9 +54,9 @@ func set_card(card: CardData, index: int, disabled: bool, hand_settings: CardHan
 	art.texture = load(art_path) if ResourceLoader.exists(art_path) else null
 	cost_label.text = str(card.cost)
 	name_label.text = card.display_name
-	keyword_label.text = _keyword_text(card)
-	type_label.text = "[%s]" % _type_text(card.card_type)
-	body_label.text = card.text
+	keyword_label.text = "[%s]" % _type_text(card.card_type)
+	type_label.text = _keyword_text(card)
+	body_label.text = _body_text(card)
 	click_area.disabled = disabled
 	modulate = DISABLED_MODULATE if disabled else NORMAL_MODULATE
 	# Small cards show the name only; the description appears when enlarged.
@@ -228,12 +228,36 @@ func _keyword_text(card: CardData) -> String:
 	var labels: Array[String] = []
 	if not card.keywords.is_empty():
 		for keyword in card.keywords:
-			labels.append(String(keyword))
+			_append_keyword_label(labels, String(keyword))
 	if not card.inspiration.is_empty():
-		labels.append("영감")
-	if labels.is_empty():
-		labels.append(_type_text(card.card_type))
+		_append_keyword_label(labels, "영감")
 	return " / ".join(labels)
+
+func _append_keyword_label(labels: Array[String], keyword: String):
+	var clean_keyword := keyword.strip_edges()
+	if clean_keyword.is_empty():
+		return
+	var label := "[%s]" % clean_keyword
+	if not labels.has(label):
+		labels.append(label)
+
+func _body_text(card: CardData) -> String:
+	var text := card.text.strip_edges()
+	var hidden_tags: Array[String] = []
+	hidden_tags.append(_type_text(card.card_type))
+	for keyword in card.keywords:
+		hidden_tags.append(String(keyword))
+	if not card.inspiration.is_empty():
+		hidden_tags.append("영감")
+	for tag in hidden_tags:
+		text = _remove_leading_tag(text, tag)
+	return text
+
+func _remove_leading_tag(text: String, tag: String) -> String:
+	var marker := "[%s]" % tag
+	while text.begins_with(marker):
+		text = text.substr(marker.length()).strip_edges()
+	return text
 
 func _tween_visual(target_position: Vector2, target_scale: Vector2, target_rotation: float):
 	if hover_tween != null:
