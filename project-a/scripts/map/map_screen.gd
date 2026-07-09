@@ -2,6 +2,7 @@
 extends Control
 
 const INGAME_SCENE_PATH := "res://scenes/core/ingame/ingame.tscn"
+const MapRouteData := preload("res://scripts/map/map_route_data.gd")
 const MAP_ATLAS := preload("res://assets/ui/ui_map.png")
 const NODE_SIZE := Vector2(86, 86)
 const BOSS_NODE_SIZE := Vector2(108, 108)
@@ -12,18 +13,9 @@ const CURRENT_COLOR := Color(0.55, 0.95, 1.0, 1.0)
 const EDGE_COLOR := Color(0.36, 0.82, 0.9, 0.58)
 const EDGE_LOCKED_COLOR := Color(0.36, 0.42, 0.48, 0.34)
 
-var map_nodes := [
-	{"id": "start", "type": "start", "label": "Start", "pos": Vector2(120, 360), "next": ["battle_1", "event_1"]},
-	{"id": "battle_1", "type": "battle", "label": "Battle", "monster_id": "bog_stalker", "pos": Vector2(310, 255), "next": ["treasure_1", "battle_2"]},
-	{"id": "event_1", "type": "event", "label": "Event", "pos": Vector2(310, 465), "next": ["battle_2"]},
-	{"id": "treasure_1", "type": "treasure", "label": "Treasure", "pos": Vector2(510, 210), "next": ["elite_1"]},
-	{"id": "battle_2", "type": "battle", "label": "Battle", "monster_id": "gravebound_crawler", "pos": Vector2(510, 420), "next": ["elite_1", "rest_1"]},
-	{"id": "elite_1", "type": "elite", "label": "Elite", "monster_id": "frost_revenant", "pos": Vector2(725, 280), "next": ["rest_1"]},
-	{"id": "rest_1", "type": "rest", "label": "Rest", "pos": Vector2(910, 390), "next": ["boss_1"]},
-	{"id": "boss_1", "type": "boss", "label": "Boss", "monster_id": "abyssal_crown_guardian", "pos": Vector2(1115, 320), "next": []},
-]
+var map_nodes := MapRouteData.get_nodes()
 
-var current_node_id := "start"
+var current_node_id := "base_camp"
 var node_lookup: Dictionary = {}
 var node_buttons: Dictionary = {}
 var log_label: Label
@@ -260,7 +252,7 @@ func _on_reset_pressed():
 		run_state.reset_run()
 	selected_combat_node_id = ""
 	_hide_node_result()
-	_set_current_node("start", false)
+	_set_current_node("base_camp", false)
 
 func _on_continue_node_pressed():
 	if not _is_result_node(current_node_id):
@@ -332,7 +324,7 @@ func _get_icon_region(node_type: String) -> Rect2:
 			return Rect2(798, 408, 190, 244)
 		"rest":
 			return Rect2(1088, 420, 322, 196)
-		"start":
+		"start", "base_camp":
 			return Rect2(444, 408, 190, 244)
 		_:
 			return Rect2(444, 408, 190, 244)
@@ -363,42 +355,20 @@ func _update_run_status():
 
 func _apply_result_node_effect(node_type: String) -> String:
 	var run_state := _run_state()
-	if run_state == null:
-		return "Choose the next node."
-	match node_type:
-		"event":
-			run_state.gain_gold(10)
-			return "Gained 10 gold. Choose the next node."
-		"treasure":
-			run_state.gain_gold(50)
-			return "Gained 50 gold. Choose the next node."
-		"rest":
-			var before_hp := int(run_state.current_hp)
-			run_state.heal(12)
-			return "Recovered %d HP. Choose the next node." % (int(run_state.current_hp) - before_hp)
-		_:
-			return "Choose the next node."
+	return "%s Choose the next node." % MapRouteData.apply_result_node_effect(run_state, node_type)
 
 func _get_result_text(node_type: String) -> String:
-	match node_type:
-		"event":
-			return "An unstable anomaly flickers nearby. Event choices will be connected here later."
-		"treasure":
-			return "A sealed chest waits on the path. Reward selection will be connected here later."
-		"rest":
-			return "The party catches its breath. Healing and upgrade choices will be connected here later."
-		_:
-			return "This node has been resolved."
+	return MapRouteData.get_result_text(node_type)
 
 func _load_run_state():
 	if Engine.is_editor_hint():
-		current_node_id = "start"
+		current_node_id = "base_camp"
 		return
 	var run_state := _run_state()
 	if run_state != null and node_lookup.has(run_state.current_node_id):
 		current_node_id = run_state.current_node_id
 	else:
-		current_node_id = "start"
+		current_node_id = "base_camp"
 
 func _clear_generated_children():
 	for child in get_children():

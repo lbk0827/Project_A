@@ -1,6 +1,6 @@
 extends Control
 
-const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
+const INGAME_SCENE_PATH := "res://scenes/core/ingame/ingame.tscn"
 
 @onready var menu_panel: PanelContainer = $SafeArea/MenuPanel
 @onready var start_button: Button = $SafeArea/MenuPanel/MenuRoot/StartButton
@@ -35,10 +35,10 @@ func _on_start_button_pressed():
 	var run_state := _run_state()
 	if run_state != null:
 		run_state.reset_run()
-	get_tree().change_scene_to_file(MAP_SCENE_PATH)
+	get_tree().change_scene_to_file(INGAME_SCENE_PATH)
 
 func _on_continue_button_pressed():
-	get_tree().change_scene_to_file(MAP_SCENE_PATH)
+	get_tree().change_scene_to_file(INGAME_SCENE_PATH)
 
 func _on_settings_button_pressed():
 	settings_panel.visible = true

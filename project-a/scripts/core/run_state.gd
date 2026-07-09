@@ -1,6 +1,6 @@
 extends Node
 
-const START_NODE_ID := "start"
+const START_NODE_ID := "base_camp"
 const STARTING_MAX_HP := 90
 
 var current_node_id := START_NODE_ID

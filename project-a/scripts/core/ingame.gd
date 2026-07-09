@@ -34,8 +34,10 @@ const HAND_TOP_Y := 468.0
 const HAND_CENTER_SCREEN := Vector2(640, 560)
 const MONSTER_DROP_RADIUS := 90.0
 const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
+const BATTLE_MAP_OVERLAY_SCENE := preload("res://scenes/ui/battle_map_overlay.tscn")
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_PREVIEW_SCENE := preload("res://scenes/ui/cards/CardViewLarge.tscn")
+const MapRouteData := preload("res://scripts/map/map_route_data.gd")
 const DAMAGE_TO_ENEMY_COLOR := Color(1.0, 0.9, 0.4)
 const CRIT_COLOR := Color(1.0, 0.5, 0.1)
 const DAMAGE_TO_PLAYER_COLOR := Color(1.0, 0.35, 0.35)
@@ -43,6 +45,8 @@ const BLOCK_GAIN_COLOR := Color(0.55, 0.8, 1.0)
 const BLOCKED_HIT_COLOR := Color(0.7, 0.75, 0.85)
 const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
+const BASE_CAMP_STAGE_TEXTURE := preload("res://assets/stage/base_camp.png")
+const COMBAT_STAGE_TEXTURE := preload("res://assets/stage/stage_1.png")
 const DEFAULT_MONSTER_DATA := preload("res://data/monsters/MireImp.tres")
 const BONE_CRAWLER_DATA := preload("res://data/monsters/BoneCrawler.tres")
 const BOG_STALKER_DATA := preload("res://data/monsters/BogStalker.tres")
@@ -65,6 +69,7 @@ const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
 @onready var heroine: CharacterBody2D = $Heroine
 @onready var camera: Camera2D = $Camera2D
 @onready var monster_spawn: Marker2D = $MonsterSpawn
+@onready var background: TextureRect = $BackgroundLayer/Background
 
 var draw_pile: Array[CardData] = []
 var discard_pile: Array[CardData] = []
@@ -86,9 +91,11 @@ var enemy_action_count_remaining := 0
 var battle_over := false
 var battle_won := false
 var combat_sequence_active := false
+var route_selection_mode := false
 var player_home_position := Vector2.ZERO
 
 var battle_ui: CanvasLayer
+var battle_map_overlay: CanvasLayer
 var ui_root: Control
 var hand_container: Control
 var end_turn_button: Button
@@ -107,9 +114,11 @@ func _run_state() -> Node:
 func _ready():
 	card_library = _load_card_library()
 	_setup_scene()
-	_setup_enemies(_get_encounter_datas())
 	_build_ui()
-	_start_battle()
+	if _has_active_combat():
+		_enter_combat_mode()
+	else:
+		_enter_route_selection_mode()
 
 func _load_card_library() -> Dictionary:
 	var library: Dictionary = {}
@@ -152,11 +161,64 @@ func _setup_scene():
 	if heroine.has_method("set_movement_enabled"):
 		heroine.call("set_movement_enabled", false)
 
+func _has_active_combat() -> bool:
+	var run_state := _run_state()
+	return run_state != null and not String(run_state.active_combat_node_id).is_empty()
+
+func _set_stage_background(texture: Texture2D):
+	if is_instance_valid(background):
+		background.texture = texture
+
+func _enter_route_selection_mode(message := ""):
+	var was_route_selection := route_selection_mode
+	route_selection_mode = true
+	battle_over = false
+	battle_won = false
+	combat_sequence_active = false
+	_clear_enemies()
+	if not was_route_selection:
+		_set_stage_background(BASE_CAMP_STAGE_TEXTURE if _is_base_camp_route() else COMBAT_STAGE_TEXTURE)
+	_reset_camera_view()
+	heroine.global_position = player_home_position
+	if heroine.has_method("play_idle_animation"):
+		heroine.call("play_idle_animation")
+	if is_instance_valid(battle_ui):
+		battle_ui.visible = false
+	_show_battle_map_overlay(message)
+
+func _enter_combat_mode():
+	route_selection_mode = false
+	_set_stage_background(COMBAT_STAGE_TEXTURE)
+	_reset_camera_view()
+	if is_instance_valid(battle_map_overlay):
+		battle_map_overlay.visible = false
+	if is_instance_valid(battle_ui):
+		battle_ui.visible = true
+	_setup_enemies(_get_encounter_datas())
+	_start_battle()
+
+func _is_base_camp_route() -> bool:
+	var run_state := _run_state()
+	return run_state == null or String(run_state.current_node_id) == String(run_state.START_NODE_ID)
+
+func _reset_camera_view():
+	if not is_instance_valid(camera):
+		return
+	camera.offset = Vector2.ZERO
+	camera.zoom = Vector2.ONE
+
+func _play_route_commit_camera():
+	if not is_instance_valid(camera):
+		return
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(camera, "offset", Vector2(120, -18), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(camera, "zoom", Vector2(1.08, 1.08), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await tween.finished
+	await get_tree().create_timer(0.08).timeout
+
 func _setup_enemies(datas: Array):
-	for enemy in enemies:
-		if is_instance_valid(enemy.node):
-			enemy.node.queue_free()
-	enemies.clear()
+	_clear_enemies()
 	var count := datas.size()
 	for i in range(count):
 		var data: MonsterData = datas[i]
@@ -175,6 +237,12 @@ func _setup_enemies(datas: Array):
 		enemy.node.add_child(enemy.status_bar)
 		enemy.status_bar.position = data.hp_bar_offset - EnemyStatusBar.PANEL_SIZE * 0.5
 		enemies.append(enemy)
+
+func _clear_enemies():
+	for enemy in enemies:
+		if is_instance_valid(enemy.node):
+			enemy.node.queue_free()
+	enemies.clear()
 
 func _enemy_spawn_position(index: int, count: int) -> Vector2:
 	var base := monster_spawn.global_position
@@ -226,6 +294,7 @@ func _build_ui():
 	restart_button.pressed.connect(_on_restart_pressed)
 
 func _start_battle():
+	route_selection_mode = false
 	draw_pile = _build_deck()
 	draw_pile.shuffle()
 	discard_pile.clear()
@@ -269,6 +338,9 @@ func _start_battle():
 	_update_player_hp_bar()
 	_update_all_enemy_bars()
 	_log("Battle start. Defeat the enemies.")
+	if is_instance_valid(battle_ui):
+		battle_ui.call("show_turn_banner", "BATTLE START", Color(0.72, 0.95, 1.0))
+		await get_tree().create_timer(0.65).timeout
 	_start_player_turn(true)
 
 func _start_player_turn(is_first_turn := false):
@@ -632,13 +704,51 @@ func _check_victory():
 		battle_ui.call("hide_monster_info")
 		battle_ui.call("show_turn_banner", "VICTORY", Color(1.0, 0.85, 0.4))
 	end_turn_button.visible = false
-	restart_button.text = "Victory - Map"
-	restart_button.visible = true
 	var run_state := _run_state()
 	if run_state != null:
 		run_state.current_hp = player_hp
 		run_state.complete_active_combat_node()
+		if run_state.run_cleared:
+			restart_button.text = "Run Cleared - Map"
+			restart_button.visible = true
+		else:
+			_show_route_after_victory("The enemies are defeated.")
+	else:
+		restart_button.text = "Victory - Map"
+		restart_button.visible = true
 	_log("The enemies are defeated.")
+
+func _show_route_after_victory(message: String):
+	await get_tree().create_timer(0.85).timeout
+	if battle_won and not route_selection_mode:
+		_enter_route_selection_mode(message)
+
+func _show_battle_map_overlay(message := ""):
+	if not is_instance_valid(battle_map_overlay):
+		battle_map_overlay = BATTLE_MAP_OVERLAY_SCENE.instantiate()
+		add_child(battle_map_overlay)
+		battle_map_overlay.connect("node_selected", Callable(self, "_on_map_overlay_node_selected"))
+	battle_map_overlay.call("show_for_run", message)
+
+func _on_map_overlay_node_selected(node_id: String):
+	var run_state := _run_state()
+	if run_state == null:
+		return
+	var node_data := MapRouteData.get_node(node_id)
+	if node_data.is_empty():
+		return
+
+	if MapRouteData.is_combat_node(node_id):
+		run_state.start_combat_node(node_id, node_data.get("monster_id", "mire_imp"))
+		await _play_route_commit_camera()
+		_enter_combat_mode()
+		return
+
+	if MapRouteData.is_result_node(node_id):
+		run_state.current_node_id = node_id
+		var result_text := MapRouteData.apply_result_node_effect(run_state, String(node_data["type"]))
+		run_state.complete_node(node_id)
+		_enter_route_selection_mode(result_text)
 
 func _damage_player(amount: int):
 	var incoming: int = amount
@@ -795,7 +905,7 @@ func _on_card_dropped(index: int, screen_position: Vector2):
 		_refresh_ui()
 
 func _on_end_turn_pressed():
-	if battle_over or combat_sequence_active:
+	if route_selection_mode or battle_over or combat_sequence_active:
 		return
 	combat_sequence_active = true
 	_discard_hand()
@@ -814,6 +924,8 @@ func _on_restart_pressed():
 	_start_battle()
 
 func _refresh_ui():
+	if route_selection_mode:
+		return
 	end_turn_button.disabled = battle_over or combat_sequence_active
 	_reset_hand_drag_state()
 	if is_instance_valid(battle_ui):
@@ -899,6 +1011,8 @@ func _log(message: String):
 		battle_ui.call("show_toast", message)
 
 func _unhandled_input(event: InputEvent):
+	if route_selection_mode:
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if not is_instance_valid(battle_ui):
 			return
