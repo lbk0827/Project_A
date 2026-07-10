@@ -21,7 +21,7 @@ def _effects(*items) -> str:
     return json.dumps(list(items), ensure_ascii=False)
 
 
-# character, id, display_name, cost, card_type, text, copies, keywords, effects, inspiration
+# character, id, display_name, cost, card_type, motion_animation, text, copies, keywords, effects, inspiration
 CHARACTER_CARDS = [
     (
         "tsuki",
@@ -29,6 +29,7 @@ CHARACTER_CARDS = [
         "장검 베기",
         1,
         "attack",
+        "Attack",
         "피해 100%.",
         2,
         [],
@@ -41,6 +42,7 @@ CHARACTER_CARDS = [
         "고속 베기",
         2,
         "attack",
+        "Attack",
         "피해 220%.",
         1,
         [],
@@ -53,6 +55,7 @@ CHARACTER_CARDS = [
         "흘려 보내기",
         1,
         "skill",
+        "Idle",
         "실드 100%.",
         1,
         [],
@@ -65,6 +68,7 @@ CHARACTER_CARDS = [
         "제압 준비",
         0,
         "skill",
+        "Idle",
         "자신의 공격 카드 드로우 1. 1턴간 자신의 공격 카드 피해량 40% 증가.",
         1,
         [],
@@ -86,6 +90,7 @@ CHARACTER_CARDS = [
         "훔쳐베기",
         2,
         "attack",
+        "Attack",
         "모든 적 피해 220%. 영감: 비용 1 감소.",
         1,
         ["영감"],
@@ -98,6 +103,7 @@ CHARACTER_CARDS = [
         "눈속임 일격",
         1,
         "attack",
+        "Attack",
         "[보존] 피해 180%. 핸드의 무작위 자신의 카드 1장의 영감 효과를 활성화.",
         1,
         ["보존"],
@@ -117,6 +123,7 @@ CHARACTER_CARDS = [
         "빙점 칼날",
         1,
         "enhance",
+        "Idle",
         "[유일] 자신의 영감 효과가 활성화된 카드 사용 시 모든 적에게 피해 120%.",
         1,
         ["유일"],
@@ -139,6 +146,7 @@ CHARACTER_CARDS = [
         "빙산 가르기",
         1,
         "attack",
+        "Attack",
         "모든 적 피해 180%. 영감: 타격 1회 추가, 피해량 20% 감소.",
         1,
         ["영감"],
@@ -156,6 +164,7 @@ CARD_FIELDS = [
     "display_name",
     "cost",
     "card_type",
+    "motion_animation",
     "text",
     "copies",
     "keywords[]",
@@ -170,6 +179,7 @@ CARD_TYPES = [
     "int",
     "string",
     "string",
+    "string",
     "int",
     "string",
     "json",
@@ -181,11 +191,12 @@ CARD_WIDTHS = {
     "D": 18,
     "E": 8,
     "F": 12,
-    "G": 46,
-    "H": 8,
-    "I": 16,
-    "J": 52,
-    "K": 40,
+    "G": 18,
+    "H": 46,
+    "I": 8,
+    "J": 16,
+    "K": 52,
+    "L": 40,
 }
 
 GLOSSARY_SECTIONS = {
@@ -204,7 +215,7 @@ def build_character_cards(sheet) -> None:
     sheet.append(["#data", *CARD_FIELDS])
     sheet.append(CARD_TYPES)
     sheet.append([None, *["data"] * len(CARD_FIELDS)])
-    for character, card_id, name, cost, card_type, text, copies, keywords, effects, inspiration in CHARACTER_CARDS:
+    for character, card_id, name, cost, card_type, motion_animation, text, copies, keywords, effects, inspiration in CHARACTER_CARDS:
         sheet.append(
             [
                 None,
@@ -213,6 +224,7 @@ def build_character_cards(sheet) -> None:
                 name,
                 cost,
                 card_type,
+                motion_animation,
                 text,
                 copies,
                 ",".join(keywords),

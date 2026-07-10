@@ -137,6 +137,7 @@ func _load_card_library() -> Dictionary:
 		card.cost = int(entry.get("cost", 0))
 		card.text = String(entry.get("text", ""))
 		card.card_type = StringName(String(entry.get("card_type", "skill")))
+		card.motion_animation = StringName(String(entry.get("motion_animation", _default_card_motion_animation(card.card_type))))
 		card.effects = entry.get("effects", [])
 		var keywords: Variant = entry.get("keywords", [])
 		card.keywords = keywords if keywords is Array else []
@@ -151,6 +152,9 @@ func _derive_requires_target(effects: Array) -> bool:
 		if String(effect.get("type", "")) == "damage" and String(effect.get("target", "enemy")) == "enemy":
 			return true
 	return false
+
+func _default_card_motion_animation(card_type: StringName) -> String:
+	return "Attack" if String(card_type) == "attack" else "Idle"
 
 func _setup_scene():
 	player_home_position = heroine.global_position
@@ -459,7 +463,9 @@ func _play_card(index: int, target_enemy: CombatEnemy = null):
 
 	_apply_instant_effects(instant_effects)
 	if not attack_effects.is_empty():
-		await _play_player_attack_sequence(attack_effects, target_enemy)
+		await _play_player_attack_sequence(attack_effects, target_enemy, card.motion_animation)
+	else:
+		_play_heroine_card_motion(card.motion_animation)
 
 	_refresh_ui()
 	if not battle_over:
@@ -581,12 +587,12 @@ func _draw_typed_card(card_type: String) -> bool:
 	hand.append(_instance_for_hand(draw_pile.pop_back()))
 	return true
 
-func _play_player_attack_sequence(damage_effects: Array, target_enemy: CombatEnemy):
+func _play_player_attack_sequence(damage_effects: Array, target_enemy: CombatEnemy, motion_animation: StringName = &"Attack"):
 	combat_sequence_active = true
 	_refresh_ui()
 	var focus: CombatEnemy = target_enemy if (target_enemy != null and target_enemy.is_alive()) else _first_alive_enemy()
 	await _move_player_to_attack_position(focus)
-	_play_heroine_attack(focus)
+	_play_heroine_attack(focus, motion_animation)
 	await get_tree().create_timer(_get_heroine_motion_value("attack_impact_delay", 0.18)).timeout
 	for effect in damage_effects:
 		if battle_over:
@@ -874,12 +880,19 @@ func _play_enemy_attack(enemy: CombatEnemy):
 	if is_instance_valid(enemy.node) and enemy.node.has_method("play_attack_animation"):
 		enemy.node.call("play_attack_animation")
 
-func _play_heroine_attack(enemy: CombatEnemy):
-	if heroine.has_method("play_attack_animation"):
-		var target_position: Variant = null
-		if enemy != null and is_instance_valid(enemy.node):
-			target_position = enemy.node.global_position
+func _play_heroine_attack(enemy: CombatEnemy, motion_animation: StringName = &"Attack"):
+	var target_position: Variant = null
+	if enemy != null and is_instance_valid(enemy.node):
+		target_position = enemy.node.global_position
+	_play_heroine_card_motion(motion_animation, target_position)
+
+func _play_heroine_card_motion(motion_animation: StringName, target_position: Variant = null):
+	if heroine.has_method("play_card_animation"):
+		heroine.call("play_card_animation", motion_animation, target_position)
+	elif motion_animation == &"Attack" and heroine.has_method("play_attack_animation"):
 		heroine.call("play_attack_animation", target_position)
+	elif heroine.has_method("play_idle_animation"):
+		heroine.call("play_idle_animation")
 
 func _play_heroine_hit():
 	if heroine.has_method("play_hit_animation"):

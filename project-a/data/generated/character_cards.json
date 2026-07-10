@@ -5,6 +5,7 @@
 		"display_name": "장검 베기",
 		"cost": 1,
 		"card_type": "attack",
+		"motion_animation": "Attack",
 		"text": "피해 100%.",
 		"copies": 2,
 		"keywords": [],
@@ -23,6 +24,7 @@
 		"display_name": "고속 베기",
 		"cost": 2,
 		"card_type": "attack",
+		"motion_animation": "Attack",
 		"text": "피해 220%.",
 		"copies": 1,
 		"keywords": [],
@@ -41,6 +43,7 @@
 		"display_name": "흘려 보내기",
 		"cost": 1,
 		"card_type": "skill",
+		"motion_animation": "Idle",
 		"text": "실드 100%.",
 		"copies": 1,
 		"keywords": [],
@@ -59,6 +62,7 @@
 		"display_name": "제압 준비",
 		"cost": 0,
 		"card_type": "skill",
+		"motion_animation": "Idle",
 		"text": "자신의 공격 카드 드로우 1. 1턴간 자신의 공격 카드 피해량 40% 증가.",
 		"copies": 1,
 		"keywords": [],
@@ -84,6 +88,7 @@
 		"display_name": "훔쳐베기",
 		"cost": 2,
 		"card_type": "attack",
+		"motion_animation": "Attack",
 		"text": "모든 적 피해 220%. 영감: 비용 1 감소.",
 		"copies": 1,
 		"keywords": [
@@ -109,6 +114,7 @@
 		"display_name": "눈속임 일격",
 		"cost": 1,
 		"card_type": "attack",
+		"motion_animation": "Attack",
 		"text": "[보존] 피해 180%. 핸드의 무작위 자신의 카드 1장의 영감 효과를 활성화.",
 		"copies": 1,
 		"keywords": [
@@ -134,6 +140,7 @@
 		"display_name": "빙점 칼날",
 		"cost": 1,
 		"card_type": "enhance",
+		"motion_animation": "Idle",
 		"text": "[유일] 자신의 영감 효과가 활성화된 카드 사용 시 모든 적에게 피해 120%.",
 		"copies": 1,
 		"keywords": [
@@ -158,6 +165,7 @@
 		"display_name": "빙산 가르기",
 		"cost": 1,
 		"card_type": "attack",
+		"motion_animation": "Attack",
 		"text": "모든 적 피해 180%. 영감: 타격 1회 추가, 피해량 20% 감소.",
 		"copies": 1,
 		"keywords": [

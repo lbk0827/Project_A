@@ -7,6 +7,7 @@ class_name CardData
 @export var cost := 0
 @export_multiline var text := ""
 @export var card_type: StringName = &"skill"
+@export var motion_animation: StringName = &""
 @export var requires_target := false
 @export var amount := 0
 # Data-driven effect list. Each entry is a Dictionary, e.g.

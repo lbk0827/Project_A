@@ -89,6 +89,19 @@ func play_five_slash_animation(target_position: Variant = null):
 		return
 	_start_attack(target_position, &"FiveSlash")
 
+func play_card_animation(animation_name: StringName, target_position: Variant = null):
+	if is_dead:
+		return
+	if animation_name == &"Idle" or animation_name == &"":
+		play_idle_animation()
+		return
+	if not _has_animation(animation_name):
+		animation_name = &"Attack" if _has_animation(&"Attack") else &"Idle"
+	if animation_name == &"Idle":
+		play_idle_animation()
+		return
+	_start_attack(target_position, animation_name)
+
 func play_run_animation(direction: Vector2):
 	if is_dead or _is_animation_locked():
 		return
@@ -160,7 +173,9 @@ func _spawn_slash_fx_after_impact(target_position: Vector2, sequence_id: int, an
 	if sequence_id != attack_sequence_id or is_dead or not is_attacking:
 		return
 
-	var slash_scene := FX_TSUKI_FIVE_SLASH_SCENE if animation_name == &"FiveSlash" else FX_HEROINE_SLASH_SCENE
+	var slash_scene := _attack_fx_scene(animation_name)
+	if slash_scene == null:
+		return
 	var slash_fx := slash_scene.instantiate()
 	var fx_parent := get_parent()
 	if fx_parent == null:
@@ -179,6 +194,13 @@ func _on_animation_finished():
 
 func _has_animation(animation_name: StringName) -> bool:
 	return anim.sprite_frames != null and anim.sprite_frames.has_animation(animation_name)
+
+func _attack_fx_scene(animation_name: StringName) -> PackedScene:
+	match animation_name:
+		&"FiveSlash":
+			return FX_TSUKI_FIVE_SLASH_SCENE
+		_:
+			return FX_HEROINE_SLASH_SCENE
 
 func _is_animation_locked() -> bool:
 	return is_attacking or is_hit_reacting
