@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://qdct5rji41m1" path="res://scripts/player/heroine_controller.gd" id="1_m6hok"]
 [ext_resource type="Texture2D" uid="uid://s1c6klj4dkea" path="res://assets/characters/spritesheets/tsuki_spritesheet.png" id="2_m6hok"]
+[ext_resource type="Texture2D" uid="uid://by6n4eqwrl8fv" path="res://assets/characters/spritesheets/tsuki_five_slash_spritesheet.png" id="3_fiveslash"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pigwg"]
 atlas = ExtResource("2_m6hok")
@@ -54,6 +55,102 @@ region = Rect2(362, 1991, 181, 181)
 [sub_resource type="AtlasTexture" id="AtlasTexture_ttr80"]
 atlas = ExtResource("2_m6hok")
 region = Rect2(543, 1991, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_00"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(0, 0, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_01"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(320, 0, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_02"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(640, 0, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_03"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(960, 0, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_04"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(0, 320, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_05"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(320, 320, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_06"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(640, 320, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_07"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(960, 320, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_08"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(0, 640, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_09"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(320, 640, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_10"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(640, 640, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_11"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(960, 640, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_12"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(0, 960, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_13"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(320, 960, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_14"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(640, 960, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_15"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(960, 960, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_16"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(0, 1280, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_17"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(320, 1280, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_18"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(640, 1280, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_19"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(960, 1280, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_20"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(0, 1600, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_21"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(320, 1600, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_22"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(640, 1600, 320, 320)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_23"]
+atlas = ExtResource("3_fiveslash")
+region = Rect2(960, 1600, 320, 320)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_m480h"]
 atlas = ExtResource("2_m6hok")
@@ -164,6 +261,83 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_00")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_01")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_02")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_03")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_04")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_05")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_06")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_07")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_08")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_09")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_11")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_12")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_13")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_14")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_15")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_16")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_17")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_18")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_19")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_20")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_21")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_22")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_five_slash_23")
+}],
+"loop": false,
+"name": &"FiveSlash",
+"speed": 22.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_m480h")
 }, {
 "duration": 1.0,
@@ -226,8 +400,8 @@ script = ExtResource("1_m6hok")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=236742736]
 position = Vector2(-1, 0)
 sprite_frames = SubResource("SpriteFrames_m480h")
-animation = &"Run"
-frame = 2
-frame_progress = 0.76937485
+animation = &"FiveSlash"
+frame = 23
+frame_progress = 1.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1180448648]

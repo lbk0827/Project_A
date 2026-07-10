@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
 const FX_HEROINE_SLASH_SCENE := preload("res://scenes/vfx/fx_heroine_slash.tscn")
+const FX_TSUKI_FIVE_SLASH_SCENE := preload("res://scenes/vfx/fx_tsuki_five_slash.tscn")
 
 @export var speed := 180.0
 @export var attack_action: StringName = &"ui_accept"
@@ -83,6 +84,11 @@ func play_attack_animation(target_position: Variant = null):
 		return
 	_start_attack(target_position)
 
+func play_five_slash_animation(target_position: Variant = null):
+	if is_dead or not _has_animation("FiveSlash"):
+		return
+	_start_attack(target_position, &"FiveSlash")
+
 func play_run_animation(direction: Vector2):
 	if is_dead or _is_animation_locked():
 		return
@@ -141,20 +147,21 @@ func _play_base_animation(dir: Vector2):
 		if dir.x != 0:
 			anim.flip_h = dir.x < 0
 
-func _start_attack(target_position: Variant = null):
+func _start_attack(target_position: Variant = null, animation_name: StringName = &"Attack"):
 	attack_sequence_id += 1
 	is_attacking = true
 	velocity = Vector2.ZERO
-	anim.play("Attack")
+	anim.play(animation_name)
 	if target_position is Vector2:
-		_spawn_slash_fx_after_impact(target_position, attack_sequence_id)
+		_spawn_slash_fx_after_impact(target_position, attack_sequence_id, animation_name)
 
-func _spawn_slash_fx_after_impact(target_position: Vector2, sequence_id: int):
+func _spawn_slash_fx_after_impact(target_position: Vector2, sequence_id: int, animation_name: StringName):
 	await get_tree().create_timer(attack_impact_delay).timeout
 	if sequence_id != attack_sequence_id or is_dead or not is_attacking:
 		return
 
-	var slash_fx := FX_HEROINE_SLASH_SCENE.instantiate()
+	var slash_scene := FX_TSUKI_FIVE_SLASH_SCENE if animation_name == &"FiveSlash" else FX_HEROINE_SLASH_SCENE
+	var slash_fx := slash_scene.instantiate()
 	var fx_parent := get_parent()
 	if fx_parent == null:
 		fx_parent = get_tree().current_scene
@@ -166,7 +173,7 @@ func _spawn_slash_fx_after_impact(target_position: Vector2, sequence_id: int):
 	slash_fx.scale.x = 1.0 if target_position.x >= global_position.x else -1.0
 
 func _on_animation_finished():
-	if anim.animation == "Attack":
+	if is_attacking:
 		is_attacking = false
 		_play_base_animation(Vector2.ZERO)
 
