@@ -54,8 +54,8 @@ func set_card(card: CardData, index: int, disabled: bool, hand_settings: CardHan
 	art.texture = load(art_path) if ResourceLoader.exists(art_path) else null
 	cost_label.text = str(card.cost)
 	name_label.text = card.display_name
-	keyword_label.text = _keyword_text(card)
-	type_label.text = "[%s]" % _type_text(card.card_type)
+	keyword_label.text = "[%s]" % _type_text(card.card_type)
+	type_label.text = _keyword_text(card)
 	body_label.text = _body_text(card)
 	click_area.disabled = disabled
 	modulate = DISABLED_MODULATE if disabled else NORMAL_MODULATE
