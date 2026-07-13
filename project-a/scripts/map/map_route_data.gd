@@ -1,27 +1,18 @@
 extends RefCounted
 
-const MAP_NODES := [
-	{"id": "base_camp", "type": "base_camp", "label": "Base Camp", "pos": Vector2(120, 360), "next": ["battle_1", "event_1"]},
-	{"id": "battle_1", "type": "battle", "label": "Battle", "monster_id": "bog_stalker", "pos": Vector2(310, 255), "next": ["treasure_1", "battle_2"]},
-	{"id": "event_1", "type": "event", "label": "Event", "pos": Vector2(310, 465), "next": ["battle_2"]},
-	{"id": "treasure_1", "type": "treasure", "label": "Treasure", "pos": Vector2(510, 210), "next": ["elite_1"]},
-	{"id": "battle_2", "type": "battle", "label": "Battle", "monster_id": "gravebound_crawler", "pos": Vector2(510, 420), "next": ["elite_1", "rest_1"]},
-	{"id": "elite_1", "type": "elite", "label": "Elite", "monster_id": "frost_revenant", "pos": Vector2(725, 280), "next": ["rest_1"]},
-	{"id": "rest_1", "type": "rest", "label": "Rest", "pos": Vector2(910, 390), "next": ["boss_1"]},
-	{"id": "boss_1", "type": "boss", "label": "Boss", "monster_id": "abyssal_crown_guardian", "pos": Vector2(1115, 320), "next": []},
-]
+const DEFAULT_ROUTE: MapRouteResource = preload("res://data/map/DefaultRoute.tres")
 
 static func get_nodes() -> Array:
-	return MAP_NODES.duplicate(true)
+	return DEFAULT_ROUTE.get_nodes()
 
 static func build_lookup() -> Dictionary:
 	var lookup: Dictionary = {}
-	for node_data in MAP_NODES:
+	for node_data in get_nodes():
 		lookup[node_data["id"]] = node_data.duplicate(true)
 	return lookup
 
 static func get_node(node_id: String) -> Dictionary:
-	for node_data in MAP_NODES:
+	for node_data in get_nodes():
 		if String(node_data["id"]) == node_id:
 			return node_data.duplicate(true)
 	return {}

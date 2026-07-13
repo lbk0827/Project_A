@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="MapRouteResource" format=3 uid="uid://r8mc1e2nlxx3"]
+
+[ext_resource type="Script" uid="uid://edilr45dee7v" path="res://scripts/data/map_route_node_data.gd" id="1_node"]
+[ext_resource type="Script" uid="uid://dir405lw3co8f" path="res://scripts/data/map_route_resource.gd" id="2_route"]
+
+[sub_resource type="Resource" id="Resource_base_camp"]
+script = ExtResource("1_node")
+id = "base_camp"
+type = "base_camp"
+label = "Base Camp"
+position = Vector2(120, 360)
+
+[sub_resource type="Resource" id="Resource_battle_1"]
+script = ExtResource("1_node")
+id = "battle_1"
+label = "Battle"
+monster_id = "bog_stalker"
+position = Vector2(310, 255)
+
+[sub_resource type="Resource" id="Resource_event_1"]
+script = ExtResource("1_node")
+id = "event_1"
+type = "event"
+label = "Event"
+position = Vector2(310, 465)
+
+[sub_resource type="Resource" id="Resource_treasure_1"]
+script = ExtResource("1_node")
+id = "treasure_1"
+type = "treasure"
+label = "Treasure"
+position = Vector2(510, 210)
+
+[sub_resource type="Resource" id="Resource_battle_2"]
+script = ExtResource("1_node")
+id = "battle_2"
+label = "Battle"
+monster_id = "gravebound_crawler"
+position = Vector2(510, 420)
+
+[sub_resource type="Resource" id="Resource_elite_1"]
+script = ExtResource("1_node")
+id = "elite_1"
+type = "elite"
+label = "Elite"
+monster_id = "frost_revenant"
+position = Vector2(725, 280)
+
+[sub_resource type="Resource" id="Resource_rest_1"]
+script = ExtResource("1_node")
+id = "rest_1"
+type = "rest"
+label = "Rest"
+position = Vector2(910, 390)
+
+[sub_resource type="Resource" id="Resource_boss_1"]
+script = ExtResource("1_node")
+id = "boss_1"
+type = "boss"
+label = "Boss"
+monster_id = "abyssal_crown_guardian"
+position = Vector2(1115, 320)
+
+[resource]
+script = ExtResource("2_route")
+nodes = Array[ExtResource("1_node")]([SubResource("Resource_base_camp"), SubResource("Resource_battle_1"), SubResource("Resource_event_1"), SubResource("Resource_treasure_1"), SubResource("Resource_battle_2"), SubResource("Resource_elite_1"), SubResource("Resource_rest_1"), SubResource("Resource_boss_1")])
