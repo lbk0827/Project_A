@@ -3,6 +3,24 @@ extends Node2D
 
 const EnemyStatusBarScript := preload("res://scripts/ui/enemy_status_bar.gd")
 
+class SelectionRing:
+	extends Node2D
+
+	var ring_size := Vector2(220, 58)
+	var ring_color := Color(0.78, 0.9, 1.0, 0.95)
+	var glow_color := Color(0.42, 0.72, 1.0, 0.32)
+
+	func _draw():
+		var points := PackedVector2Array()
+		var steps := 96
+		var radius := ring_size * 0.5
+		for i in range(steps + 1):
+			var angle := TAU * float(i) / float(steps)
+			points.append(Vector2(cos(angle) * radius.x, sin(angle) * radius.y))
+		draw_polyline(points, glow_color, 12.0, true)
+		draw_polyline(points, ring_color, 3.0, true)
+		draw_polyline(points, Color.WHITE, 1.0, true)
+
 @export_group("Combat Motion")
 @export var attack_offset_from_target := Vector2(120, 0)
 @export var approach_time := 0.35
@@ -42,6 +60,12 @@ const EnemyStatusBarScript := preload("res://scripts/ui/enemy_status_bar.gd")
 		preview_intent_label = value
 		_update_editor_combat_ui_preview()
 
+@export_group("Selection")
+@export var selection_ring_offset := Vector2(0, 92)
+@export var selection_ring_size := Vector2(220, 58)
+@export var selection_tint := Color(1.0, 1.0, 1.0, 1.0)
+@export var selection_pulse_tint := Color(0.72, 0.9, 1.0, 1.0)
+
 @onready var anim: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 @onready var reaction_player: AnimationPlayer = get_node_or_null("AnimationPlayer")
 
@@ -56,6 +80,9 @@ var home_anim_modulate := Color.WHITE
 var is_busy := false
 var hit_tween: Tween
 var death_tween: Tween
+var selection_ring: SelectionRing
+var selection_tween: Tween
+var selected := false
 
 func _ready():
 	if Engine.is_editor_hint():
@@ -90,6 +117,7 @@ func reset_combat_state():
 	anim.visible = true
 	is_busy = false
 	_kill_reaction_tweens()
+	set_selected(false)
 	if is_instance_valid(reaction_player):
 		reaction_player.stop()
 	play_idle_animation()
@@ -137,6 +165,7 @@ func play_hit_animation():
 func play_death_animation():
 	if not is_instance_valid(anim):
 		return
+	set_selected(false)
 	if _play_reaction_animation(&"Death"):
 		return
 
@@ -180,6 +209,48 @@ func play_attack_sequence(target_position: Vector2):
 		play_idle_animation()
 		is_busy = false
 	)
+
+func set_selected(value: bool):
+	selected = value
+	if not is_instance_valid(anim):
+		return
+	if selected:
+		_ensure_selection_ring()
+		selection_ring.visible = true
+		selection_ring.modulate.a = 0.0
+		anim.modulate = selection_pulse_tint
+		if selection_tween != null and selection_tween.is_valid():
+			selection_tween.kill()
+		selection_tween = create_tween()
+		selection_tween.set_parallel(true)
+		selection_tween.tween_property(selection_ring, "modulate:a", 1.0, 0.12)
+		selection_tween.tween_property(anim, "modulate", selection_tint, 0.4).set_trans(Tween.TRANS_SINE)
+		selection_tween.chain()
+		selection_tween.set_loops()
+		selection_tween.tween_property(selection_ring, "scale", Vector2(1.04, 1.04), 0.62).set_trans(Tween.TRANS_SINE)
+		selection_tween.tween_property(selection_ring, "scale", Vector2.ONE, 0.62).set_trans(Tween.TRANS_SINE)
+	else:
+		if selection_tween != null and selection_tween.is_valid():
+			selection_tween.kill()
+		selection_tween = null
+		if is_instance_valid(selection_ring):
+			selection_ring.visible = false
+			selection_ring.scale = Vector2.ONE
+		anim.modulate = home_anim_modulate
+
+func _ensure_selection_ring():
+	if is_instance_valid(selection_ring):
+		selection_ring.position = selection_ring_offset
+		selection_ring.ring_size = selection_ring_size
+		selection_ring.queue_redraw()
+		return
+	selection_ring = SelectionRing.new()
+	selection_ring.name = "SelectionRing"
+	selection_ring.position = selection_ring_offset
+	selection_ring.ring_size = selection_ring_size
+	selection_ring.z_index = -20
+	selection_ring.visible = false
+	add_child(selection_ring)
 
 func _kill_reaction_tweens():
 	if hit_tween != null and hit_tween.is_valid():

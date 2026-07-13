@@ -114,6 +114,7 @@ var hand: Array[CardData] = []
 var battle_log: Array[String] = []
 var enemies: Array = []
 var targeted_enemy: CombatEnemy = null
+var selected_info_enemy: CombatEnemy = null
 var player_hp := 0
 var player_block := 0
 var energy := 0
@@ -327,6 +328,7 @@ func _setup_enemies(datas: Array):
 		enemies.append(enemy)
 
 func _clear_enemies():
+	_clear_selected_monster_info()
 	for enemy in enemies:
 		if is_instance_valid(enemy.node):
 			enemy.node.queue_free()
@@ -383,6 +385,7 @@ func _build_ui():
 	restart_button.pressed.connect(_on_restart_pressed)
 	battle_ui.connect("rp_skill_requested", Callable(self, "_on_rp_skill_requested"))
 	battle_ui.connect("rp_skill_cancelled", Callable(self, "_on_rp_skill_cancelled"))
+	battle_ui.connect("monster_info_close_requested", Callable(self, "_clear_selected_monster_info"))
 
 func _build_route_transition():
 	route_transition_layer = CanvasLayer.new()
@@ -420,6 +423,7 @@ func _start_battle():
 	is_card_play_lifted = false
 	is_targeting_active = false
 	targeted_enemy = null
+	selected_info_enemy = null
 	draw_animation_card_index = -1
 	end_turn_button.visible = true
 	restart_button.visible = false
@@ -693,6 +697,7 @@ func _on_rp_skill_requested():
 	if rp_skill.is_empty() or rage_point + 0.001 < _rp_skill_cost():
 		return
 	_reset_hand_drag_state()
+	_clear_selected_monster_info()
 	rp_skill_selected = true
 	_refresh_ui()
 
@@ -913,6 +918,8 @@ func _damage_enemy(enemy: CombatEnemy, amount: int, is_crit := false):
 
 func _kill_enemy(enemy: CombatEnemy):
 	enemy.dead = true
+	if enemy == selected_info_enemy:
+		_clear_selected_monster_info()
 	_gain_rp(float(rp_settings.get("rp_per_enemy_kill", 0.0)), "KILL")
 	if is_instance_valid(enemy.status_bar):
 		enemy.status_bar.clear_intent()
@@ -926,8 +933,8 @@ func _check_victory():
 			return
 	battle_over = true
 	battle_won = true
+	_clear_selected_monster_info()
 	if is_instance_valid(battle_ui):
-		battle_ui.call("hide_monster_info")
 		battle_ui.call("show_turn_banner", "VICTORY", Color(1.0, 0.85, 0.4))
 	end_turn_button.visible = false
 	var run_state := _run_state()
@@ -1008,8 +1015,8 @@ func _damage_player(amount: int):
 		end_turn_button.visible = false
 		restart_button.text = "Defeat - Restart"
 		restart_button.visible = true
+		_clear_selected_monster_info()
 		if is_instance_valid(battle_ui):
-			battle_ui.call("hide_monster_info")
 			battle_ui.call("show_turn_banner", "DEFEAT", Color(1.0, 0.35, 0.35))
 		if heroine.has_method("play_dead_animation"):
 			heroine.call("play_dead_animation")
@@ -1280,21 +1287,48 @@ func _unhandled_input(event: InputEvent):
 			return
 		if battle_over or is_targeting_active:
 			return
+		if battle_ui.has_method("is_monster_info_point_inside") and battle_ui.call("is_monster_info_point_inside", event.position):
+			return
 		var clicked := _enemy_at_screen_position(event.position)
 		if clicked != null:
-			if battle_ui.call("is_monster_info_visible"):
-				battle_ui.call("hide_monster_info")
-			else:
-				battle_ui.call("show_monster_info", clicked.data.display_name, clicked.intents, clicked.intent_index, enemy_action_count_remaining, clicked.data.stats.attack_power)
-		elif battle_ui.call("is_monster_info_visible"):
-			battle_ui.call("hide_monster_info")
+			_select_monster_info(clicked)
+		elif selected_info_enemy != null:
+			_clear_selected_monster_info()
 
 
 func _enemy_at_screen_position(screen_position: Vector2, radius: float = MONSTER_DROP_RADIUS) -> CombatEnemy:
 	for enemy in enemies:
-		if enemy.is_alive() and screen_position.distance_to(_enemy_screen_position(enemy)) <= radius:
+		if not enemy.is_alive():
+			continue
+		if _enemy_screen_rect(enemy).grow(18.0).has_point(screen_position):
+			return enemy
+		if screen_position.distance_to(_enemy_screen_position(enemy)) <= radius:
 			return enemy
 	return null
+
+func _select_monster_info(enemy: CombatEnemy):
+	if enemy == null or not enemy.is_alive() or not is_instance_valid(battle_ui):
+		return
+	if selected_info_enemy != enemy:
+		_set_enemy_selected(selected_info_enemy, false)
+		selected_info_enemy = enemy
+		_set_enemy_selected(selected_info_enemy, true)
+	battle_ui.call("show_monster_info", enemy.data.display_name, enemy.intents, enemy.intent_index, enemy_action_count_remaining, enemy.data.stats.attack_power)
+
+func _refresh_selected_monster_info():
+	if selected_info_enemy != null and selected_info_enemy.is_alive() and is_instance_valid(battle_ui):
+		battle_ui.call("show_monster_info", selected_info_enemy.data.display_name, selected_info_enemy.intents, selected_info_enemy.intent_index, enemy_action_count_remaining, selected_info_enemy.data.stats.attack_power)
+
+func _clear_selected_monster_info():
+	if selected_info_enemy != null:
+		_set_enemy_selected(selected_info_enemy, false)
+	selected_info_enemy = null
+	if is_instance_valid(battle_ui) and battle_ui.has_method("hide_monster_info"):
+		battle_ui.call("hide_monster_info")
+
+func _set_enemy_selected(enemy: CombatEnemy, selected: bool):
+	if enemy != null and is_instance_valid(enemy.node) and enemy.node.has_method("set_selected"):
+		enemy.node.call("set_selected", selected)
 
 func _play_enemy_hit(enemy: CombatEnemy):
 	if is_instance_valid(enemy.node) and enemy.node.has_method("play_hit_animation"):
@@ -1354,6 +1388,7 @@ func _tick_enemy_action_count():
 	enemy_action_count_remaining = max(enemy_action_count_remaining - 1, 0)
 	if enemy_action_count_remaining > 0:
 		_update_all_enemy_bars()
+		_refresh_selected_monster_info()
 		_refresh_ui()
 		return
 	combat_sequence_active = true
@@ -1366,6 +1401,7 @@ func _tick_enemy_action_count():
 	if not battle_over:
 		enemy_action_count_remaining = _get_enemy_action_count()
 	_update_all_enemy_bars()
+	_refresh_selected_monster_info()
 	_refresh_ui()
 
 func _show_popup(screen_position: Vector2, text: String, color: Color, font_size: int = 34):
@@ -1435,6 +1471,8 @@ func _reset_hand_drag_state():
 	_hide_large_card_preview()
 	if is_instance_valid(targeting_dot):
 		targeting_dot.visible = false
+	if is_instance_valid(battle_ui) and battle_ui.has_method("clear_rp_targeting"):
+		battle_ui.call("clear_rp_targeting")
 	_update_inactive_cards(false)
 
 func _selected_card_requires_target() -> bool:
@@ -1504,22 +1542,56 @@ func _get_targeting_card_center() -> Vector2:
 	return HAND_CENTER_SCREEN + CARD_HAND_SETTINGS.targeting_card_screen_offset
 
 func _update_targeting_dot(screen_position: Vector2):
-	if not is_instance_valid(targeting_dot):
-		return
 	var target_position := screen_position
 	targeted_enemy = _enemy_at_screen_position(screen_position)
 	if targeted_enemy != null:
 		target_position = _enemy_screen_position(targeted_enemy)
-	_apply_targeting_dot_style(targeted_enemy != null)
-	var diameter := CARD_HAND_SETTINGS.targeting_dot_radius * 2.0
-	targeting_dot.size = Vector2(diameter, diameter)
-	targeting_dot.position = target_position - targeting_dot.size * 0.5
-	targeting_dot.visible = true
+	if is_instance_valid(targeting_dot):
+		targeting_dot.visible = false
+	if is_instance_valid(battle_ui) and battle_ui.has_method("set_card_targeting_position"):
+		battle_ui.call("set_card_targeting_position", target_position, targeted_enemy != null)
 
 func _enemy_screen_position(enemy: CombatEnemy) -> Vector2:
 	if enemy == null or not is_instance_valid(enemy.node):
 		return Vector2.ZERO
 	return get_viewport().get_canvas_transform() * enemy.node.global_position
+
+func _enemy_screen_rect(enemy: CombatEnemy) -> Rect2:
+	if enemy == null or not is_instance_valid(enemy.sprite):
+		var center := _enemy_screen_position(enemy)
+		return Rect2(center - Vector2.ONE * MONSTER_DROP_RADIUS, Vector2.ONE * MONSTER_DROP_RADIUS * 2.0)
+	var local_rect := Rect2(Vector2.ZERO, Vector2.ZERO)
+	if enemy.sprite is AnimatedSprite2D:
+		local_rect = _animated_sprite_local_rect(enemy.sprite as AnimatedSprite2D)
+	elif enemy.sprite is Sprite2D:
+		local_rect = (enemy.sprite as Sprite2D).get_rect()
+	if local_rect.size == Vector2.ZERO:
+		var center := _enemy_screen_position(enemy)
+		return Rect2(center - Vector2.ONE * MONSTER_DROP_RADIUS, Vector2.ONE * MONSTER_DROP_RADIUS * 2.0)
+	var canvas_transform := get_viewport().get_canvas_transform()
+	var corners := [
+		local_rect.position,
+		local_rect.position + Vector2(local_rect.size.x, 0),
+		local_rect.position + local_rect.size,
+		local_rect.position + Vector2(0, local_rect.size.y),
+	]
+	var first_point: Vector2 = canvas_transform * (enemy.sprite.global_transform * corners[0])
+	var rect := Rect2(first_point, Vector2.ZERO)
+	for i in range(1, corners.size()):
+		rect = rect.expand(canvas_transform * (enemy.sprite.global_transform * corners[i]))
+	return rect
+
+func _animated_sprite_local_rect(sprite: AnimatedSprite2D) -> Rect2:
+	if sprite == null or sprite.sprite_frames == null:
+		return Rect2(Vector2.ZERO, Vector2.ZERO)
+	var texture := sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
+	if texture == null:
+		return Rect2(Vector2.ZERO, Vector2.ZERO)
+	var texture_size := texture.get_size()
+	var position := sprite.offset
+	if sprite.centered:
+		position -= texture_size * 0.5
+	return Rect2(position, texture_size)
 
 func _get_deck_screen_position() -> Vector2:
 	if is_instance_valid(battle_ui):

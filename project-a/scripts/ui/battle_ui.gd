@@ -2,6 +2,7 @@ extends CanvasLayer
 
 signal rp_skill_requested
 signal rp_skill_cancelled
+signal monster_info_close_requested
 
 const HEROINE_PORTRAIT := preload("res://assets/characters/tsuki_portrait.png")
 const RP_CUTIN_ART := preload("res://assets/card/cardart_full/tsuki_moon_slash.png")
@@ -19,6 +20,7 @@ const BLOCK_CHIP_COLOR := Color(0.3, 0.55, 0.95, 0.92)
 const END_TURN_COLOR := Color(0.16, 0.42, 0.85)
 const END_TURN_HOVER_COLOR := Color(0.24, 0.55, 1.0)
 const END_TURN_DISABLED_COLOR := Color(0.2, 0.24, 0.3, 0.8)
+const MONSTER_INFO_WIDTH := 420.0
 const TOAST_LIFETIME := 2.4
 const MAX_TOASTS := 4
 
@@ -60,6 +62,7 @@ var monster_info_count_label: Label
 var monster_info_rows: VBoxContainer
 
 func _ready():
+	ui_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_player_panel()
 	_build_energy_gauge()
 	_build_rp_skill_controls()
@@ -481,40 +484,40 @@ func set_rp_skill_card(skill: Dictionary):
 		rp_skill_card.call("set_cost_text", _format_rp(rp_cost))
 
 func set_rp_targeting_positions(screen_positions: Array):
+	set_aim_targeting_positions(screen_positions)
+
+func set_card_targeting_position(screen_position: Vector2, is_targeted: bool):
+	if is_targeted:
+		set_aim_targeting_positions([screen_position])
+	else:
+		clear_rp_targeting()
+
+func set_aim_targeting_positions(screen_positions: Array):
 	clear_rp_targeting()
 	if rp_aim_layer == null:
 		return
 	for screen_position in screen_positions:
-		var ring := Panel.new()
-		var diameter := 132.0
-		ring.position = Vector2(screen_position) - Vector2.ONE * diameter * 0.5
-		ring.size = Vector2.ONE * diameter
-		ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(0.1, 0.65, 1.0, 0.08)
-		style.border_color = RP_AIM_COLOR
-		style.set_border_width_all(4)
-		style.set_corner_radius_all(int(diameter * 0.5))
-		ring.add_theme_stylebox_override("panel", style)
-		ring.pivot_offset = ring.size * 0.5
-		rp_aim_layer.add_child(ring)
+		_add_aim_ring(Vector2(screen_position))
 
-		var aim_label := Label.new()
-		aim_label.text = "AIM"
-		aim_label.position = Vector2(36, -24)
-		aim_label.size = Vector2(60, 24)
-		aim_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		aim_label.add_theme_font_size_override("font_size", 17)
-		aim_label.add_theme_color_override("font_color", Color(0.72, 0.96, 1.0))
-		aim_label.add_theme_color_override("font_outline_color", Color(0.02, 0.08, 0.15, 0.95))
-		aim_label.add_theme_constant_override("outline_size", 4)
-		aim_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		ring.add_child(aim_label)
+func _add_aim_ring(screen_position: Vector2):
+	var ring := Panel.new()
+	var diameter := 132.0
+	ring.position = screen_position - Vector2.ONE * diameter * 0.5
+	ring.size = Vector2.ONE * diameter
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.1, 0.65, 1.0, 0.08)
+	style.border_color = RP_AIM_COLOR
+	style.set_border_width_all(4)
+	style.set_corner_radius_all(int(diameter * 0.5))
+	ring.add_theme_stylebox_override("panel", style)
+	ring.pivot_offset = ring.size * 0.5
+	rp_aim_layer.add_child(ring)
 
-		var tween := ring.create_tween()
-		tween.set_loops()
-		tween.tween_property(ring, "scale", Vector2(1.08, 1.08), 0.42).set_trans(Tween.TRANS_SINE)
-		tween.tween_property(ring, "scale", Vector2.ONE, 0.42).set_trans(Tween.TRANS_SINE)
+	var tween := ring.create_tween()
+	tween.set_loops()
+	tween.tween_property(ring, "scale", Vector2(1.08, 1.08), 0.42).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(ring, "scale", Vector2.ONE, 0.42).set_trans(Tween.TRANS_SINE)
 
 func clear_rp_targeting():
 	if rp_aim_layer == null:
@@ -718,12 +721,12 @@ func show_toast(message: String):
 func show_monster_info(monster_name: String, intents: Array, next_intent_index: int, action_count_remaining: int = 0, attack_power: int = 0):
 	_ensure_monster_info_panel()
 	monster_info_name_label.text = monster_name
-	monster_info_count_label.text = "다음 행동까지 %d회 후 발동" % max(action_count_remaining, 0)
+	monster_info_count_label.text = "행동 카운트 %d회 후 발동" % max(action_count_remaining, 0)
 	for child in monster_info_rows.get_children():
 		child.free()
 	for i in range(intents.size()):
 		monster_info_rows.add_child(_make_intent_row(intents[i], i, i == next_intent_index, attack_power))
-	monster_info_panel.size = Vector2(360, 66 + intents.size() * 42 + 8)
+	monster_info_panel.size = Vector2(MONSTER_INFO_WIDTH, 94 + intents.size() * 76 + 14)
 	monster_info_panel.visible = true
 	monster_info_panel.modulate = Color(1, 1, 1, 0)
 	var tween := monster_info_panel.create_tween()
@@ -736,95 +739,112 @@ func hide_monster_info():
 func is_monster_info_visible() -> bool:
 	return monster_info_panel != null and monster_info_panel.visible
 
+func is_monster_info_point_inside(screen_position: Vector2) -> bool:
+	return is_monster_info_visible() and monster_info_panel.get_global_rect().has_point(screen_position)
+
 func _ensure_monster_info_panel():
 	if monster_info_panel != null:
 		return
 	monster_info_panel = Panel.new()
 	monster_info_panel.name = "MonsterInfoPanel"
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.03, 0.045, 0.08, 0.94)
-	style.border_color = Color(0.45, 0.75, 1.0, 0.55)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(10)
+	style.bg_color = Color(0.02, 0.025, 0.03, 0.9)
+	style.border_color = Color(0.88, 0.92, 1.0, 0.38)
+	style.border_width_right = 1
+	style.border_width_top = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
 	monster_info_panel.add_theme_stylebox_override("panel", style)
-	monster_info_panel.position = Vector2(24, 128)
-	monster_info_panel.size = Vector2(360, 200)
+	monster_info_panel.position = Vector2(0, 76)
+	monster_info_panel.size = Vector2(MONSTER_INFO_WIDTH, 320)
 	monster_info_panel.z_index = 700
 	monster_info_panel.visible = false
 	ui_root.add_child(monster_info_panel)
 
 	monster_info_name_label = Label.new()
-	monster_info_name_label.add_theme_font_size_override("font_size", 20)
-	monster_info_name_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.6))
-	monster_info_name_label.position = Vector2(16, 10)
-	monster_info_name_label.size = Vector2(280, 28)
+	monster_info_name_label.add_theme_font_size_override("font_size", 24)
+	monster_info_name_label.add_theme_color_override("font_color", Color(0.96, 0.96, 1.0))
+	monster_info_name_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+	monster_info_name_label.add_theme_constant_override("outline_size", 4)
+	monster_info_name_label.position = Vector2(28, 16)
+	monster_info_name_label.size = Vector2(286, 32)
 	monster_info_panel.add_child(monster_info_name_label)
 
 	var subtitle := Label.new()
-	subtitle.text = "ACTION PATTERN"
-	subtitle.add_theme_font_size_override("font_size", 11)
-	subtitle.add_theme_color_override("font_color", Color(0.6, 0.75, 0.95, 0.85))
-	subtitle.position = Vector2(16, 38)
+	subtitle.text = "행동 예고"
+	subtitle.add_theme_font_size_override("font_size", 14)
+	subtitle.add_theme_color_override("font_color", Color(0.74, 0.84, 1.0, 0.9))
+	subtitle.position = Vector2(28, 50)
+	subtitle.size = Vector2(120, 24)
 	monster_info_panel.add_child(subtitle)
 
 	monster_info_count_label = Label.new()
-	monster_info_count_label.add_theme_font_size_override("font_size", 12)
-	monster_info_count_label.add_theme_color_override("font_color", Color(1.0, 0.62, 0.78))
+	monster_info_count_label.add_theme_font_size_override("font_size", 15)
+	monster_info_count_label.add_theme_color_override("font_color", Color(1.0, 0.42, 0.66))
+	monster_info_count_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.78))
+	monster_info_count_label.add_theme_constant_override("outline_size", 3)
 	monster_info_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	monster_info_count_label.position = Vector2(150, 37)
-	monster_info_count_label.size = Vector2(166, 18)
+	monster_info_count_label.position = Vector2(168, 50)
+	monster_info_count_label.size = Vector2(214, 24)
 	monster_info_panel.add_child(monster_info_count_label)
 
 	var close_button := Button.new()
-	close_button.text = "X"
+	close_button.text = "×"
 	close_button.add_theme_font_size_override("font_size", 15)
 	close_button.flat = true
 	close_button.focus_mode = Control.FOCUS_NONE
-	close_button.position = Vector2(322, 8)
+	close_button.position = Vector2(378, 12)
 	close_button.size = Vector2(30, 30)
-	close_button.pressed.connect(hide_monster_info)
+	close_button.pressed.connect(func(): monster_info_close_requested.emit())
 	monster_info_panel.add_child(close_button)
 
 	monster_info_rows = VBoxContainer.new()
-	monster_info_rows.position = Vector2(16, 58)
-	monster_info_rows.size = Vector2(328, 134)
-	monster_info_rows.add_theme_constant_override("separation", 6)
+	monster_info_rows.position = Vector2(28, 84)
+	monster_info_rows.size = Vector2(MONSTER_INFO_WIDTH - 56.0, 220)
+	monster_info_rows.add_theme_constant_override("separation", 10)
 	monster_info_panel.add_child(monster_info_rows)
 
 func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool, attack_power: int = 0) -> Panel:
 	var row := Panel.new()
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.1, 0.14, 0.22, 0.9) if is_next else Color(0.06, 0.08, 0.13, 0.7)
-	style.border_color = Color(0.55, 0.85, 1.0, 0.8) if is_next else Color(0.3, 0.4, 0.55, 0.3)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
+	style.bg_color = Color(0.13, 0.14, 0.16, 0.88) if is_next else Color(0.04, 0.045, 0.052, 0.68)
+	style.border_color = Color(0.95, 0.95, 1.0, 0.62) if is_next else Color(0.72, 0.76, 0.82, 0.34)
+	style.border_width_top = 1
+	style.border_width_bottom = 1
 	row.add_theme_stylebox_override("panel", style)
-	row.custom_minimum_size = Vector2(328, 36)
+	row.custom_minimum_size = Vector2(MONSTER_INFO_WIDTH - 56.0, 66)
 
 	var marker := Label.new()
-	marker.text = ">" if is_next else str(order + 1)
-	marker.add_theme_font_size_override("font_size", 15)
-	marker.add_theme_color_override("font_color", Color(0.55, 0.9, 1.0) if is_next else Color(0.6, 0.65, 0.75))
+	marker.text = "◆" if is_next else str(order + 1)
+	marker.add_theme_font_size_override("font_size", 20)
+	marker.add_theme_color_override("font_color", Color(1.0, 0.36, 0.68) if is_next else Color(0.6, 0.65, 0.75))
 	marker.position = Vector2(10, 0)
-	marker.size = Vector2(20, 36)
+	marker.size = Vector2(28, 66)
 	marker.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(marker)
 
+	var icon := IntentIcon.new()
+	icon.position = Vector2(44, 18)
+	icon.size = Vector2(30, 30)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(icon)
+
 	var name_label := Label.new()
 	name_label.text = intent.display_name
-	name_label.add_theme_font_size_override("font_size", 15)
+	name_label.add_theme_font_size_override("font_size", 17)
 	name_label.add_theme_color_override("font_color", Color(0.95, 0.97, 1.0))
-	name_label.position = Vector2(36, 0)
-	name_label.size = Vector2(190, 36)
-	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	name_label.position = Vector2(86, 7)
+	name_label.size = Vector2(174, 24)
 	row.add_child(name_label)
 
 	var effect_label := Label.new()
 	var is_attack: bool = intent.intent_type == &"attack"
 	if is_attack:
-		effect_label.text = "ATK %d" % int(round(attack_power * float(intent.amount) / 100.0))
+		effect_label.text = "피해 %d%% (%d)" % [intent.amount, int(round(attack_power * float(intent.amount) / 100.0))]
 	else:
-		effect_label.text = "DEF %d" % intent.amount
+		effect_label.text = "방어 %d" % intent.amount
+	icon.set_icon(IntentIcon.Kind.SWORD if is_attack else IntentIcon.Kind.SHIELD, Color(1, 1, 1, 0.98))
 	effect_label.add_theme_font_size_override("font_size", 13)
 	effect_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.98))
 	var chip_style := StyleBoxFlat.new()
@@ -835,15 +855,15 @@ func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool, attack
 	chip_style.content_margin_top = 1.0
 	chip_style.content_margin_bottom = 1.0
 	effect_label.add_theme_stylebox_override("normal", chip_style)
-	effect_label.position = Vector2(252, 7)
+	effect_label.position = Vector2(86, 34)
 	row.add_child(effect_label)
 
 	if is_next:
 		var next_tag := Label.new()
 		next_tag.text = "NEXT"
-		next_tag.add_theme_font_size_override("font_size", 10)
-		next_tag.add_theme_color_override("font_color", Color(0.55, 0.9, 1.0))
-		next_tag.position = Vector2(210, 10)
+		next_tag.add_theme_font_size_override("font_size", 11)
+		next_tag.add_theme_color_override("font_color", Color(1.0, 0.42, 0.66))
+		next_tag.position = Vector2(300, 10)
 		row.add_child(next_tag)
 
 	return row
