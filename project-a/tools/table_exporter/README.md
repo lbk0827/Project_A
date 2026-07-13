@@ -16,10 +16,10 @@ Example:
 
 | | A | B | C | D |
 | --- | --- | --- | --- | --- |
-| 2 | `#data` | `id` | `cost` | `effects` |
-| 3 | | `key,string` | `int` | `json` |
+| 2 | `#data` | `id` | `card_key` | `percent` |
+| 3 | | `key,string` | `string` | `int,null` |
 | 4 | | `data` | `data` | `data` |
-| 5 | | `slash` | `1` | `[{"type":"damage","amount":6}]` |
+| 5 | | `tsuki_slash_damage` | `tsuki/slash` | `100` |
 
 Supported types:
 
@@ -56,6 +56,10 @@ tools/table_exporter/export_tables.bat
 Notes:
 
 - `CharacterCards.xlsx` is the active card authoring workbook; the old base `CardTable.xlsx` has been retired.
+- `character_cards` owns card identity, presentation, keyword tags, and text templates.
+- `card_effect_rows` owns authored card behavior. Add a row for each effect and use `card_key` (`character/id`) plus `trigger` (`on_play`, `on_inspiration`, `on_discard`, etc.) instead of adding keyword-specific columns.
+- Balance-facing workbooks should prefer explicit primitive columns over `json` cells so designers can filter, sort, and tune each value directly.
+- Use `text_template` placeholders such as `{0}` with `card_effect_rows.text_arg_index` so description numbers come from tunable columns.
 - `CharacterRPSkills.xlsx` owns character RP accumulation settings and RP skill definitions.
 - Formula cells are read from Excel's saved cached values. Open and save the workbook in Excel after changing formulas.
 - Sheets are exported only when cell `A2` is `#data`.

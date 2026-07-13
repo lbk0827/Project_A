@@ -15,11 +15,11 @@ from pathlib import Path
 
 import openpyxl
 
-# id, display_name, intent_type, power, icon_label, description
+# id, display_name, intent_type, power, icon_label, description_template
 MONSTER_INTENTS = [
-	("stab", "Stab", "attack", 100, "ATK", "공격력의 100% 피해."),
-	("heavy_blow", "Heavy Blow", "attack", 150, "POW", "공격력의 150% 피해."),
-	("brace", "Brace", "block", 80, "SHD", "실드 80 획득."),
+	("stab", "Stab", "attack", 100, "ATK", "공격력의 {0}% 피해."),
+	("heavy_blow", "Heavy Blow", "attack", 150, "POW", "공격력의 {0}% 피해."),
+	("brace", "Brace", "block", 80, "SHD", "실드 {0} 획득."),
 ]
 
 # id, display_name, action_count, intents (in cast order)
@@ -36,7 +36,7 @@ MONSTERS = [
 
 def build_monster_intents(sheet) -> None:
 	sheet.append([None])
-	sheet.append(["#data", "id", "display_name", "intent_type", "power", "icon_label", "description"])
+	sheet.append(["#data", "id", "display_name", "intent_type", "power", "icon_label", "description_template"])
 	sheet.append([None, "key,string", "string", "string", "int", "string", "string"])
 	sheet.append([None, "data", "data", "data", "data", "data", "data"])
 	for row in MONSTER_INTENTS:

@@ -1,192 +1,106 @@
 [
 	{
+		"card_key": "tsuki/long_sword_slash",
 		"character": "tsuki",
 		"id": "long_sword_slash",
 		"display_name": "장검 베기",
 		"cost": 1,
 		"card_type": "attack",
 		"motion_animation": "Attack",
-		"text": "피해 100%.",
+		"text_template": "피해 {0}%.",
 		"copies": 2,
-		"keywords": [],
-		"effects": [
-			{
-				"type": "damage",
-				"percent": 100,
-				"target": "enemy"
-			}
-		],
-		"inspiration": null
+		"keywords": []
 	},
 	{
+		"card_key": "tsuki/high_speed_slash",
 		"character": "tsuki",
 		"id": "high_speed_slash",
 		"display_name": "고속 베기",
 		"cost": 2,
 		"card_type": "attack",
 		"motion_animation": "Attack",
-		"text": "피해 220%.",
+		"text_template": "피해 {0}%.",
 		"copies": 1,
-		"keywords": [],
-		"effects": [
-			{
-				"type": "damage",
-				"percent": 220,
-				"target": "enemy"
-			}
-		],
-		"inspiration": null
+		"keywords": []
 	},
 	{
+		"card_key": "tsuki/let_flow",
 		"character": "tsuki",
 		"id": "let_flow",
 		"display_name": "흘려 보내기",
 		"cost": 1,
 		"card_type": "skill",
 		"motion_animation": "Idle",
-		"text": "실드 100%.",
+		"text_template": "실드 {0}%.",
 		"copies": 1,
-		"keywords": [],
-		"effects": [
-			{
-				"type": "shield",
-				"percent": 100,
-				"target": "self"
-			}
-		],
-		"inspiration": null
+		"keywords": []
 	},
 	{
+		"card_key": "tsuki/suppress_ready",
 		"character": "tsuki",
 		"id": "suppress_ready",
 		"display_name": "제압 준비",
 		"cost": 0,
 		"card_type": "skill",
 		"motion_animation": "Idle",
-		"text": "자신의 공격 카드 드로우 1. 1턴간 자신의 공격 카드 피해량 40% 증가.",
+		"text_template": "자신의 공격 카드 드로우 {0}. {2}턴간 자신의 공격 카드 피해량 {1}% 증가.",
 		"copies": 1,
-		"keywords": [],
-		"effects": [
-			{
-				"type": "draw",
-				"card_type": "attack",
-				"amount": 1
-			},
-			{
-				"type": "buff",
-				"buff": "attack_damage_up",
-				"percent": 40,
-				"duration_turns": 1,
-				"scope": "own_attack"
-			}
-		],
-		"inspiration": null
+		"keywords": []
 	},
 	{
+		"card_key": "tsuki/steal_slash",
 		"character": "tsuki",
 		"id": "steal_slash",
 		"display_name": "훔쳐베기",
 		"cost": 2,
 		"card_type": "attack",
 		"motion_animation": "Attack",
-		"text": "모든 적 피해 220%. 영감: 비용 1 감소.",
+		"text_template": "모든 적 피해 {0}%. 영감: 비용 {1} 감소.",
 		"copies": 1,
 		"keywords": [
 			"영감"
-		],
-		"effects": [
-			{
-				"type": "damage",
-				"percent": 220,
-				"target": "all_enemies"
-			}
-		],
-		"inspiration": [
-			{
-				"type": "cost_delta",
-				"amount": -1
-			}
 		]
 	},
 	{
+		"card_key": "tsuki/feint_strike",
 		"character": "tsuki",
 		"id": "feint_strike",
 		"display_name": "눈속임 일격",
 		"cost": 1,
 		"card_type": "attack",
 		"motion_animation": "Attack",
-		"text": "[보존] 피해 180%. 핸드의 무작위 자신의 카드 1장의 영감 효과를 활성화.",
+		"text_template": "[보존] 피해 {0}%. 핸드의 무작위 자신의 카드 {1}장의 영감 효과를 활성화.",
 		"copies": 1,
 		"keywords": [
 			"보존"
-		],
-		"effects": [
-			{
-				"type": "damage",
-				"percent": 180,
-				"target": "enemy"
-			},
-			{
-				"type": "activate_inspiration",
-				"target": "random_own_in_hand",
-				"amount": 1
-			}
-		],
-		"inspiration": null
+		]
 	},
 	{
+		"card_key": "tsuki/freezing_blade",
 		"character": "tsuki",
 		"id": "freezing_blade",
 		"display_name": "빙점 칼날",
 		"cost": 1,
 		"card_type": "enhance",
 		"motion_animation": "Idle",
-		"text": "[유일] 자신의 영감 효과가 활성화된 카드 사용 시 모든 적에게 피해 120%.",
+		"text_template": "[유일] 자신의 영감 효과가 활성화된 카드 사용 시 모든 적에게 피해 {0}%.",
 		"copies": 1,
 		"keywords": [
 			"유일"
-		],
-		"effects": [
-			{
-				"type": "passive",
-				"trigger": "on_play_inspired_card",
-				"effect": {
-					"type": "damage",
-					"percent": 120,
-					"target": "all_enemies"
-				}
-			}
-		],
-		"inspiration": null
+		]
 	},
 	{
+		"card_key": "tsuki/iceberg_cleave",
 		"character": "tsuki",
 		"id": "iceberg_cleave",
 		"display_name": "빙산 가르기",
 		"cost": 1,
 		"card_type": "attack",
 		"motion_animation": "Attack",
-		"text": "모든 적 피해 180%. 영감: 타격 1회 추가, 피해량 20% 감소.",
+		"text_template": "모든 적 피해 {0}%. 영감: 타격 {1}회 추가, 피해량 {2}% 감소.",
 		"copies": 1,
 		"keywords": [
 			"영감"
-		],
-		"effects": [
-			{
-				"type": "damage",
-				"percent": 180,
-				"target": "all_enemies"
-			}
-		],
-		"inspiration": [
-			{
-				"type": "add_hit",
-				"amount": 1
-			},
-			{
-				"type": "damage_delta",
-				"percent": -20
-			}
 		]
 	}
 ]

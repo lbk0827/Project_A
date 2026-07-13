@@ -5,7 +5,7 @@
 		"intent_type": "attack",
 		"power": 100,
 		"icon_label": "ATK",
-		"description": "공격력의 100% 피해."
+		"description_template": "공격력의 {0}% 피해."
 	},
 	{
 		"id": "heavy_blow",
@@ -13,7 +13,7 @@
 		"intent_type": "attack",
 		"power": 150,
 		"icon_label": "POW",
-		"description": "공격력의 150% 피해."
+		"description_template": "공격력의 {0}% 피해."
 	},
 	{
 		"id": "brace",
@@ -21,6 +21,6 @@
 		"intent_type": "block",
 		"power": 80,
 		"icon_label": "SHD",
-		"description": "실드 80 획득."
+		"description_template": "실드 {0} 획득."
 	}
 ]

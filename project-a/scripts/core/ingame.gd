@@ -104,6 +104,7 @@ const MONSTER_DATA_BY_ID := {
 	"abyssal_crown_guardian": ABYSSAL_CROWN_GUARDIAN_DATA,
 }
 const CHARACTER_CARDS_PATH := "res://data/generated/character_cards.json"
+const CARD_EFFECT_ROWS_PATH := "res://data/generated/card_effect_rows.json"
 const CHARACTER_RP_SETTINGS_PATH := "res://data/generated/character_rp_settings.json"
 const CHARACTER_RP_SKILLS_PATH := "res://data/generated/character_rp_skills.json"
 const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
@@ -130,8 +131,8 @@ var rp_skill: Dictionary = {}
 var rp_skill_selected := false
 # Temporary +% bonus to Tsuki's attack-card damage for the current turn.
 var _attack_damage_bonus_percent := 0
-# 빙점 칼날(강화) passive: playing an inspired card deals bonus AoE this combat.
-var _inspired_play_passive := false
+# Passive effects installed by enhance cards for this combat.
+var _inspired_play_passive_effects: Array = []
 var card_library: Dictionary = {}
 var turn_number := 1
 # Shared enemy action counter: all living enemies act together when it hits 0.
@@ -175,6 +176,7 @@ func _ready():
 
 func _load_card_library() -> Dictionary:
 	var library: Dictionary = {}
+	var effect_rows_by_card := _load_card_effect_rows()
 	var file := FileAccess.open(CHARACTER_CARDS_PATH, FileAccess.READ)
 	if file == null:
 		return library
@@ -182,23 +184,138 @@ func _load_card_library() -> Dictionary:
 	file.close()
 	if not (parsed is Array):
 		return library
+	var card_id_counts: Dictionary = {}
+	for entry in parsed:
+		if entry is Dictionary:
+			var entry_id := String(entry.get("id", ""))
+			card_id_counts[entry_id] = int(card_id_counts.get(entry_id, 0)) + 1
 	for entry in parsed:
 		var card := CardData.new()
 		card.id = String(entry.get("id", ""))
 		card.character = String(entry.get("character", ""))
 		card.display_name = String(entry.get("display_name", ""))
 		card.cost = int(entry.get("cost", 0))
-		card.text = String(entry.get("text", ""))
+		var key := _card_key(card.character, card.id)
+		var effect_rows: Array = effect_rows_by_card.get(key, [])
+		card.text = _build_card_text(entry, effect_rows)
 		card.card_type = StringName(String(entry.get("card_type", "skill")))
 		card.motion_animation = StringName(String(entry.get("motion_animation", _default_card_motion_animation(card.card_type))))
-		card.effects = entry.get("effects", [])
+		card.effects = _build_card_effects(entry, effect_rows)
 		var keywords: Variant = entry.get("keywords", [])
 		card.keywords = keywords if keywords is Array else []
-		var inspiration: Variant = entry.get("inspiration", [])
-		card.inspiration = inspiration if inspiration is Array else []
+		card.inspiration = _build_card_inspiration(entry, effect_rows)
 		card.requires_target = _derive_requires_target(card.effects)
-		library[card.id] = card
+		library[key] = card
+		if int(card_id_counts.get(card.id, 0)) == 1:
+			library[card.id] = card
 	return library
+
+func _load_card_effect_rows() -> Dictionary:
+	var rows_by_card: Dictionary = {}
+	var file := FileAccess.open(CARD_EFFECT_ROWS_PATH, FileAccess.READ)
+	if file == null:
+		return rows_by_card
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	file.close()
+	if not (parsed is Array):
+		return rows_by_card
+	for row in parsed:
+		if not (row is Dictionary):
+			continue
+		var key := String(row.get("card_key", ""))
+		if key.is_empty():
+			key = _card_key(String(row.get("character", "")), String(row.get("card_id", "")))
+		if key == "/":
+			continue
+		var rows: Array = rows_by_card.get(key, [])
+		rows.append(row)
+		rows_by_card[key] = rows
+	return rows_by_card
+
+func _card_key(character: String, card_id: String) -> String:
+	return "%s/%s" % [character, card_id]
+
+func _build_card_text(entry: Dictionary, effect_rows: Array) -> String:
+	var template := String(entry.get("text_template", entry.get("text", "")))
+	var values := _card_text_values(entry, effect_rows)
+	for index in values:
+		template = template.replace("{%s}" % index, values[index])
+	return template
+
+func _card_text_values(entry: Dictionary, effect_rows: Array) -> Dictionary:
+	var values: Dictionary = {}
+	for row in effect_rows:
+		if not _has_table_value(row, "text_arg_index"):
+			continue
+		var arg_index := int(row["text_arg_index"])
+		var value: Variant = null
+		if _has_table_value(row, "percent"):
+			value = row["percent"]
+		elif _has_table_value(row, "amount"):
+			value = row["amount"]
+		elif _has_table_value(row, "duration_turns"):
+			value = row["duration_turns"]
+		if value != null:
+			values[str(arg_index)] = _format_table_value(value)
+	if values.is_empty():
+		for field in ["damage_percent", "shield_percent", "draw_amount", "buff_percent", "buff_duration_turns"]:
+			if _has_table_value(entry, field):
+				values[str(values.size())] = _format_table_value(entry[field])
+	return values
+
+func _format_table_value(value: Variant) -> String:
+	var number := float(value)
+	number = absf(number)
+	if is_equal_approx(number, round(number)):
+		return str(int(round(number)))
+	return str(number)
+
+func _build_card_effects(entry: Dictionary, effect_rows: Array) -> Array:
+	var existing: Variant = entry.get("effects", null)
+	if existing is Array:
+		return existing
+	var effects: Array = []
+	for row in effect_rows:
+		var trigger := String(row.get("trigger", "on_play"))
+		if trigger == "on_play":
+			effects.append(_effect_from_row(row))
+		elif trigger != "on_inspiration" and trigger != "text_only":
+			effects.append({
+				"type": "passive",
+				"trigger": trigger,
+				"effect": _effect_from_row(row),
+			})
+	return effects
+
+func _build_card_inspiration(entry: Dictionary, effect_rows: Array) -> Array:
+	var existing: Variant = entry.get("inspiration", null)
+	if existing is Array:
+		return existing
+	var inspiration: Array = []
+	for row in effect_rows:
+		if String(row.get("trigger", "")) == "on_inspiration":
+			inspiration.append(_effect_from_row(row))
+	return inspiration
+
+func _effect_from_row(row: Dictionary) -> Dictionary:
+	var effect := {
+		"type": String(row.get("effect_type", "")),
+	}
+	for field in ["target", "card_type", "buff", "scope"]:
+		if _has_table_value(row, field):
+			effect[field] = String(row[field])
+	for field in ["percent", "amount", "duration_turns"]:
+		if _has_table_value(row, field):
+			effect[field] = int(row[field])
+	return effect
+
+func _has_table_value(entry: Dictionary, field: String) -> bool:
+	if not entry.has(field):
+		return false
+	var value: Variant = entry[field]
+	if value == null:
+		return false
+	return not (value is String and String(value).is_empty())
 
 func _load_character_table_entry(path: String, character_id: String) -> Dictionary:
 	var file := FileAccess.open(path, FileAccess.READ)
@@ -428,7 +545,7 @@ func _start_battle():
 	battle_won = false
 	combat_sequence_active = false
 	rp_skill_selected = false
-	_inspired_play_passive = false
+	_inspired_play_passive_effects.clear()
 	selected_card_index = -1
 	is_card_play_lifted = false
 	is_targeting_active = false
@@ -586,9 +703,9 @@ func _play_card(index: int, target_enemy: CombatEnemy = null):
 
 	if is_inspired:
 		_apply_inspiration(card, attack_effects)
-	# 빙점 칼날 passive: playing an inspired card deals bonus AoE.
-	if is_inspired and _inspired_play_passive:
-		attack_effects.append({ "type": "damage", "percent": 120, "target": "all_enemies" })
+	if is_inspired:
+		for passive_effect in _inspired_play_passive_effects:
+			attack_effects.append(passive_effect.duplicate())
 
 	await _apply_instant_effects(instant_effects)
 	if not attack_effects.is_empty():
@@ -633,8 +750,8 @@ func _apply_inspiration(card: CardData, attack_effects: Array):
 						effect["percent"] = int(round(float(effect["percent"]) * (1.0 + delta / 100.0)))
 
 func _install_passive(effect: Dictionary):
-	if String(effect.get("trigger", "")) == "on_play_inspired_card":
-		_inspired_play_passive = true
+	if String(effect.get("trigger", "")) == "on_play_inspired_card" and effect.get("effect", null) is Dictionary:
+		_inspired_play_passive_effects.append(effect["effect"].duplicate())
 		_show_popup(_get_player_screen_position(), "강화 발동", Color(0.6, 0.85, 1.0), 24)
 
 func _activate_random_inspiration(count: int):
