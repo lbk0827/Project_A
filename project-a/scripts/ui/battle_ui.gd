@@ -411,10 +411,10 @@ func _style_restart_button():
 	restart_button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
 func _position_deck_panels():
-	deck_hand.position = Vector2(14, 376)
-	deck_hand.scale = Vector2(0.5, 0.5)
-	deck_tomb.position = Vector2(1138, 376)
-	deck_tomb.scale = Vector2(0.5, 0.5)
+	deck_hand.position = Vector2(24, 390)
+	deck_hand.scale = Vector2.ONE
+	deck_tomb.position = Vector2(1172, 390)
+	deck_tomb.scale = Vector2.ONE
 
 # --- Runtime API ----------------------------------------------------------
 
