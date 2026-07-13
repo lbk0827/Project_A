@@ -5,8 +5,9 @@ signal node_selected(node_id: String)
 class MiniMapView:
 	extends Control
 
-	const NODE_RADIUS := 7.0
-	const CURRENT_RADIUS := 10.0
+	const NODE_ATLAS := preload("res://assets/ui/ui_map.png")
+	const NODE_RADIUS := 11.0
+	const CURRENT_RADIUS := 14.0
 
 	var map_nodes: Array = []
 	var current_node_id := ""
@@ -33,7 +34,7 @@ class MiniMapView:
 					continue
 				var to_pos := _map_position(to_data["pos"])
 				var is_open := completed_nodes.has(from_id) or from_id == current_node_id
-				draw_line(from_pos, to_pos, Color(0.55, 0.9, 1.0, 0.62) if is_open else Color(0.38, 0.46, 0.52, 0.38), 2.0, true)
+				draw_line(from_pos, to_pos, Color(0.55, 0.9, 1.0, 0.62) if is_open else Color(0.38, 0.46, 0.52, 0.38), 2.8, true)
 		for node_data in map_nodes:
 			_draw_node(node_data)
 		draw_rect(panel_rect, Color(0.42, 0.82, 1.0, 0.62), false, 1.5)
@@ -63,16 +64,13 @@ class MiniMapView:
 			fill = Color(0.5, 0.9, 0.68)
 		elif not (node_id in selectable_ids):
 			fill = Color(0.3, 0.34, 0.39)
-		var diamond := PackedVector2Array([
-			pos + Vector2(0, -radius),
-			pos + Vector2(radius * 1.45, 0),
-			pos + Vector2(0, radius),
-			pos + Vector2(-radius * 1.45, 0),
-		])
 		if node_id == current_node_id or node_id in selectable_ids:
 			draw_circle(pos, radius * 2.0, Color(fill.r, fill.g, fill.b, 0.18))
-		draw_colored_polygon(diamond, fill)
-		draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color(0.9, 0.98, 1.0, 0.86), 1.4, true)
+		draw_circle(pos, radius * 1.35, Color(0.02, 0.05, 0.065, 0.82))
+		draw_circle(pos, radius * 1.42, fill, false, 1.2)
+		var icon_size: Vector2 = Vector2(36, 36) if node_id == current_node_id else Vector2(30, 30)
+		var icon_rect: Rect2 = _fit_icon_rect(_get_icon_region(node_type).size, Rect2(pos - icon_size * 0.5, icon_size))
+		draw_texture_rect_region(NODE_ATLAS, icon_rect, _get_icon_region(node_type), Color(0.92, 0.98, 1.0, 0.98))
 		if node_id == current_node_id:
 			draw_circle(pos, 3.0, Color(0.03, 0.12, 0.16, 0.95))
 
@@ -92,6 +90,13 @@ class MiniMapView:
 				return node_data
 		return {}
 
+	func _fit_icon_rect(source_size: Vector2, bounds: Rect2) -> Rect2:
+		if source_size.x <= 0.0 or source_size.y <= 0.0:
+			return bounds
+		var scale: float = min(bounds.size.x / source_size.x, bounds.size.y / source_size.y)
+		var draw_size: Vector2 = source_size * scale
+		return Rect2(bounds.position + (bounds.size - draw_size) * 0.5, draw_size)
+
 	func _type_color(node_type: String) -> Color:
 		match node_type:
 			"base_camp":
@@ -110,6 +115,25 @@ class MiniMapView:
 				return Color(0.42, 0.9, 0.62)
 			_:
 				return Color(0.62, 0.72, 0.86)
+
+	func _get_icon_region(node_type: String) -> Rect2:
+		match node_type:
+			"battle":
+				return Rect2(78, 54, 190, 246)
+			"elite":
+				return Rect2(442, 54, 190, 246)
+			"boss":
+				return Rect2(720, 0, 340, 355)
+			"treasure":
+				return Rect2(1166, 54, 194, 222)
+			"event":
+				return Rect2(798, 408, 190, 244)
+			"rest":
+				return Rect2(1088, 420, 322, 196)
+			"base_camp":
+				return Rect2(444, 408, 190, 244)
+			_:
+				return Rect2(444, 408, 190, 244)
 
 const BattleMapOverlayRoute := preload("res://scripts/map/map_route_data.gd")
 const MAP_ATLAS := preload("res://assets/ui/ui_map.png")
@@ -163,8 +187,8 @@ func _build_ui():
 func _build_minimap_panel():
 	minimap_panel = Panel.new()
 	minimap_panel.name = "MiniMapPanel"
-	minimap_panel.position = Vector2(18, 492)
-	minimap_panel.size = Vector2(332, 196)
+	minimap_panel.position = Vector2(18, 466)
+	minimap_panel.size = Vector2(372, 222)
 	minimap_panel.z_index = 20
 	minimap_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.04, 0.08, 0.11, 0.82), Color(0.38, 0.86, 1.0, 0.62), 8))
 	ui_root.add_child(minimap_panel)
@@ -180,29 +204,29 @@ func _build_minimap_panel():
 	expand_button = Button.new()
 	expand_button.text = "+"
 	expand_button.focus_mode = Control.FOCUS_NONE
-	expand_button.position = Vector2(294, 8)
+	expand_button.position = Vector2(334, 8)
 	expand_button.size = Vector2(24, 24)
 	expand_button.pressed.connect(_on_expand_pressed)
 	minimap_panel.add_child(expand_button)
 
 	minimap_view = MiniMapView.new()
 	minimap_view.position = Vector2(14, 34)
-	minimap_view.size = Vector2(304, 116)
+	minimap_view.size = Vector2(344, 142)
 	minimap_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	minimap_panel.add_child(minimap_view)
 
 	status_label = Label.new()
 	status_label.add_theme_font_size_override("font_size", 13)
 	status_label.add_theme_color_override("font_color", Color(0.9, 0.96, 1.0, 0.92))
-	status_label.position = Vector2(14, 158)
-	status_label.size = Vector2(304, 26)
+	status_label.position = Vector2(14, 184)
+	status_label.size = Vector2(344, 26)
 	minimap_panel.add_child(status_label)
 
 func _build_choice_panel():
 	var panel := Panel.new()
 	panel.name = "ChoicePanel"
-	panel.position = Vector2(760, 62)
-	panel.size = Vector2(488, 590)
+	panel.position = Vector2(744, 64)
+	panel.size = Vector2(510, 590)
 	panel.z_index = 30
 	panel.add_theme_stylebox_override("panel", _panel_style(Color(0.02, 0.026, 0.038, 0.18), Color(0.45, 0.76, 0.92, 0.0), 4))
 	ui_root.add_child(panel)
@@ -227,8 +251,8 @@ func _build_choice_panel():
 
 	choice_container = VBoxContainer.new()
 	choice_container.position = Vector2(36, 96)
-	choice_container.size = Vector2(424, 464)
-	choice_container.add_theme_constant_override("separation", 24)
+	choice_container.size = Vector2(450, 464)
+	choice_container.add_theme_constant_override("separation", 28)
 	panel.add_child(choice_container)
 
 func _build_expanded_map():
@@ -308,123 +332,73 @@ func _make_choice_card(node_data: Dictionary, order: int) -> Button:
 	var accent := BattleMapOverlayRoute.get_type_color(node_type)
 	var button := Button.new()
 	button.name = "Choice_%s" % node_id
-	button.custom_minimum_size = Vector2(424, 132)
+	button.custom_minimum_size = Vector2(450, 118)
 	button.focus_mode = Control.FOCUS_NONE
 	button.text = ""
 	button.clip_contents = false
-	button.add_theme_stylebox_override("normal", _panel_style(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0))
-	button.add_theme_stylebox_override("hover", _panel_style(Color(0.34, 0.78, 1.0, 0.08), Color(0.56, 0.95, 1.0, 0.55), 6))
-	button.add_theme_stylebox_override("pressed", _panel_style(Color(0.02, 0.05, 0.07, 0.18), accent.darkened(0.15), 6))
+	button.add_theme_stylebox_override("normal", _panel_style(Color(0.025, 0.045, 0.055, 0.68), Color(accent.r, accent.g, accent.b, 0.38), 6))
+	button.add_theme_stylebox_override("hover", _panel_style(Color(0.055, 0.09, 0.105, 0.82), Color(accent.r, accent.g, accent.b, 0.82), 6))
+	button.add_theme_stylebox_override("pressed", _panel_style(Color(0.02, 0.05, 0.07, 0.92), accent.darkened(0.15), 6))
 	button.pressed.connect(func(): _commit_choice(node_id, button))
 
-	var arrow := Label.new()
-	arrow.text = ">"
-	arrow.add_theme_font_size_override("font_size", 34)
-	arrow.add_theme_color_override("font_color", Color(0.55, 0.96, 1.0, 0.9))
-	arrow.add_theme_color_override("font_outline_color", Color(0.02, 0.08, 0.1, 0.88))
-	arrow.add_theme_constant_override("outline_size", 5)
-	arrow.position = Vector2(-20, 42)
-	arrow.size = Vector2(36, 42)
-	arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(arrow)
-
-	var tile_shadow := Panel.new()
-	tile_shadow.position = Vector2(46, 20)
-	tile_shadow.size = Vector2(298, 98)
-	tile_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tile_shadow.add_theme_stylebox_override("panel", _panel_style(Color(0.0, 0.0, 0.0, 0.38), Color(0, 0, 0, 0), 8))
-	button.add_child(tile_shadow)
-
-	var tile := Panel.new()
-	tile.position = Vector2(36, 8)
-	tile.size = Vector2(306, 102)
-	tile.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tile.add_theme_stylebox_override("panel", _panel_style(Color(0.075, 0.095, 0.105, 0.88), Color(0.58, 0.95, 1.0, 0.78), 8))
-	button.add_child(tile)
+	var icon_back := Panel.new()
+	icon_back.position = Vector2(18, 16)
+	icon_back.size = Vector2(86, 86)
+	icon_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon_back.add_theme_stylebox_override("panel", _panel_style(Color(0.02, 0.035, 0.045, 0.78), Color(accent.r, accent.g, accent.b, 0.62), 6))
+	button.add_child(icon_back)
 
 	var icon := TextureRect.new()
 	icon.texture = _make_node_texture(node_type)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	icon.position = Vector2(44, 12)
-	icon.size = Vector2(288, 92)
-	icon.modulate = Color(0.78, 0.86, 0.9, 0.9)
+	icon.position = Vector2(24, 22)
+	icon.size = Vector2(74, 74)
+	icon.modulate = Color(0.95, 1.0, 1.0, 0.98)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(icon)
 
-	var glow := Panel.new()
-	glow.position = Vector2(34, 6)
-	glow.size = Vector2(310, 106)
-	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	glow.add_theme_stylebox_override("panel", _panel_style(Color(0.2, 0.82, 1.0, 0.06), Color(0.62, 0.96, 1.0, 0.64), 8))
-	button.add_child(glow)
-
-	var flag_shadow := ColorRect.new()
-	flag_shadow.color = Color(0, 0, 0, 0.3)
-	flag_shadow.position = Vector2(340, 20)
-	flag_shadow.size = Vector2(48, 104)
-	flag_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(flag_shadow)
-
-	var flag := ColorRect.new()
-	flag.color = accent
-	flag.position = Vector2(330, 0)
-	flag.size = Vector2(48, 116)
-	flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(flag)
-
-	var flag_icon := Label.new()
-	flag_icon.text = _type_glyph(node_type)
-	flag_icon.add_theme_font_size_override("font_size", 30)
-	flag_icon.add_theme_color_override("font_color", Color(1, 1, 1, 0.95))
-	flag_icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	flag_icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	flag_icon.position = Vector2(330, 34)
-	flag_icon.size = Vector2(48, 42)
-	flag_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(flag_icon)
-
 	var index_label := Label.new()
 	index_label.text = "0%d" % (order + 1)
-	index_label.add_theme_font_size_override("font_size", 16)
-	index_label.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0, 0.82))
-	index_label.position = Vector2(58, 16)
-	index_label.size = Vector2(40, 24)
+	index_label.add_theme_font_size_override("font_size", 13)
+	index_label.add_theme_color_override("font_color", Color(0.75, 0.9, 1.0, 0.78))
+	index_label.position = Vector2(122, 18)
+	index_label.size = Vector2(42, 24)
 	index_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(index_label)
 
 	var type_label := Label.new()
 	type_label.text = BattleMapOverlayRoute.get_type_title(node_type)
-	type_label.add_theme_font_size_override("font_size", 14)
+	type_label.add_theme_font_size_override("font_size", 13)
 	type_label.add_theme_color_override("font_color", accent.lightened(0.25))
-	type_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.82))
-	type_label.add_theme_constant_override("outline_size", 4)
-	type_label.position = Vector2(108, 14)
+	type_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.75))
+	type_label.add_theme_constant_override("outline_size", 3)
+	type_label.position = Vector2(168, 18)
 	type_label.size = Vector2(180, 22)
 	type_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(type_label)
 
 	var name_label := Label.new()
 	name_label.text = String(node_data.get("label", "Node"))
-	name_label.add_theme_font_size_override("font_size", 26)
-	name_label.add_theme_color_override("font_color", Color(0.96, 0.98, 1.0))
-	name_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.75))
+	name_label.add_theme_font_size_override("font_size", 25)
+	name_label.add_theme_color_override("font_color", Color(0.96, 0.99, 1.0))
+	name_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.72))
 	name_label.add_theme_constant_override("outline_size", 4)
-	name_label.position = Vector2(108, 38)
-	name_label.size = Vector2(230, 34)
+	name_label.position = Vector2(122, 42)
+	name_label.size = Vector2(286, 34)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(name_label)
 
 	var body_label := Label.new()
 	body_label.text = BattleMapOverlayRoute.get_type_description(node_type)
-	body_label.add_theme_font_size_override("font_size", 13)
-	body_label.add_theme_color_override("font_color", Color(0.78, 0.86, 0.92, 0.92))
-	body_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.78))
+	body_label.add_theme_font_size_override("font_size", 12)
+	body_label.add_theme_color_override("font_color", Color(0.77, 0.86, 0.92, 0.92))
+	body_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.62))
 	body_label.add_theme_constant_override("outline_size", 3)
 	body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body_label.position = Vector2(108, 76)
-	body_label.size = Vector2(210, 40)
+	body_label.position = Vector2(122, 78)
+	body_label.size = Vector2(286, 34)
 	body_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(body_label)
 	return button
@@ -453,21 +427,6 @@ func _get_icon_region(node_type: String) -> Rect2:
 			return Rect2(444, 408, 190, 244)
 		_:
 			return Rect2(444, 408, 190, 244)
-
-func _type_glyph(node_type: String) -> String:
-	match node_type:
-		"base_camp":
-			return ">"
-		"battle", "elite", "boss":
-			return "X"
-		"treasure":
-			return "$"
-		"rest":
-			return "+"
-		"event":
-			return "?"
-		_:
-			return ">"
 
 func _panel_style(fill: Color, border: Color, radius: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
