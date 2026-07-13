@@ -1326,7 +1326,7 @@ func _on_end_turn_pressed():
 		var discard_time := DISCARD_TRANSFER_TIME + 0.22 + float(discarded_count - 1) * DISCARD_STAGGER
 		await get_tree().create_timer(discard_time).timeout
 	combat_sequence_active = false
-	await _tick_enemy_action_count()
+	await _tick_enemy_action_count(true)
 	if not battle_over:
 		_start_player_turn()
 	else:
@@ -1686,13 +1686,12 @@ func _get_enemy_action_count() -> int:
 			return max(enemy.data.action_count, 1)
 	return 1
 
-# Ticks the shared enemy action counter down by one "time unit" (a card played
-# or the turn ended). When it reaches zero, every living enemy acts in turn,
-# then the counter resets.
-func _tick_enemy_action_count():
+# Ticks the shared enemy action counter down when a card is played. End Turn can
+# force the shared enemy turn immediately. After enemies act, the counter resets.
+func _tick_enemy_action_count(force_enemy_turn := false):
 	if battle_over or _alive_enemies().is_empty():
 		return
-	enemy_action_count_remaining = max(enemy_action_count_remaining - 1, 0)
+	enemy_action_count_remaining = 0 if force_enemy_turn else max(enemy_action_count_remaining - 1, 0)
 	if enemy_action_count_remaining > 0:
 		_update_all_enemy_bars()
 		_refresh_selected_monster_info()

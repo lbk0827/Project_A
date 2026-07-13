@@ -19,8 +19,8 @@ func set_card(card: CardData, effective_cost: int = -1):
 	art.texture = load(art_path) if ResourceLoader.exists(art_path) else null
 	cost_label.text = str(card.cost if effective_cost < 0 else effective_cost)
 	name_label.text = card.display_name
-	keyword_label.text = _type_header_text(card.card_type)
-	type_label.text = _keyword_text(card)
+	keyword_label.text = _keyword_text(card)
+	type_label.text = _type_header_text(card.card_type)
 	body_label.text = _body_text(card)
 	_fit_all_labels()
 
