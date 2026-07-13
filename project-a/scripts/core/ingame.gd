@@ -53,8 +53,12 @@ class RouteWipeView:
 
 const MAX_HAND_SIZE := 7
 const DRAW_CARDS_PER_TURN := 3
-const DRAW_CARD_DELAY := 0.12
-const DRAW_CARD_ANIMATION_TIME := 0.28
+const DRAW_CARD_DELAY := 0.07
+const DRAW_TRANSFER_TIME := 0.38
+const DRAW_CARD_ANIMATION_TIME := 0.24
+const DRAW_ENTRY_OFFSET := Vector2(0, 105)
+const DISCARD_STAGGER := 0.055
+const DISCARD_TRANSFER_TIME := 0.44
 const CARD_SPACING := -8
 # Hand cards are laid out on a circular arc around a pivot far below the screen,
 # so the fan reads as a convex (dome) arch with the middle card highest.
@@ -70,6 +74,8 @@ const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
 const BATTLE_MAP_OVERLAY_SCENE := preload("res://scenes/ui/battle_map_overlay.tscn")
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_PREVIEW_SCENE := preload("res://scenes/ui/cards/CardViewLarge.tscn")
+const CARD_TRANSFER_VFX := preload("res://scripts/vfx/card_transfer_vfx.gd")
+const CARD_DISSOLVE_VFX := preload("res://scripts/vfx/card_dissolve_vfx.gd")
 const MOON_SLASH_VFX_SCENE := preload("res://scenes/vfx/fx_tsuki_moon_slash.tscn")
 const MapRouteData := preload("res://scripts/map/map_route_data.gd")
 const DAMAGE_TO_ENEMY_COLOR := Color(1.0, 0.9, 0.4)
@@ -149,7 +155,8 @@ var targeting_dot_style: StyleBoxFlat
 var selected_card_index := -1
 var is_card_play_lifted := false
 var is_targeting_active := false
-var draw_animation_card_index := -1
+var draw_animation_card_indices: Array[int] = []
+var reshuffle_animation_pending := false
 var card_preview_large: Control
 
 func _run_state() -> Node:
@@ -427,7 +434,8 @@ func _start_battle():
 	is_targeting_active = false
 	targeted_enemy = null
 	selected_info_enemy = null
-	draw_animation_card_index = -1
+	draw_animation_card_indices.clear()
+	reshuffle_animation_pending = false
 	end_turn_button.visible = true
 	restart_button.visible = false
 	restart_button.text = "Restart Battle"
@@ -484,21 +492,27 @@ func _build_deck() -> Array[CardData]:
 			deck.append(card_library[card_id])
 	return deck
 
-func _draw_cards(amount: int):
-	for _i in range(amount):
-		if not _draw_card_to_hand():
-			return
-
 func _draw_cards_with_animation(amount: int):
+	var drawn_indices: Array[int] = []
 	for _i in range(amount):
 		if not _draw_card_to_hand():
-			return
-		draw_animation_card_index = hand.size() - 1
-		_refresh_ui()
-		await _play_draw_card_from_deck(draw_animation_card_index)
-		draw_animation_card_index = -1
-		_refresh_ui()
-		await get_tree().create_timer(DRAW_CARD_DELAY).timeout
+			break
+		drawn_indices.append(hand.size() - 1)
+	await _animate_draw_indices(drawn_indices)
+
+func _animate_draw_indices(drawn_indices: Array[int]):
+	if reshuffle_animation_pending:
+		await _play_reshuffle_animation()
+	if drawn_indices.is_empty():
+		return
+	draw_animation_card_indices = drawn_indices.duplicate()
+	_refresh_ui()
+	for i in range(drawn_indices.size()):
+		_play_draw_card_from_deck(drawn_indices[i], float(i) * DRAW_CARD_DELAY)
+	var total_time := DRAW_TRANSFER_TIME + DRAW_CARD_ANIMATION_TIME + float(drawn_indices.size() - 1) * DRAW_CARD_DELAY + 0.05
+	await get_tree().create_timer(total_time).timeout
+	draw_animation_card_indices.clear()
+	_refresh_ui()
 
 func _draw_card_to_hand() -> bool:
 	if hand.size() >= MAX_HAND_SIZE:
@@ -509,6 +523,7 @@ func _draw_card_to_hand() -> bool:
 		draw_pile = discard_pile.duplicate(true)
 		discard_pile.clear()
 		draw_pile.shuffle()
+		reshuffle_animation_pending = true
 		_log("Discard pile reshuffled into draw pile.")
 	hand.append(_instance_for_hand(draw_pile.pop_back()))
 	return true
@@ -520,16 +535,18 @@ func _instance_for_hand(card: CardData) -> CardData:
 	copy.inspired = false
 	return copy
 
-func _discard_hand():
+func _discard_hand() -> Array[CardData]:
 	# Cards with 보존(Retain) stay in hand at end of turn.
 	var kept: Array[CardData] = []
+	var discarded: Array[CardData] = []
 	for card in hand:
 		if "보존" in card.keywords:
 			card.inspired = false
 			kept.append(card)
 		else:
-			discard_pile.append(card)
+			discarded.append(card)
 	hand = kept
+	return discarded
 
 func _play_card(index: int, target_enemy: CombatEnemy = null):
 	if battle_over or combat_sequence_active or index < 0 or index >= hand.size():
@@ -542,14 +559,17 @@ func _play_card(index: int, target_enemy: CombatEnemy = null):
 		_refresh_ui()
 		return
 
+	var transition_proxy := _create_card_transition_proxy(index, card)
+	combat_sequence_active = true
 	var is_inspired: bool = card.inspired
 	energy -= cost
 	_gain_rp(float(cost) * float(rp_settings.get("rp_per_action_point", 0.0)), "ACTION")
 	hand.remove_at(index)
 	# Enhance cards install a lasting effect instead of going to discard.
-	if String(card.card_type) != "enhance":
-		discard_pile.append(card)
+	var moves_to_tomb := String(card.card_type) != "enhance"
 	_log("%s 사용." % card.display_name)
+
+	_refresh_ui()
 
 	# Split into enemy-attack effects (played through the attack animation) and
 	# instant effects (block/draw/energy applied right away). Passives install
@@ -570,13 +590,19 @@ func _play_card(index: int, target_enemy: CombatEnemy = null):
 	if is_inspired and _inspired_play_passive:
 		attack_effects.append({ "type": "damage", "percent": 120, "target": "all_enemies" })
 
-	_apply_instant_effects(instant_effects)
+	await _apply_instant_effects(instant_effects)
 	if not attack_effects.is_empty():
 		await _play_player_attack_sequence(attack_effects, target_enemy, card.motion_animation)
 	else:
 		_play_heroine_card_motion(card.motion_animation)
+	combat_sequence_active = true
+	if moves_to_tomb:
+		await _play_discard_proxy(transition_proxy, card)
+	elif is_instance_valid(transition_proxy):
+		await _fade_consumed_proxy(transition_proxy)
 
 	_refresh_ui()
+	combat_sequence_active = false
 	if not battle_over:
 		await _tick_enemy_action_count()
 	_refresh_ui()
@@ -636,7 +662,7 @@ func _apply_instant_effects(effects: Array):
 				player_block += block_amount
 				_show_popup(_get_player_screen_position(), "+%d DEF" % block_amount, BLOCK_GAIN_COLOR, 28)
 			"draw":
-				_draw_cards_typed(int(effect.get("amount", 0)), String(effect.get("card_type", "")))
+				await _draw_cards_typed(int(effect.get("amount", 0)), String(effect.get("card_type", "")))
 			"energy":
 				var gain := int(effect.get("amount", 0))
 				energy += gain
@@ -792,12 +818,13 @@ func _move_player_to_moon_slash_position(targets: Array):
 		heroine.call("set_facing_direction", focus_position - heroine.global_position)
 
 func _draw_cards_typed(amount: int, card_type: String):
-	if card_type.is_empty():
-		_draw_cards(amount)
-		return
+	var drawn_indices: Array[int] = []
 	for _i in range(amount):
-		if not _draw_typed_card(card_type):
-			return
+		var did_draw: bool = _draw_card_to_hand() if card_type.is_empty() else _draw_typed_card(card_type)
+		if not did_draw:
+			break
+		drawn_indices.append(hand.size() - 1)
+	await _animate_draw_indices(drawn_indices)
 
 func _draw_typed_card(card_type: String) -> bool:
 	if hand.size() >= MAX_HAND_SIZE:
@@ -808,6 +835,7 @@ func _draw_typed_card(card_type: String) -> bool:
 		draw_pile = discard_pile.duplicate(true)
 		discard_pile.clear()
 		draw_pile.shuffle()
+		reshuffle_animation_pending = true
 	for i in range(draw_pile.size() - 1, -1, -1):
 		if String(draw_pile[i].card_type) == card_type:
 			hand.append(_instance_for_hand(draw_pile[i]))
@@ -1159,8 +1187,27 @@ func _on_end_turn_pressed():
 	_on_rp_skill_cancelled()
 	_gain_rp(float(rp_settings.get("rp_per_end_turn", 0.0)), "TURN")
 	combat_sequence_active = true
+	var pending_transitions: Array = []
+	for i in range(hand.size()):
+		pending_transitions.append({
+			"card": hand[i],
+			"proxy": _create_card_transition_proxy(i, hand[i]),
+		})
 	_discard_hand()
 	_refresh_ui()
+	var discarded_count := 0
+	for entry in pending_transitions:
+		var card: CardData = entry["card"]
+		var proxy: Control = entry["proxy"]
+		if hand.has(card):
+			if is_instance_valid(proxy):
+				proxy.queue_free()
+			continue
+		_play_discard_proxy(proxy, card, float(discarded_count) * DISCARD_STAGGER)
+		discarded_count += 1
+	if discarded_count > 0:
+		var discard_time := DISCARD_TRANSFER_TIME + 0.22 + float(discarded_count - 1) * DISCARD_STAGGER
+		await get_tree().create_timer(discard_time).timeout
 	combat_sequence_active = false
 	await _tick_enemy_action_count()
 	if not battle_over:
@@ -1211,7 +1258,7 @@ func _refresh_ui():
 		card_view.connect("card_drag_moved", Callable(self, "_on_card_drag_moved"))
 		card_view.connect("card_dropped", Callable(self, "_on_card_dropped"))
 		hand_container.add_child(card_view)
-		if i == draw_animation_card_index:
+		if i in draw_animation_card_indices:
 			card_view.modulate.a = 0.0
 
 	_layout_hand()
@@ -1231,7 +1278,9 @@ func _layout_hand():
 		card.call("set_rest_rotation", angle_deg)
 		card.position = bottom_center - CARD_BOTTOM_PIVOT
 
-func _play_draw_card_from_deck(index: int):
+func _play_draw_card_from_deck(index: int, delay: float = 0.0):
+	if delay > 0.0:
+		await get_tree().create_timer(delay).timeout
 	await get_tree().process_frame
 	if index < 0 or index >= hand.size() or not is_instance_valid(ui_root):
 		return
@@ -1248,22 +1297,153 @@ func _play_draw_card_from_deck(index: int):
 	proxy_card.size = target_card.size
 	proxy_card.pivot_offset = target_card.pivot_offset
 	proxy_card.z_as_relative = false
-	proxy_card.z_index = 700 + index
+	proxy_card.z_index = 120
 	proxy_card.rotation_degrees = 0.0
-	proxy_card.scale = Vector2(0.8, 0.8)
-	proxy_card.modulate.a = 1.0
+	proxy_card.scale = Vector2(0.78, 0.78)
+	proxy_card.modulate.a = 0.0
 
-	var source_position := _get_deck_screen_position() - proxy_card.size * 0.5
 	var target_position := target_card.global_position
-	proxy_card.global_position = source_position
+	var target_rotation := target_card.rotation_degrees
+	var entry_position := target_position + DRAW_ENTRY_OFFSET
+	proxy_card.global_position = entry_position
+	var source_position := _get_deck_screen_position()
+	var entry_center := entry_position + proxy_card.pivot_offset
+	var transfer: Variant = _spawn_card_transfer(source_position, entry_center, _card_transfer_color(card), 120.0)
+	transfer.call("play", DRAW_TRANSFER_TIME)
+	_pulse_deck()
+	await get_tree().create_timer(DRAW_TRANSFER_TIME).timeout
+	var materialize: Variant = _spawn_card_dissolve(entry_center, proxy_card.size, 0.0, _card_transfer_color(card), true)
+	materialize.call("play", DRAW_CARD_ANIMATION_TIME)
+	_raise_draw_proxy(proxy_card, 700 + index, 0.08)
 
 	var tween := create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(proxy_card, "global_position", target_position, DRAW_CARD_ANIMATION_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(proxy_card, "rotation_degrees", target_card.rotation_degrees, DRAW_CARD_ANIMATION_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(proxy_card, "rotation_degrees", target_rotation, DRAW_CARD_ANIMATION_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(proxy_card, "scale", Vector2.ONE, DRAW_CARD_ANIMATION_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(proxy_card, "modulate:a", 1.0, DRAW_CARD_ANIMATION_TIME * 0.72).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await tween.finished
 	proxy_card.queue_free()
+
+func _raise_draw_proxy(proxy_card: Control, target_z: int, delay: float):
+	await get_tree().create_timer(delay).timeout
+	if is_instance_valid(proxy_card):
+		proxy_card.z_index = target_z
+
+func _create_card_transition_proxy(index: int, card: CardData) -> Control:
+	var source_card := _get_card_view(index)
+	if source_card == null or not is_instance_valid(ui_root):
+		return null
+	var proxy_card: Control = CARD_VIEW_SCENE.instantiate()
+	ui_root.add_child(proxy_card)
+	proxy_card.call("set_card", card, index, true, CARD_HAND_SETTINGS)
+	proxy_card.call("set_inspired_state", card.inspired, _effective_cost(card))
+	proxy_card.call("set_hand_order", 800 + index)
+	proxy_card.size = source_card.size
+	proxy_card.pivot_offset = source_card.pivot_offset
+	proxy_card.z_as_relative = false
+	proxy_card.z_index = 800 + index
+	proxy_card.global_position = source_card.global_position
+	proxy_card.rotation_degrees = source_card.rotation_degrees
+	proxy_card.scale = source_card.scale
+	proxy_card.modulate = Color.WHITE
+	proxy_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return proxy_card
+
+func _play_discard_proxy(proxy_card: Control, card: CardData, delay: float = 0.0):
+	if not is_instance_valid(proxy_card):
+		_complete_card_discard(card, _card_transfer_color(card))
+		return
+	if delay > 0.0:
+		await get_tree().create_timer(delay).timeout
+	if not is_instance_valid(proxy_card):
+		_complete_card_discard(card, _card_transfer_color(card))
+		return
+	var color := _card_transfer_color(card)
+	var start_center := proxy_card.global_position + proxy_card.pivot_offset
+	var dissolve: Variant = _spawn_card_dissolve(start_center, proxy_card.size, proxy_card.rotation_degrees, color)
+	dissolve.call("play", 0.24)
+	var fade_tween := create_tween()
+	fade_tween.set_parallel(true)
+	fade_tween.tween_property(proxy_card, "global_position", proxy_card.global_position + Vector2(0, 34), 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	fade_tween.tween_property(proxy_card, "scale", Vector2(0.76, 0.76), 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	fade_tween.tween_property(proxy_card, "modulate", Color(color.r, color.g, color.b, 0.0), 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await get_tree().create_timer(0.08).timeout
+	var transfer: Variant = _spawn_card_transfer(start_center + Vector2(0, 26), _get_tomb_screen_position(), color, 105.0)
+	transfer.call("play", DISCARD_TRANSFER_TIME)
+	await get_tree().create_timer(DISCARD_TRANSFER_TIME).timeout
+	if is_instance_valid(proxy_card):
+		proxy_card.queue_free()
+	_complete_card_discard(card, color)
+
+func _complete_card_discard(card: CardData, color: Color):
+	if not discard_pile.has(card):
+		discard_pile.append(card)
+	_refresh_ui()
+	_pulse_tomb(color)
+
+func _fade_consumed_proxy(proxy_card: Control):
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(proxy_card, "global_position", proxy_card.global_position + Vector2(0, -42), 0.24).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(proxy_card, "scale", Vector2(0.72, 0.72), 0.24)
+	tween.tween_property(proxy_card, "modulate:a", 0.0, 0.2)
+	await tween.finished
+	if is_instance_valid(proxy_card):
+		proxy_card.queue_free()
+
+func _spawn_card_transfer(from: Vector2, to: Vector2, color: Color, arc_height: float):
+	var transfer = CARD_TRANSFER_VFX.new()
+	ui_root.add_child(transfer)
+	transfer.call("configure", from, to, color, arc_height)
+	return transfer
+
+func _spawn_card_dissolve(center: Vector2, source_size: Vector2, rotation_degrees: float, color: Color, materialize: bool = false):
+	var dissolve = CARD_DISSOLVE_VFX.new()
+	ui_root.add_child(dissolve)
+	dissolve.call("configure", center, source_size, rotation_degrees, color, materialize)
+	return dissolve
+
+func _play_reshuffle_animation():
+	reshuffle_animation_pending = false
+	var source := _get_tomb_screen_position()
+	var destination := _get_deck_screen_position()
+	var color := Color(0.55, 0.72, 1.0)
+	for i in range(4):
+		_play_pile_transfer_with_delay(source, destination, color, float(i) * 0.045, 135.0 + float(i) * 9.0)
+	await get_tree().create_timer(DISCARD_TRANSFER_TIME + 0.14).timeout
+	_pulse_deck()
+
+func _play_pile_transfer_with_delay(from: Vector2, to: Vector2, color: Color, delay: float, arc_height: float):
+	if delay > 0.0:
+		await get_tree().create_timer(delay).timeout
+	var transfer: Variant = _spawn_card_transfer(from, to, color, arc_height)
+	transfer.call("play", DISCARD_TRANSFER_TIME)
+
+func _card_transfer_color(card: CardData) -> Color:
+	match String(card.card_type):
+		"attack":
+			return Color(1.0, 0.35, 0.55)
+		"shield":
+			return Color(0.4, 0.82, 1.0)
+		"enhance":
+			return Color(0.82, 0.52, 1.0)
+		_:
+			return Color(0.45, 0.92, 1.0)
+
+func _pulse_deck():
+	if not is_instance_valid(battle_ui):
+		return
+	var deck_hand := battle_ui.get_node_or_null("%DeckHand")
+	if deck_hand != null and deck_hand.has_method("play_transfer_pulse"):
+		deck_hand.call("play_transfer_pulse")
+
+func _pulse_tomb(color: Color):
+	if not is_instance_valid(battle_ui):
+		return
+	var deck_tomb := battle_ui.get_node_or_null("%DeckTomb")
+	if deck_tomb != null and deck_tomb.has_method("play_transfer_pulse"):
+		deck_tomb.call("play_transfer_pulse", color)
 
 func _log(message: String):
 	battle_log.append(message)
@@ -1630,7 +1810,18 @@ func _get_deck_screen_position() -> Vector2:
 	if is_instance_valid(battle_ui):
 		var deck_hand := battle_ui.get_node_or_null("%DeckHand")
 		if deck_hand is Control:
+			if deck_hand.has_method("get_effect_anchor"):
+				return deck_hand.call("get_effect_anchor")
 			return deck_hand.get_global_rect().get_center()
+	return HAND_CENTER_SCREEN
+
+func _get_tomb_screen_position() -> Vector2:
+	if is_instance_valid(battle_ui):
+		var deck_tomb := battle_ui.get_node_or_null("%DeckTomb")
+		if deck_tomb is Control:
+			if deck_tomb.has_method("get_effect_anchor"):
+				return deck_tomb.call("get_effect_anchor")
+			return deck_tomb.get_global_rect().get_center()
 	return HAND_CENTER_SCREEN
 
 func _apply_targeting_dot_style(is_targeted: bool):
