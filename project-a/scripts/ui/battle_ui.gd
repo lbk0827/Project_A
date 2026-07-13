@@ -492,6 +492,9 @@ func set_card_targeting_position(screen_position: Vector2, is_targeted: bool):
 	else:
 		clear_rp_targeting()
 
+func set_card_targeting_positions(screen_positions: Array):
+	set_aim_targeting_positions(screen_positions)
+
 func set_aim_targeting_positions(screen_positions: Array):
 	clear_rp_targeting()
 	if rp_aim_layer == null:
@@ -724,9 +727,10 @@ func show_monster_info(monster_name: String, intents: Array, next_intent_index: 
 	monster_info_count_label.text = "행동 카운트 %d회 후 발동" % max(action_count_remaining, 0)
 	for child in monster_info_rows.get_children():
 		child.free()
-	for i in range(intents.size()):
-		monster_info_rows.add_child(_make_intent_row(intents[i], i, i == next_intent_index, attack_power))
-	monster_info_panel.size = Vector2(MONSTER_INFO_WIDTH, 94 + intents.size() * 76 + 14)
+	if not intents.is_empty():
+		var intent_index: int = clamp(next_intent_index, 0, intents.size() - 1)
+		monster_info_rows.add_child(_make_intent_row(intents[intent_index], intent_index, true, attack_power))
+	monster_info_panel.size = Vector2(MONSTER_INFO_WIDTH, 188)
 	monster_info_panel.visible = true
 	monster_info_panel.modulate = Color(1, 1, 1, 0)
 	var tween := monster_info_panel.create_tween()
@@ -813,29 +817,30 @@ func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool, attack
 	style.border_width_top = 1
 	style.border_width_bottom = 1
 	row.add_theme_stylebox_override("panel", style)
-	row.custom_minimum_size = Vector2(MONSTER_INFO_WIDTH - 56.0, 66)
+	var row_height := 92.0 if is_next else 66.0
+	row.custom_minimum_size = Vector2(MONSTER_INFO_WIDTH - 56.0, row_height)
 
 	var marker := Label.new()
 	marker.text = "◆" if is_next else str(order + 1)
 	marker.add_theme_font_size_override("font_size", 20)
 	marker.add_theme_color_override("font_color", Color(1.0, 0.36, 0.68) if is_next else Color(0.6, 0.65, 0.75))
 	marker.position = Vector2(10, 0)
-	marker.size = Vector2(28, 66)
+	marker.size = Vector2(28, row_height)
 	marker.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(marker)
 
 	var icon := IntentIcon.new()
-	icon.position = Vector2(44, 18)
-	icon.size = Vector2(30, 30)
+	icon.position = Vector2(44, 27) if is_next else Vector2(44, 18)
+	icon.size = Vector2(38, 38) if is_next else Vector2(30, 30)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(icon)
 
 	var name_label := Label.new()
 	name_label.text = intent.display_name
-	name_label.add_theme_font_size_override("font_size", 17)
+	name_label.add_theme_font_size_override("font_size", 22 if is_next else 17)
 	name_label.add_theme_color_override("font_color", Color(0.95, 0.97, 1.0))
-	name_label.position = Vector2(86, 7)
-	name_label.size = Vector2(174, 24)
+	name_label.position = Vector2(96, 16) if is_next else Vector2(86, 7)
+	name_label.size = Vector2(194, 30) if is_next else Vector2(174, 24)
 	row.add_child(name_label)
 
 	var effect_label := Label.new()
@@ -845,7 +850,7 @@ func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool, attack
 	else:
 		effect_label.text = "방어 %d" % intent.amount
 	icon.set_icon(IntentIcon.Kind.SWORD if is_attack else IntentIcon.Kind.SHIELD, Color(1, 1, 1, 0.98))
-	effect_label.add_theme_font_size_override("font_size", 13)
+	effect_label.add_theme_font_size_override("font_size", 16 if is_next else 13)
 	effect_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.98))
 	var chip_style := StyleBoxFlat.new()
 	chip_style.bg_color = Color(0.85, 0.18, 0.25, 0.92) if is_attack else Color(0.25, 0.5, 0.9, 0.92)
@@ -855,7 +860,7 @@ func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool, attack
 	chip_style.content_margin_top = 1.0
 	chip_style.content_margin_bottom = 1.0
 	effect_label.add_theme_stylebox_override("normal", chip_style)
-	effect_label.position = Vector2(86, 34)
+	effect_label.position = Vector2(96, 54) if is_next else Vector2(86, 34)
 	row.add_child(effect_label)
 
 	if is_next:
