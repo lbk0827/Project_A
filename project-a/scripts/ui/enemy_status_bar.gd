@@ -3,7 +3,7 @@ extends Control
 class_name EnemyStatusBar
 
 const PANEL_SIZE := Vector2(250, 64)
-const BAR_ORIGIN := Vector2(58, 24)
+const BAR_ORIGIN := Vector2(58, 26)
 const BAR_SIZE := Vector2(188, 12)
 const HP_FILL_COLOR := Color(0.94, 0.26, 0.42)
 const HP_FILL_LOW_COLOR := Color(1.0, 0.45, 0.2)
@@ -42,8 +42,10 @@ func _build():
 	hp_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 	hp_label.add_theme_constant_override("outline_size", 5)
 	hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hp_label.position = Vector2(BAR_ORIGIN.x, 0)
-	hp_label.size = Vector2(BAR_SIZE.x, 20)
+	hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	hp_label.position = Vector2(BAR_ORIGIN.x, BAR_ORIGIN.y - 17)
+	hp_label.size = Vector2(BAR_SIZE.x, 22)
+	hp_label.z_index = 10
 	hp_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(hp_label)
 
@@ -69,7 +71,7 @@ func _build():
 	hp_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hp_back.add_child(hp_fill)
 
-	block_label = _make_chip(Vector2(BAR_ORIGIN.x, 42), BLOCK_CHIP_COLOR)
+	block_label = _make_chip(Vector2(BAR_ORIGIN.x, 44), BLOCK_CHIP_COLOR)
 	block_label.visible = false
 
 	_build_action_badge()
@@ -145,7 +147,7 @@ func set_status(current_hp: int, max_hp: int, block: int):
 	_build()
 	var safe_max: int = max(max_hp, 1)
 	var safe_current: int = clamp(current_hp, 0, safe_max)
-	hp_label.text = "%d / %d" % [safe_current, safe_max]
+	hp_label.text = str(safe_current)
 	var ratio := float(safe_current) / float(safe_max)
 	hp_fill.size = Vector2(max((BAR_SIZE.x - 2.0) * ratio, 0.0), BAR_SIZE.y - 2.0)
 	hp_fill_style.bg_color = HP_FILL_LOW_COLOR if ratio <= 0.3 else HP_FILL_COLOR
