@@ -19,6 +19,38 @@ class CombatEnemy:
 	func max_hp() -> int:
 		return data.stats.max_hp
 
+class RouteWipeView:
+	extends Control
+
+	const SLANT := 180.0
+	const SOFT_BAND := 96.0
+
+	func _draw():
+		var wipe_size: Vector2 = size
+		var main := PackedVector2Array([
+			Vector2.ZERO,
+			Vector2(wipe_size.x - SLANT, 0.0),
+			Vector2(wipe_size.x, wipe_size.y),
+			Vector2(0.0, wipe_size.y),
+		])
+		draw_colored_polygon(main, Color(0.0, 0.0, 0.0, 1.0))
+
+		var soft := PackedVector2Array([
+			Vector2(wipe_size.x - SLANT, 0.0),
+			Vector2(wipe_size.x - SLANT + SOFT_BAND, 0.0),
+			Vector2(wipe_size.x + SOFT_BAND, wipe_size.y),
+			Vector2(wipe_size.x, wipe_size.y),
+		])
+		draw_colored_polygon(soft, Color(0.0, 0.0, 0.0, 0.48))
+
+		var edge := PackedVector2Array([
+			Vector2(wipe_size.x - SLANT - 10.0, 0.0),
+			Vector2(wipe_size.x - SLANT + 10.0, 0.0),
+			Vector2(wipe_size.x + 10.0, wipe_size.y),
+			Vector2(wipe_size.x - 10.0, wipe_size.y),
+		])
+		draw_colored_polygon(edge, Color(0.12, 0.18, 0.22, 0.36))
+
 const MAX_HAND_SIZE := 7
 const DRAW_CARDS_PER_TURN := 3
 const DRAW_CARD_DELAY := 0.12
@@ -65,6 +97,7 @@ const MONSTER_DATA_BY_ID := {
 }
 const CHARACTER_CARDS_PATH := "res://data/generated/character_cards.json"
 const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
+const ROUTE_WIPE_OVERSCAN := 96.0
 
 @onready var heroine: CharacterBody2D = $Heroine
 @onready var camera: Camera2D = $Camera2D
@@ -96,6 +129,8 @@ var player_home_position := Vector2.ZERO
 
 var battle_ui: CanvasLayer
 var battle_map_overlay: CanvasLayer
+var route_transition_layer: CanvasLayer
+var route_transition_rect: RouteWipeView
 var ui_root: Control
 var hand_container: Control
 var end_turn_button: Button
@@ -187,7 +222,9 @@ func _enter_route_selection_mode(message := ""):
 	if heroine.has_method("play_idle_animation"):
 		heroine.call("play_idle_animation")
 	if is_instance_valid(battle_ui):
-		battle_ui.visible = false
+		battle_ui.visible = true
+		battle_ui.call("set_route_selection_mode", true)
+		_update_route_player_status()
 	_show_battle_map_overlay(message)
 
 func _enter_combat_mode():
@@ -198,6 +235,7 @@ func _enter_combat_mode():
 		battle_map_overlay.visible = false
 	if is_instance_valid(battle_ui):
 		battle_ui.visible = true
+		battle_ui.call("set_route_selection_mode", false)
 	_setup_enemies(_get_encounter_datas())
 	_start_battle()
 
@@ -211,15 +249,35 @@ func _reset_camera_view():
 	camera.offset = Vector2.ZERO
 	camera.zoom = Vector2.ONE
 
-func _play_route_commit_camera():
-	if not is_instance_valid(camera):
+func _prepare_route_wipe(start_x: float):
+	if not is_instance_valid(route_transition_layer) or not is_instance_valid(route_transition_rect):
 		return
+	var viewport_size: Vector2 = get_viewport_rect().size
+	route_transition_layer.visible = true
+	route_transition_rect.size = Vector2(viewport_size.x + ROUTE_WIPE_OVERSCAN * 2.0 + RouteWipeView.SLANT + RouteWipeView.SOFT_BAND, viewport_size.y)
+	route_transition_rect.position = Vector2(start_x, 0.0)
+	route_transition_rect.modulate = Color(1, 1, 1, 1)
+	route_transition_rect.queue_redraw()
+
+func _play_route_wipe_cover():
+	if not is_instance_valid(route_transition_rect):
+		return
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var wipe_width: float = viewport_size.x + ROUTE_WIPE_OVERSCAN * 2.0 + RouteWipeView.SLANT + RouteWipeView.SOFT_BAND
+	_prepare_route_wipe(-wipe_width)
 	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(camera, "offset", Vector2(120, -18), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(camera, "zoom", Vector2(1.08, 1.08), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(route_transition_rect, "position:x", -ROUTE_WIPE_OVERSCAN, 0.24).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	await tween.finished
-	await get_tree().create_timer(0.08).timeout
+
+func _play_route_wipe_reveal():
+	if not is_instance_valid(route_transition_rect):
+		return
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var tween := create_tween()
+	tween.tween_property(route_transition_rect, "position:x", viewport_size.x + ROUTE_WIPE_OVERSCAN, 0.28).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	await tween.finished
+	if is_instance_valid(route_transition_layer):
+		route_transition_layer.visible = false
 
 func _setup_enemies(datas: Array):
 	_clear_enemies()
@@ -284,6 +342,7 @@ func _first_alive_enemy() -> CombatEnemy:
 func _build_ui():
 	battle_ui = BATTLE_UI_SCENE.instantiate()
 	add_child(battle_ui)
+	_build_route_transition()
 
 	ui_root = battle_ui.get_node("%UIRoot")
 	hand_container = battle_ui.get_node("%HandContainer")
@@ -296,6 +355,18 @@ func _build_ui():
 	_apply_targeting_dot_style(false)
 	end_turn_button.pressed.connect(_on_end_turn_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
+
+func _build_route_transition():
+	route_transition_layer = CanvasLayer.new()
+	route_transition_layer.name = "RouteTransitionLayer"
+	route_transition_layer.layer = 95
+	route_transition_layer.visible = false
+	add_child(route_transition_layer)
+
+	route_transition_rect = RouteWipeView.new()
+	route_transition_rect.name = "RouteWipe"
+	route_transition_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	route_transition_layer.add_child(route_transition_rect)
 
 func _start_battle():
 	route_selection_mode = false
@@ -746,15 +817,18 @@ func _on_map_overlay_node_selected(node_id: String):
 
 	if MapRouteData.is_combat_node(node_id):
 		run_state.start_combat_node(node_id, node_data.get("monster_id", "mire_imp"))
-		await _play_route_commit_camera()
+		await _play_route_wipe_cover()
 		_enter_combat_mode()
+		await _play_route_wipe_reveal()
 		return
 
 	if MapRouteData.is_result_node(node_id):
 		run_state.current_node_id = node_id
 		var result_text := MapRouteData.apply_result_node_effect(run_state, String(node_data["type"]))
 		run_state.complete_node(node_id)
+		await _play_route_wipe_cover()
 		_enter_route_selection_mode(result_text)
+		await _play_route_wipe_reveal()
 
 func _damage_player(amount: int):
 	var incoming: int = amount
@@ -1066,6 +1140,15 @@ func _play_enemy_death(enemy: CombatEnemy):
 func _update_player_hp_bar():
 	if is_instance_valid(battle_ui):
 		battle_ui.call("set_player_status", player_hp, PLAYER_STATS.max_hp, player_block)
+
+func _update_route_player_status():
+	var run_state := _run_state()
+	var current_hp: int = PLAYER_STATS.max_hp
+	if run_state != null and run_state.current_hp > 0:
+		current_hp = min(run_state.current_hp, PLAYER_STATS.max_hp)
+	player_hp = current_hp
+	player_block = 0
+	_update_player_hp_bar()
 
 func _update_all_enemy_bars():
 	for enemy in enemies:

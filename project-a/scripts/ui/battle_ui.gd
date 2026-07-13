@@ -28,7 +28,9 @@ var player_hp_fill: Panel
 var player_hp_fill_style: StyleBoxFlat
 var player_hp_label: Label
 var player_block_label: Label
+var player_status_panel: Panel
 var energy_value_label: Label
+var energy_gauge_panel: Panel
 var energy_segments: Array[Panel] = []
 var energy_segment_container: VBoxContainer
 var energy_max := 0
@@ -64,6 +66,7 @@ func _ready():
 
 func _build_player_panel():
 	var panel := Panel.new()
+	player_status_panel = panel
 	panel.name = "PlayerStatusPanel"
 	var style := StyleBoxFlat.new()
 	style.bg_color = PANEL_BG_COLOR
@@ -165,6 +168,7 @@ func _build_player_panel():
 
 func _build_energy_gauge():
 	var panel := Panel.new()
+	energy_gauge_panel = panel
 	panel.name = "EnergyGauge"
 	var style := StyleBoxFlat.new()
 	style.bg_color = PANEL_BG_COLOR
@@ -413,6 +417,37 @@ func set_player_status(current_hp: int, max_hp: int, block: int):
 	player_block_label.visible = block > 0
 	if block > 0:
 		player_block_label.text = "DEF %d" % block
+
+func set_route_selection_mode(enabled: bool):
+	if player_status_panel != null:
+		player_status_panel.visible = true
+	if energy_gauge_panel != null:
+		energy_gauge_panel.visible = not enabled
+	if deck_hand != null:
+		deck_hand.visible = not enabled
+	if deck_tomb != null:
+		deck_tomb.visible = not enabled
+	if hand_container != null:
+		hand_container.visible = not enabled
+	if targeting_dot != null:
+		targeting_dot.visible = false
+	if end_turn_button != null:
+		end_turn_button.visible = not enabled
+	if restart_button != null:
+		if enabled:
+			restart_button.visible = false
+	if energy_orb_label != null:
+		energy_orb_label.visible = not enabled
+	if hand_rail != null:
+		hand_rail.visible = not enabled
+	if hand_count_label != null:
+		hand_count_label.visible = not enabled
+	if turn_chip_label != null:
+		turn_chip_label.visible = not enabled
+	if toast_container != null:
+		toast_container.visible = not enabled
+	if monster_info_panel != null:
+		monster_info_panel.visible = false
 
 # Card-play energy is shown as the bottom-center number. The left EP gauge is a
 # separate character skill resource and is not driven from here.
