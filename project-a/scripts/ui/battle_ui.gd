@@ -1,7 +1,6 @@
 extends CanvasLayer
 
-const HEROINE_SHEET := preload("res://assets/characters/spritesheets/tsuki_spritesheet.png")
-const PORTRAIT_REGION := Rect2(30, 0, 70, 64)
+const HEROINE_PORTRAIT := preload("res://assets/characters/tsuki_portrait.png")
 const PANEL_BG_COLOR := Color(0.05, 0.07, 0.11, 0.74)
 const PANEL_BORDER_COLOR := Color(0.4, 0.65, 0.9, 0.4)
 const HP_FILL_COLOR := Color(0.32, 0.85, 0.45)
@@ -93,13 +92,10 @@ func _build_player_panel():
 	panel.add_child(portrait_frame)
 
 	var portrait := TextureRect.new()
-	var atlas := AtlasTexture.new()
-	atlas.atlas = HEROINE_SHEET
-	atlas.region = PORTRAIT_REGION
-	portrait.texture = atlas
+	portrait.texture = HEROINE_PORTRAIT
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	portrait.position = Vector2(2, 2)
 	portrait.size = Vector2(72, 72)
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
