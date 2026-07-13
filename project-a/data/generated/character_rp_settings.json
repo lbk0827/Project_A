@@ -1,0 +1,10 @@
+[
+	{
+		"character": "tsuki",
+		"max_rp": 7.0,
+		"starting_rp": 3.0,
+		"rp_per_enemy_kill": 1.0,
+		"rp_per_action_point": 0.25,
+		"rp_per_end_turn": 0.5
+	}
+]

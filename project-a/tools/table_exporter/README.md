@@ -56,6 +56,7 @@ tools/table_exporter/export_tables.bat
 Notes:
 
 - `CharacterCards.xlsx` is the active card authoring workbook; the old base `CardTable.xlsx` has been retired.
+- `CharacterRPSkills.xlsx` owns character RP accumulation settings and RP skill definitions.
 - Formula cells are read from Excel's saved cached values. Open and save the workbook in Excel after changing formulas.
 - Sheets are exported only when cell `A2` is `#data`.
 - Output file names use the sheet name, for example sheet `character_cards` exports to `character_cards.json`.
