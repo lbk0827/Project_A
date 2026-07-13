@@ -9,6 +9,7 @@ id = "base_camp"
 type = "base_camp"
 label = "Base Camp"
 position = Vector2(120, 360)
+next_ids = PackedStringArray("battle_1", "event_1")
 
 [sub_resource type="Resource" id="Resource_battle_1"]
 script = ExtResource("1_node")
@@ -16,6 +17,7 @@ id = "battle_1"
 label = "Battle"
 monster_id = "bog_stalker"
 position = Vector2(310, 255)
+next_ids = PackedStringArray("treasure_1", "battle_2")
 
 [sub_resource type="Resource" id="Resource_event_1"]
 script = ExtResource("1_node")
@@ -23,6 +25,7 @@ id = "event_1"
 type = "event"
 label = "Event"
 position = Vector2(310, 465)
+next_ids = PackedStringArray("battle_2")
 
 [sub_resource type="Resource" id="Resource_treasure_1"]
 script = ExtResource("1_node")
@@ -30,6 +33,7 @@ id = "treasure_1"
 type = "treasure"
 label = "Treasure"
 position = Vector2(510, 210)
+next_ids = PackedStringArray("elite_1")
 
 [sub_resource type="Resource" id="Resource_battle_2"]
 script = ExtResource("1_node")
@@ -37,6 +41,7 @@ id = "battle_2"
 label = "Battle"
 monster_id = "gravebound_crawler"
 position = Vector2(510, 420)
+next_ids = PackedStringArray("elite_1", "rest_1")
 
 [sub_resource type="Resource" id="Resource_elite_1"]
 script = ExtResource("1_node")
@@ -45,6 +50,7 @@ type = "elite"
 label = "Elite"
 monster_id = "frost_revenant"
 position = Vector2(725, 280)
+next_ids = PackedStringArray("rest_1")
 
 [sub_resource type="Resource" id="Resource_rest_1"]
 script = ExtResource("1_node")
@@ -52,6 +58,7 @@ id = "rest_1"
 type = "rest"
 label = "Rest"
 position = Vector2(910, 390)
+next_ids = PackedStringArray("boss_1")
 
 [sub_resource type="Resource" id="Resource_boss_1"]
 script = ExtResource("1_node")
