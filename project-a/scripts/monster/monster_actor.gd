@@ -211,6 +211,8 @@ func play_attack_sequence(target_position: Vector2):
 	)
 
 func set_selected(value: bool):
+	if selected == value:
+		return
 	selected = value
 	if not is_instance_valid(anim):
 		return

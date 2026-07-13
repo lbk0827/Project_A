@@ -544,8 +544,9 @@ func play_rp_cutin(hold_seconds: float = 1.0):
 
 	var frame := Panel.new()
 	var cutin_width: float = min(440.0, viewport_size.x * 0.38)
-	frame.position = Vector2(-cutin_width - 36.0, 38.0)
 	frame.size = Vector2(cutin_width, viewport_size.y - 76.0)
+	var cutin_visible_position := Vector2(28.0, 38.0)
+	frame.position = Vector2(cutin_visible_position.x, viewport_size.y + 30.0)
 	frame.clip_contents = true
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var frame_style := StyleBoxFlat.new()
@@ -587,8 +588,8 @@ func play_rp_cutin(hold_seconds: float = 1.0):
 
 	var enter_tween := create_tween()
 	enter_tween.set_parallel(true)
-	enter_tween.tween_property(frame, "position:x", 28.0, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	enter_tween.tween_property(dim, "color:a", 0.45, 0.2)
+	enter_tween.tween_property(frame, "position", cutin_visible_position, 0.32).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	enter_tween.tween_property(dim, "color:a", 0.45, 0.26)
 	await enter_tween.finished
 	await get_tree().create_timer(max(hold_seconds, 0.0)).timeout
 

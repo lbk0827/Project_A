@@ -210,7 +210,10 @@ func _load_character_table_entry(path: String, character_id: String) -> Dictiona
 
 func _derive_requires_target(effects: Array) -> bool:
 	for effect in effects:
-		if String(effect.get("type", "")) == "damage" and String(effect.get("target", "enemy")) == "enemy":
+		if String(effect.get("type", "")) != "damage":
+			continue
+		var target := String(effect.get("target", "enemy"))
+		if target == "enemy" or target == "all_enemies":
 			return true
 	return false
 
@@ -699,12 +702,14 @@ func _on_rp_skill_requested():
 	_reset_hand_drag_state()
 	_clear_selected_monster_info()
 	rp_skill_selected = true
+	_refresh_enemy_selection_visuals()
 	_refresh_ui()
 
 func _on_rp_skill_cancelled():
 	if not rp_skill_selected:
 		return
 	rp_skill_selected = false
+	_refresh_enemy_selection_visuals()
 	if is_instance_valid(battle_ui):
 		battle_ui.call("clear_rp_targeting")
 	_refresh_ui()
@@ -718,6 +723,7 @@ func _execute_rp_skill():
 
 	combat_sequence_active = true
 	rp_skill_selected = false
+	_refresh_enemy_selection_visuals()
 	rage_point = max(rage_point - _rp_skill_cost(), 0.0)
 	if is_instance_valid(battle_ui):
 		battle_ui.call("clear_rp_targeting")
@@ -1137,7 +1143,7 @@ func _on_card_dropped(index: int, screen_position: Vector2):
 	var dropped_on_enemy := targeted_enemy
 	_reset_hand_drag_state()
 	if not card.requires_target:
-		if was_play_lifted:
+		if was_play_lifted or _is_non_attack_card_map_drop(card, screen_position):
 			await _play_card(index)
 		return
 
@@ -1310,9 +1316,8 @@ func _select_monster_info(enemy: CombatEnemy):
 	if enemy == null or not enemy.is_alive() or not is_instance_valid(battle_ui):
 		return
 	if selected_info_enemy != enemy:
-		_set_enemy_selected(selected_info_enemy, false)
 		selected_info_enemy = enemy
-		_set_enemy_selected(selected_info_enemy, true)
+		_refresh_enemy_selection_visuals()
 	battle_ui.call("show_monster_info", enemy.data.display_name, enemy.intents, enemy.intent_index, enemy_action_count_remaining, enemy.data.stats.attack_power)
 
 func _refresh_selected_monster_info():
@@ -1320,15 +1325,20 @@ func _refresh_selected_monster_info():
 		battle_ui.call("show_monster_info", selected_info_enemy.data.display_name, selected_info_enemy.intents, selected_info_enemy.intent_index, enemy_action_count_remaining, selected_info_enemy.data.stats.attack_power)
 
 func _clear_selected_monster_info():
-	if selected_info_enemy != null:
-		_set_enemy_selected(selected_info_enemy, false)
 	selected_info_enemy = null
+	_refresh_enemy_selection_visuals()
 	if is_instance_valid(battle_ui) and battle_ui.has_method("hide_monster_info"):
 		battle_ui.call("hide_monster_info")
 
 func _set_enemy_selected(enemy: CombatEnemy, selected: bool):
 	if enemy != null and is_instance_valid(enemy.node) and enemy.node.has_method("set_selected"):
 		enemy.node.call("set_selected", selected)
+
+func _refresh_enemy_selection_visuals():
+	var show_all_card_targets: bool = is_targeting_active and targeted_enemy != null and _selected_card_targets_all_enemies()
+	for enemy in enemies:
+		var should_select: bool = enemy.is_alive() and (rp_skill_selected or show_all_card_targets or enemy == targeted_enemy or enemy == selected_info_enemy)
+		_set_enemy_selected(enemy, should_select)
 
 func _play_enemy_hit(enemy: CombatEnemy):
 	if is_instance_valid(enemy.node) and enemy.node.has_method("play_hit_animation"):
@@ -1425,6 +1435,7 @@ func _shake_camera(intensity: float):
 	tween.tween_property(camera, "offset", Vector2.ZERO, 0.05)
 
 func _on_card_drag_started(index: int):
+	_clear_selected_monster_info()
 	selected_card_index = index
 	is_card_play_lifted = false
 	is_targeting_active = false
@@ -1454,6 +1465,9 @@ func _on_card_drag_moved(index: int, screen_position: Vector2):
 func _is_card_play_lifted(screen_position: Vector2) -> bool:
 	return screen_position.y <= HAND_TOP_Y - CARD_HAND_SETTINGS.play_lift_threshold
 
+func _is_non_attack_card_map_drop(card: CardData, screen_position: Vector2) -> bool:
+	return String(card.card_type) != "attack" and screen_position.y < HAND_TOP_Y
+
 func _update_inactive_cards(should_lower: bool):
 	for child in hand_container.get_children():
 		if not child is Control:
@@ -1468,6 +1482,7 @@ func _reset_hand_drag_state():
 	is_card_play_lifted = false
 	is_targeting_active = false
 	targeted_enemy = null
+	_refresh_enemy_selection_visuals()
 	_hide_large_card_preview()
 	if is_instance_valid(targeting_dot):
 		targeting_dot.visible = false
@@ -1479,6 +1494,14 @@ func _selected_card_requires_target() -> bool:
 	if selected_card_index < 0 or selected_card_index >= hand.size():
 		return false
 	return hand[selected_card_index].requires_target
+
+func _selected_card_targets_all_enemies() -> bool:
+	if selected_card_index < 0 or selected_card_index >= hand.size():
+		return false
+	for effect in hand[selected_card_index].effects:
+		if String(effect.get("type", "")) == "damage" and String(effect.get("target", "enemy")) == "all_enemies":
+			return true
+	return false
 
 func _start_targeting_card(index: int, screen_position: Vector2):
 	is_targeting_active = true
@@ -1543,12 +1566,22 @@ func _get_targeting_card_center() -> Vector2:
 
 func _update_targeting_dot(screen_position: Vector2):
 	var target_position := screen_position
-	targeted_enemy = _enemy_at_screen_position(screen_position)
+	var hovered_enemy := _enemy_at_screen_position(screen_position)
+	if targeted_enemy != hovered_enemy:
+		targeted_enemy = hovered_enemy
+		_refresh_enemy_selection_visuals()
 	if targeted_enemy != null:
 		target_position = _enemy_screen_position(targeted_enemy)
 	if is_instance_valid(targeting_dot):
 		targeting_dot.visible = false
-	if is_instance_valid(battle_ui) and battle_ui.has_method("set_card_targeting_position"):
+	if not is_instance_valid(battle_ui):
+		return
+	if targeted_enemy != null and _selected_card_targets_all_enemies() and battle_ui.has_method("set_card_targeting_positions"):
+		var target_positions: Array = []
+		for enemy in _alive_enemies():
+			target_positions.append(_enemy_screen_position(enemy))
+		battle_ui.call("set_card_targeting_positions", target_positions)
+	elif battle_ui.has_method("set_card_targeting_position"):
 		battle_ui.call("set_card_targeting_position", target_position, targeted_enemy != null)
 
 func _enemy_screen_position(enemy: CombatEnemy) -> Vector2:
