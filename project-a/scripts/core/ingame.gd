@@ -65,10 +65,12 @@ const CARD_BOTTOM_PIVOT := Vector2(65, 184)
 const HAND_TOP_Y := 468.0
 const HAND_CENTER_SCREEN := Vector2(640, 560)
 const MONSTER_DROP_RADIUS := 90.0
+const RP_MONSTER_CLICK_RADIUS := 150.0
 const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
 const BATTLE_MAP_OVERLAY_SCENE := preload("res://scenes/ui/battle_map_overlay.tscn")
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_PREVIEW_SCENE := preload("res://scenes/ui/cards/CardViewLarge.tscn")
+const MOON_SLASH_VFX_SCENE := preload("res://scenes/vfx/fx_tsuki_moon_slash.tscn")
 const MapRouteData := preload("res://scripts/map/map_route_data.gd")
 const DAMAGE_TO_ENEMY_COLOR := Color(1.0, 0.9, 0.4)
 const CRIT_COLOR := Color(1.0, 0.5, 0.1)
@@ -96,6 +98,8 @@ const MONSTER_DATA_BY_ID := {
 	"abyssal_crown_guardian": ABYSSAL_CROWN_GUARDIAN_DATA,
 }
 const CHARACTER_CARDS_PATH := "res://data/generated/character_cards.json"
+const CHARACTER_RP_SETTINGS_PATH := "res://data/generated/character_rp_settings.json"
+const CHARACTER_RP_SKILLS_PATH := "res://data/generated/character_rp_skills.json"
 const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
 const ROUTE_WIPE_OVERSCAN := 96.0
 
@@ -113,6 +117,10 @@ var targeted_enemy: CombatEnemy = null
 var player_hp := 0
 var player_block := 0
 var energy := 0
+var rage_point := 0.0
+var rp_settings: Dictionary = {}
+var rp_skill: Dictionary = {}
+var rp_skill_selected := false
 # Temporary +% bonus to Tsuki's attack-card damage for the current turn.
 var _attack_damage_bonus_percent := 0
 # 빙점 칼날(강화) passive: playing an inspired card deals bonus AoE this combat.
@@ -148,6 +156,8 @@ func _run_state() -> Node:
 
 func _ready():
 	card_library = _load_card_library()
+	rp_settings = _load_character_table_entry(CHARACTER_RP_SETTINGS_PATH, "tsuki")
+	rp_skill = _load_character_table_entry(CHARACTER_RP_SKILLS_PATH, "tsuki")
 	_setup_scene()
 	_build_ui()
 	if _has_active_combat():
@@ -182,6 +192,21 @@ func _load_card_library() -> Dictionary:
 		library[card.id] = card
 	return library
 
+func _load_character_table_entry(path: String, character_id: String) -> Dictionary:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		push_warning("Unable to load character table: %s" % path)
+		return {}
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	file.close()
+	if not (parsed is Array):
+		push_warning("Character table is not an array: %s" % path)
+		return {}
+	for entry in parsed:
+		if entry is Dictionary and String(entry.get("character", "")) == character_id:
+			return entry.duplicate(true)
+	return {}
+
 func _derive_requires_target(effects: Array) -> bool:
 	for effect in effects:
 		if String(effect.get("type", "")) == "damage" and String(effect.get("target", "enemy")) == "enemy":
@@ -214,6 +239,7 @@ func _enter_route_selection_mode(message := ""):
 	battle_over = false
 	battle_won = false
 	combat_sequence_active = false
+	rp_skill_selected = false
 	_clear_enemies()
 	if not was_route_selection:
 		_set_stage_background(BASE_CAMP_STAGE_TEXTURE if _is_base_camp_route() else COMBAT_STAGE_TEXTURE)
@@ -355,6 +381,8 @@ func _build_ui():
 	_apply_targeting_dot_style(false)
 	end_turn_button.pressed.connect(_on_end_turn_pressed)
 	restart_button.pressed.connect(_on_restart_pressed)
+	battle_ui.connect("rp_skill_requested", Callable(self, "_on_rp_skill_requested"))
+	battle_ui.connect("rp_skill_cancelled", Callable(self, "_on_rp_skill_cancelled"))
 
 func _build_route_transition():
 	route_transition_layer = CanvasLayer.new()
@@ -381,10 +409,12 @@ func _start_battle():
 		player_hp = min(run_state.current_hp, PLAYER_STATS.max_hp)
 	player_block = 0
 	energy = PLAYER_STATS.starting_energy
+	rage_point = clamp(float(rp_settings.get("starting_rp", 0.0)), 0.0, _max_rp())
 	turn_number = 1
 	battle_over = false
 	battle_won = false
 	combat_sequence_active = false
+	rp_skill_selected = false
 	_inspired_play_passive = false
 	selected_card_index = -1
 	is_card_play_lifted = false
@@ -507,6 +537,7 @@ func _play_card(index: int, target_enemy: CombatEnemy = null):
 
 	var is_inspired: bool = card.inspired
 	energy -= cost
+	_gain_rp(float(cost) * float(rp_settings.get("rp_per_action_point", 0.0)), "ACTION")
 	hand.remove_at(index)
 	# Enhance cards install a lasting effect instead of going to discard.
 	if String(card.card_type) != "enhance":
@@ -631,6 +662,123 @@ func _compute_shield(effect: Dictionary) -> int:
 	if effect.has("percent"):
 		return int(round(PLAYER_STATS.defense_power * float(effect["percent"]) / 100.0))
 	return int(effect.get("amount", 0))
+
+func _max_rp() -> float:
+	return max(float(rp_settings.get("max_rp", 0.0)), 0.0)
+
+func _rp_skill_cost() -> float:
+	return max(float(rp_skill.get("rp_cost", 0.0)), 0.0)
+
+func _gain_rp(amount: float, reason: String = ""):
+	if amount <= 0.0 or _max_rp() <= 0.0:
+		return
+	var previous := rage_point
+	rage_point = clamp(rage_point + amount, 0.0, _max_rp())
+	var gained := rage_point - previous
+	if gained <= 0.0:
+		return
+	var label := "+%s RP" % _format_rp_value(gained)
+	if not reason.is_empty():
+		label += "  %s" % reason
+	_show_popup(_get_player_screen_position() + Vector2(-120, 20), label, Color(0.45, 0.9, 1.0), 24)
+
+func _format_rp_value(value: float) -> String:
+	if is_equal_approx(value, round(value)):
+		return str(int(round(value)))
+	return ("%.2f" % value).trim_suffix("0")
+
+func _on_rp_skill_requested():
+	if route_selection_mode or battle_over or combat_sequence_active or rp_skill_selected:
+		return
+	if rp_skill.is_empty() or rage_point + 0.001 < _rp_skill_cost():
+		return
+	_reset_hand_drag_state()
+	rp_skill_selected = true
+	_refresh_ui()
+
+func _on_rp_skill_cancelled():
+	if not rp_skill_selected:
+		return
+	rp_skill_selected = false
+	if is_instance_valid(battle_ui):
+		battle_ui.call("clear_rp_targeting")
+	_refresh_ui()
+
+func _execute_rp_skill():
+	if route_selection_mode or battle_over or combat_sequence_active or not rp_skill_selected:
+		return
+	if rage_point + 0.001 < _rp_skill_cost() or _alive_enemies().is_empty():
+		_on_rp_skill_cancelled()
+		return
+
+	combat_sequence_active = true
+	rp_skill_selected = false
+	rage_point = max(rage_point - _rp_skill_cost(), 0.0)
+	if is_instance_valid(battle_ui):
+		battle_ui.call("clear_rp_targeting")
+	_refresh_ui()
+
+	if is_instance_valid(battle_ui):
+		await battle_ui.call("play_rp_cutin", float(rp_skill.get("cutin_hold_seconds", 1.0)))
+
+	var targets: Array = _alive_enemies()
+	await _move_player_to_moon_slash_position(targets)
+	if heroine.has_method("play_card_animation"):
+		heroine.call("play_card_animation", StringName(String(rp_skill.get("motion_animation", "MoonSlash"))))
+
+	var moon_vfx: Array = []
+	for enemy in targets:
+		if not is_instance_valid(enemy.node):
+			continue
+		var vfx := MOON_SLASH_VFX_SCENE.instantiate()
+		add_child(vfx)
+		vfx.global_position = enemy.node.global_position + Vector2(0, -34)
+		moon_vfx.append(vfx)
+		vfx.call("reveal")
+	await get_tree().create_timer(0.2).timeout
+
+	var damage_percent := float(rp_skill.get("damage_percent", 0.0))
+	var hit_count: int = max(int(rp_skill.get("hit_count", 5)), 1)
+	for hit_index in range(hit_count):
+		for vfx in moon_vfx:
+			if is_instance_valid(vfx):
+				vfx.call("apply_slash", hit_index)
+		await get_tree().create_timer(0.075).timeout
+		var hit := _compute_card_damage({"percent": damage_percent})
+		for enemy in targets:
+			if enemy.is_alive():
+				_damage_enemy(enemy, int(hit["amount"]), bool(hit["crit"]))
+		await get_tree().create_timer(0.105).timeout
+
+	for vfx in moon_vfx:
+		if is_instance_valid(vfx):
+			vfx.call("shatter")
+	await get_tree().create_timer(0.4).timeout
+	await _return_player_home()
+	combat_sequence_active = false
+	_face_player_to(_first_alive_enemy())
+	if not battle_over and heroine.has_method("play_idle_animation"):
+		heroine.call("play_idle_animation")
+	_refresh_ui()
+
+func _move_player_to_moon_slash_position(targets: Array):
+	if not is_instance_valid(heroine):
+		return
+	var center := camera.get_screen_center_position() if is_instance_valid(camera) else Vector2.ZERO
+	var skill_position := Vector2(center.x - 36.0, player_home_position.y)
+	var focus_position := skill_position + Vector2.RIGHT
+	if not targets.is_empty() and is_instance_valid(targets[0].node):
+		focus_position = targets[0].node.global_position
+	var direction := focus_position - heroine.global_position
+	if heroine.has_method("set_facing_direction"):
+		heroine.call("set_facing_direction", direction)
+	if heroine.has_method("play_run_animation"):
+		heroine.call("play_run_animation", direction.normalized())
+	var tween := create_tween()
+	tween.tween_property(heroine, "global_position", skill_position, 0.36).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await tween.finished
+	if heroine.has_method("set_facing_direction"):
+		heroine.call("set_facing_direction", focus_position - heroine.global_position)
 
 func _draw_cards_typed(amount: int, card_type: String):
 	if card_type.is_empty():
@@ -765,6 +913,7 @@ func _damage_enemy(enemy: CombatEnemy, amount: int, is_crit := false):
 
 func _kill_enemy(enemy: CombatEnemy):
 	enemy.dead = true
+	_gain_rp(float(rp_settings.get("rp_per_enemy_kill", 0.0)), "KILL")
 	if is_instance_valid(enemy.status_bar):
 		enemy.status_bar.clear_intent()
 	_play_enemy_death(enemy)
@@ -994,6 +1143,8 @@ func _on_card_dropped(index: int, screen_position: Vector2):
 func _on_end_turn_pressed():
 	if route_selection_mode or battle_over or combat_sequence_active:
 		return
+	_on_rp_skill_cancelled()
+	_gain_rp(float(rp_settings.get("rp_per_end_turn", 0.0)), "TURN")
 	combat_sequence_active = true
 	_discard_hand()
 	_refresh_ui()
@@ -1013,7 +1164,7 @@ func _on_restart_pressed():
 func _refresh_ui():
 	if route_selection_mode:
 		return
-	end_turn_button.disabled = battle_over or combat_sequence_active
+	end_turn_button.disabled = battle_over or combat_sequence_active or rp_skill_selected
 	_reset_hand_drag_state()
 	if is_instance_valid(battle_ui):
 		battle_ui.call("set_energy", energy, PLAYER_STATS.starting_energy)
@@ -1021,6 +1172,15 @@ func _refresh_ui():
 		battle_ui.call("set_deck_count", draw_pile.size())
 		battle_ui.call("set_tomb_count", discard_pile.size())
 		battle_ui.call("set_turn", turn_number)
+		battle_ui.call("set_rp_skill_card", rp_skill)
+		battle_ui.call("set_rp_state", rage_point, _max_rp(), _rp_skill_cost(), rp_skill_selected, battle_over or combat_sequence_active)
+		if rp_skill_selected:
+			var rp_positions: Array = []
+			for enemy in _alive_enemies():
+				rp_positions.append(_enemy_screen_position(enemy))
+			battle_ui.call("set_rp_targeting_positions", rp_positions)
+		else:
+			battle_ui.call("clear_rp_targeting")
 	_update_player_hp_bar()
 	_update_all_enemy_bars()
 
@@ -1031,7 +1191,7 @@ func _refresh_ui():
 		var card: CardData = hand[i]
 		var effective_cost: int = _effective_cost(card)
 		var card_view: Control = CARD_VIEW_SCENE.instantiate()
-		card_view.call("set_card", card, i, battle_over or combat_sequence_active or effective_cost > energy, CARD_HAND_SETTINGS)
+		card_view.call("set_card", card, i, battle_over or combat_sequence_active or rp_skill_selected or effective_cost > energy, CARD_HAND_SETTINGS)
 		card_view.call("set_inspired_state", card.inspired, effective_cost)
 		card_view.call("set_hand_order", i)
 		card_view.connect("card_drag_started", Callable(self, "_on_card_drag_started"))
@@ -1097,11 +1257,26 @@ func _log(message: String):
 	if is_instance_valid(battle_ui) and battle_ui.has_method("show_toast"):
 		battle_ui.call("show_toast", message)
 
+func _input(event: InputEvent):
+	if route_selection_mode or not rp_skill_selected:
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		_on_rp_skill_cancelled()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		var rp_target := _enemy_at_screen_position(event.position, RP_MONSTER_CLICK_RADIUS)
+		if rp_target != null:
+			get_viewport().set_input_as_handled()
+			_execute_rp_skill()
+
 func _unhandled_input(event: InputEvent):
 	if route_selection_mode:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if not is_instance_valid(battle_ui):
+			return
+		if rp_skill_selected:
 			return
 		if battle_over or is_targeting_active:
 			return
@@ -1115,9 +1290,9 @@ func _unhandled_input(event: InputEvent):
 			battle_ui.call("hide_monster_info")
 
 
-func _enemy_at_screen_position(screen_position: Vector2) -> CombatEnemy:
+func _enemy_at_screen_position(screen_position: Vector2, radius: float = MONSTER_DROP_RADIUS) -> CombatEnemy:
 	for enemy in enemies:
-		if enemy.is_alive() and screen_position.distance_to(_enemy_screen_position(enemy)) <= MONSTER_DROP_RADIUS:
+		if enemy.is_alive() and screen_position.distance_to(_enemy_screen_position(enemy)) <= radius:
 			return enemy
 	return null
 

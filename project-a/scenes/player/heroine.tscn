@@ -56,6 +56,38 @@ region = Rect2(362, 1991, 181, 181)
 atlas = ExtResource("2_m6hok")
 region = Rect2(543, 1991, 181, 181)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_m480h"]
+atlas = ExtResource("2_m6hok")
+region = Rect2(362, 1810, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vwtxx"]
+atlas = ExtResource("2_m6hok")
+region = Rect2(543, 1810, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j2jfy"]
+atlas = ExtResource("2_m6hok")
+region = Rect2(0, 0, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fmq2u"]
+atlas = ExtResource("2_m6hok")
+region = Rect2(181, 0, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3stqp"]
+atlas = ExtResource("2_m6hok")
+region = Rect2(362, 0, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xn84c"]
+atlas = ExtResource("2_m6hok")
+region = Rect2(543, 0, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fmi78"]
+atlas = ExtResource("2_m6hok")
+region = Rect2(0, 181, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_04uts"]
+atlas = ExtResource("2_m6hok")
+region = Rect2(181, 181, 181, 181)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_five_slash_00"]
 atlas = ExtResource("3_fiveslash")
 region = Rect2(0, 0, 320, 320)
@@ -152,38 +184,6 @@ region = Rect2(640, 1600, 320, 320)
 atlas = ExtResource("3_fiveslash")
 region = Rect2(960, 1600, 320, 320)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_m480h"]
-atlas = ExtResource("2_m6hok")
-region = Rect2(362, 1810, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_vwtxx"]
-atlas = ExtResource("2_m6hok")
-region = Rect2(543, 1810, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_j2jfy"]
-atlas = ExtResource("2_m6hok")
-region = Rect2(0, 0, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fmq2u"]
-atlas = ExtResource("2_m6hok")
-region = Rect2(181, 0, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_3stqp"]
-atlas = ExtResource("2_m6hok")
-region = Rect2(362, 0, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_xn84c"]
-atlas = ExtResource("2_m6hok")
-region = Rect2(543, 0, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fmi78"]
-atlas = ExtResource("2_m6hok")
-region = Rect2(0, 181, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_04uts"]
-atlas = ExtResource("2_m6hok")
-region = Rect2(181, 181, 181, 181)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_fuckr"]
 atlas = ExtResource("2_m6hok")
 region = Rect2(0, 724, 181, 181)
@@ -261,6 +261,40 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_m480h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vwtxx")
+}],
+"loop": false,
+"name": &"Hit",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j2jfy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fmq2u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3stqp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xn84c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fmi78")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_04uts")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_five_slash_00")
 }, {
 "duration": 1.0,
@@ -333,42 +367,8 @@ animations = [{
 "texture": SubResource("AtlasTexture_five_slash_23")
 }],
 "loop": false,
-"name": &"FiveSlash",
+"name": &"MoonSlash",
 "speed": 22.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_m480h")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_vwtxx")
-}],
-"loop": false,
-"name": &"Hit",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_j2jfy")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fmq2u")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_3stqp")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_xn84c")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fmi78")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_04uts")
-}],
-"loop": true,
-"name": &"Idle",
-"speed": 5.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -400,7 +400,7 @@ script = ExtResource("1_m6hok")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=236742736]
 position = Vector2(-1, 0)
 sprite_frames = SubResource("SpriteFrames_m480h")
-animation = &"FiveSlash"
+animation = &"MoonSlash"
 frame = 23
 frame_progress = 1.0
 
