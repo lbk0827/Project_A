@@ -16,6 +16,167 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="PlayerStatusPanel" type="Panel" parent="UIRoot"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 20.0
+offset_top = 16.0
+offset_right = 392.0
+offset_bottom = 112.0
+mouse_filter = 2
+
+[node name="PortraitFrame" type="Panel" parent="UIRoot/PlayerStatusPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 86.0
+offset_bottom = 86.0
+mouse_filter = 2
+clip_contents = true
+
+[node name="Portrait" type="TextureRect" parent="UIRoot/PlayerStatusPanel/PortraitFrame"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 74.0
+offset_bottom = 74.0
+mouse_filter = 2
+
+[node name="PlayerNameLabel" type="Label" parent="UIRoot/PlayerStatusPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 98.0
+offset_top = 8.0
+offset_right = 250.0
+offset_bottom = 28.0
+
+[node name="PlayerHpBack" type="Panel" parent="UIRoot/PlayerStatusPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 98.0
+offset_top = 30.0
+offset_right = 356.0
+offset_bottom = 54.0
+mouse_filter = 2
+
+[node name="PlayerHpFill" type="Panel" parent="UIRoot/PlayerStatusPanel/PlayerHpBack"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 257.0
+offset_bottom = 23.0
+mouse_filter = 2
+
+[node name="PlayerHpLabel" type="Label" parent="UIRoot/PlayerStatusPanel/PlayerHpBack"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+text = "0 / 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlayerBlockLabel" type="Label" parent="UIRoot/PlayerStatusPanel"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 98.0
+offset_top = 62.0
+offset_right = 170.0
+offset_bottom = 82.0
+mouse_filter = 2
+
+[node name="EnergyGauge" type="Panel" parent="UIRoot"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 540.0
+offset_right = 112.0
+offset_bottom = 700.0
+mouse_filter = 2
+
+[node name="EpLabel" type="Label" parent="UIRoot/EnergyGauge"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 6.0
+offset_right = 88.0
+offset_bottom = 24.0
+mouse_filter = 2
+text = "EP"
+horizontal_alignment = 1
+
+[node name="EpCaption" type="Label" parent="UIRoot/EnergyGauge"]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 22.0
+offset_right = 88.0
+offset_bottom = 34.0
+mouse_filter = 2
+text = "SKILL"
+horizontal_alignment = 1
+
+[node name="EnergyValueLabel" type="Label" parent="UIRoot/EnergyGauge"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 0.0
+offset_top = 34.0
+offset_right = 88.0
+offset_bottom = 78.0
+mouse_filter = 2
+text = "0"
+horizontal_alignment = 1
+
+[node name="EnergySegmentContainer" type="VBoxContainer" parent="UIRoot/EnergyGauge"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 82.0
+offset_right = 64.0
+offset_bottom = 152.0
+mouse_filter = 2
+
+[node name="EnergyOrbLabel" type="Label" parent="UIRoot"]
+unique_name_in_owner = true
+z_index = 500
+layout_mode = 0
+offset_left = 592.0
+offset_top = 640.0
+offset_right = 688.0
+offset_bottom = 690.0
+mouse_filter = 2
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HandCountLabel" type="Label" parent="UIRoot"]
+unique_name_in_owner = true
+z_index = 500
+layout_mode = 0
+offset_left = 586.0
+offset_top = 700.0
+offset_right = 694.0
+offset_bottom = 722.0
+mouse_filter = 2
+text = "0 / 7"
+horizontal_alignment = 1
+
+[node name="TurnChipLabel" type="Label" parent="UIRoot"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1152.0
+offset_top = 22.0
+offset_right = 1232.0
+offset_bottom = 48.0
+mouse_filter = 2
+text = "TURN 1"
+
 [node name="DeckHand" parent="UIRoot" unique_id=2055485183 instance=ExtResource("3_n8d6p")]
 unique_name_in_owner = true
 layout_mode = 0

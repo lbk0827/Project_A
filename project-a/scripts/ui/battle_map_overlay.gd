@@ -143,10 +143,12 @@ var ui_root: Control
 var scrim: ColorRect
 var minimap_panel: Panel
 var minimap_view: MiniMapView
+var minimap_view_host: Control
 var status_label: Label
 var choice_container: VBoxContainer
 var expanded_map: Panel
 var expanded_map_view: MiniMapView
+var expanded_map_view_host: Control
 var expand_button: Button
 var current_node_id := ""
 var notice_text := ""
@@ -154,7 +156,8 @@ var is_committing_choice := false
 
 func _ready():
 	layer = 20
-	_build_ui()
+	_bind_ui()
+	_apply_scene_styles()
 	visible = false
 
 func show_for_run(message := ""):
@@ -167,125 +170,72 @@ func show_for_run(message := ""):
 func _run_state() -> Node:
 	return get_node_or_null("/root/RunState")
 
-func _build_ui():
-	ui_root = Control.new()
-	ui_root.name = "UIRoot"
-	ui_root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(ui_root)
+func _bind_ui():
+	ui_root = $UIRoot
+	scrim = $UIRoot/Scrim
+	minimap_panel = $UIRoot/MiniMapPanel
+	minimap_view_host = $UIRoot/MiniMapPanel/MiniMapViewHost
+	status_label = $UIRoot/MiniMapPanel/StatusLabel
+	expand_button = $UIRoot/MiniMapPanel/ExpandButton
+	choice_container = $UIRoot/ChoicePanel/ChoiceContainer
+	expanded_map = $UIRoot/ExpandedMap
+	expanded_map_view_host = $UIRoot/ExpandedMap/ExpandedMapViewHost
+	var close_button: Button = $UIRoot/ExpandedMap/CloseButton
 
-	scrim = ColorRect.new()
-	scrim.name = "Scrim"
+	minimap_view = _make_minimap_view(minimap_view_host)
+	expanded_map_view = _make_minimap_view(expanded_map_view_host)
+
+	if not expand_button.pressed.is_connected(_on_expand_pressed):
+		expand_button.pressed.connect(_on_expand_pressed)
+	if not close_button.pressed.is_connected(_on_close_expanded_map_pressed):
+		close_button.pressed.connect(_on_close_expanded_map_pressed)
+
+func _make_minimap_view(host: Control) -> MiniMapView:
+	var view: MiniMapView = MiniMapView.new()
+	view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	view.set_anchors_preset(Control.PRESET_FULL_RECT)
+	view.offset_left = 0
+	view.offset_top = 0
+	view.offset_right = 0
+	view.offset_bottom = 0
+	host.add_child(view)
+	return view
+
+func _apply_scene_styles():
 	scrim.color = Color(0.01, 0.015, 0.025, 0.28)
-	scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ui_root.add_child(scrim)
 
-	_build_minimap_panel()
-	_build_choice_panel()
-	_build_expanded_map()
-
-func _build_minimap_panel():
-	minimap_panel = Panel.new()
-	minimap_panel.name = "MiniMapPanel"
-	minimap_panel.position = Vector2(18, 466)
-	minimap_panel.size = Vector2(372, 222)
 	minimap_panel.z_index = 20
 	minimap_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.04, 0.08, 0.11, 0.82), Color(0.38, 0.86, 1.0, 0.62), 8))
-	ui_root.add_child(minimap_panel)
+	var minimap_title: Label = $UIRoot/MiniMapPanel/TitleLabel
+	minimap_title.add_theme_font_size_override("font_size", 13)
+	minimap_title.add_theme_color_override("font_color", Color(0.72, 0.9, 1.0, 0.95))
 
-	var title := Label.new()
-	title.text = "ROUTE"
-	title.add_theme_font_size_override("font_size", 13)
-	title.add_theme_color_override("font_color", Color(0.72, 0.9, 1.0, 0.95))
-	title.position = Vector2(14, 8)
-	title.size = Vector2(120, 20)
-	minimap_panel.add_child(title)
-
-	expand_button = Button.new()
-	expand_button.text = "+"
 	expand_button.focus_mode = Control.FOCUS_NONE
-	expand_button.position = Vector2(334, 8)
-	expand_button.size = Vector2(24, 24)
-	expand_button.pressed.connect(_on_expand_pressed)
-	minimap_panel.add_child(expand_button)
 
-	minimap_view = MiniMapView.new()
-	minimap_view.position = Vector2(14, 34)
-	minimap_view.size = Vector2(344, 142)
-	minimap_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	minimap_panel.add_child(minimap_view)
-
-	status_label = Label.new()
 	status_label.add_theme_font_size_override("font_size", 13)
 	status_label.add_theme_color_override("font_color", Color(0.9, 0.96, 1.0, 0.92))
-	status_label.position = Vector2(14, 184)
-	status_label.size = Vector2(344, 26)
-	minimap_panel.add_child(status_label)
 
-func _build_choice_panel():
-	var panel := Panel.new()
-	panel.name = "ChoicePanel"
-	panel.position = Vector2(744, 64)
-	panel.size = Vector2(510, 590)
-	panel.z_index = 30
-	panel.add_theme_stylebox_override("panel", _panel_style(Color(0.02, 0.026, 0.038, 0.18), Color(0.45, 0.76, 0.92, 0.0), 4))
-	ui_root.add_child(panel)
-
-	var title := Label.new()
-	title.text = "NEXT ROUTE"
-	title.add_theme_font_size_override("font_size", 26)
-	title.add_theme_color_override("font_color", Color(0.9, 0.97, 1.0))
-	title.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.08, 0.92))
-	title.add_theme_constant_override("outline_size", 5)
-	title.position = Vector2(42, 16)
-	title.size = Vector2(280, 36)
-	panel.add_child(title)
-
-	var subtitle := Label.new()
-	subtitle.text = "Choose one connected node."
-	subtitle.add_theme_font_size_override("font_size", 14)
-	subtitle.add_theme_color_override("font_color", Color(0.7, 0.82, 0.92, 0.9))
-	subtitle.position = Vector2(44, 52)
-	subtitle.size = Vector2(280, 22)
-	panel.add_child(subtitle)
-
-	choice_container = VBoxContainer.new()
-	choice_container.position = Vector2(36, 96)
-	choice_container.size = Vector2(450, 464)
+	var choice_panel: Panel = $UIRoot/ChoicePanel
+	choice_panel.z_index = 30
+	choice_panel.add_theme_stylebox_override("panel", _panel_style(Color(0.02, 0.026, 0.038, 0.18), Color(0.45, 0.76, 0.92, 0.0), 4))
+	var choice_title: Label = $UIRoot/ChoicePanel/TitleLabel
+	choice_title.add_theme_font_size_override("font_size", 26)
+	choice_title.add_theme_color_override("font_color", Color(0.9, 0.97, 1.0))
+	choice_title.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.08, 0.92))
+	choice_title.add_theme_constant_override("outline_size", 5)
+	var choice_subtitle: Label = $UIRoot/ChoicePanel/SubtitleLabel
+	choice_subtitle.add_theme_font_size_override("font_size", 14)
+	choice_subtitle.add_theme_color_override("font_color", Color(0.7, 0.82, 0.92, 0.9))
 	choice_container.add_theme_constant_override("separation", 28)
-	panel.add_child(choice_container)
 
-func _build_expanded_map():
-	expanded_map = Panel.new()
-	expanded_map.name = "ExpandedMap"
-	expanded_map.visible = false
-	expanded_map.position = Vector2(170, 98)
-	expanded_map.size = Vector2(640, 390)
 	expanded_map.z_index = 80
 	expanded_map.add_theme_stylebox_override("panel", _panel_style(Color(0.035, 0.065, 0.085, 0.95), Color(0.5, 0.9, 1.0, 0.72), 8))
-	ui_root.add_child(expanded_map)
-
-	var title := Label.new()
-	title.text = "ROUTE MAP"
-	title.add_theme_font_size_override("font_size", 22)
-	title.add_theme_color_override("font_color", Color(0.86, 0.96, 1.0))
-	title.position = Vector2(22, 16)
-	title.size = Vector2(220, 30)
-	expanded_map.add_child(title)
-
-	var close_button := Button.new()
-	close_button.text = "X"
+	var expanded_title: Label = $UIRoot/ExpandedMap/TitleLabel
+	expanded_title.add_theme_font_size_override("font_size", 22)
+	expanded_title.add_theme_color_override("font_color", Color(0.86, 0.96, 1.0))
+	var close_button: Button = $UIRoot/ExpandedMap/CloseButton
 	close_button.focus_mode = Control.FOCUS_NONE
-	close_button.position = Vector2(590, 14)
-	close_button.size = Vector2(32, 32)
-	close_button.pressed.connect(func(): expanded_map.visible = false)
-	expanded_map.add_child(close_button)
-
-	expanded_map_view = MiniMapView.new()
-	expanded_map_view.position = Vector2(22, 58)
-	expanded_map_view.size = Vector2(596, 302)
-	expanded_map_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	expanded_map.add_child(expanded_map_view)
 
 func _refresh():
 	var run_state := _run_state()
@@ -449,6 +399,9 @@ func _on_expand_pressed():
 	expanded_map.visible = not expanded_map.visible
 	if expanded_map.visible:
 		expanded_map_view.queue_redraw()
+
+func _on_close_expanded_map_pressed():
+	expanded_map.visible = false
 
 func _commit_choice(node_id: String, button: Button):
 	if is_committing_choice:

@@ -64,74 +64,55 @@ func _ready():
 # --- Layout construction -------------------------------------------------
 
 func _build_player_panel():
-	var panel := Panel.new()
-	player_status_panel = panel
-	panel.name = "PlayerStatusPanel"
+	player_status_panel = %PlayerStatusPanel as Panel
 	var style := StyleBoxFlat.new()
 	style.bg_color = PANEL_BG_COLOR
 	style.border_color = PANEL_BORDER_COLOR
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(10)
-	panel.add_theme_stylebox_override("panel", style)
-	panel.position = Vector2(20, 16)
-	panel.size = Vector2(372, 96)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ui_root.add_child(panel)
+	player_status_panel.add_theme_stylebox_override("panel", style)
+	player_status_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var portrait_frame := Panel.new()
+	var portrait_frame := %PortraitFrame as Panel
 	var frame_style := StyleBoxFlat.new()
 	frame_style.bg_color = Color(0.1, 0.13, 0.2, 0.95)
 	frame_style.border_color = Color(0.55, 0.8, 1.0, 0.7)
 	frame_style.set_border_width_all(2)
 	frame_style.set_corner_radius_all(8)
 	portrait_frame.add_theme_stylebox_override("panel", frame_style)
-	portrait_frame.position = Vector2(10, 10)
-	portrait_frame.size = Vector2(76, 76)
 	portrait_frame.clip_contents = true
 	portrait_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(portrait_frame)
 
-	var portrait := TextureRect.new()
+	var portrait := %Portrait as TextureRect
 	portrait.texture = HEROINE_PORTRAIT
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	portrait.position = Vector2(2, 2)
-	portrait.size = Vector2(72, 72)
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	portrait_frame.add_child(portrait)
 
-	var name_label := Label.new()
+	var name_label := %PlayerNameLabel as Label
 	name_label.text = "츠키"
 	name_label.add_theme_font_size_override("font_size", 13)
 	name_label.add_theme_color_override("font_color", Color(0.75, 0.88, 1.0, 0.95))
-	name_label.position = Vector2(98, 8)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(name_label)
 
-	var hp_back := Panel.new()
+	var hp_back := %PlayerHpBack as Panel
 	var back_style := StyleBoxFlat.new()
 	back_style.bg_color = HP_BACK_COLOR
 	back_style.border_color = Color(0.6, 0.9, 0.7, 0.4)
 	back_style.set_border_width_all(1)
 	back_style.set_corner_radius_all(4)
 	hp_back.add_theme_stylebox_override("panel", back_style)
-	hp_back.position = Vector2(98, 30)
-	hp_back.size = Vector2(258, 24)
 	hp_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(hp_back)
 
-	player_hp_fill = Panel.new()
+	player_hp_fill = %PlayerHpFill as Panel
 	player_hp_fill_style = StyleBoxFlat.new()
 	player_hp_fill_style.bg_color = HP_FILL_COLOR
 	player_hp_fill_style.set_corner_radius_all(4)
 	player_hp_fill.add_theme_stylebox_override("panel", player_hp_fill_style)
-	player_hp_fill.position = Vector2(1, 1)
-	player_hp_fill.size = Vector2(256, 22)
 	player_hp_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hp_back.add_child(player_hp_fill)
 
-	player_hp_label = Label.new()
+	player_hp_label = %PlayerHpLabel as Label
 	player_hp_label.text = "0 / 0"
 	player_hp_label.add_theme_font_size_override("font_size", 15)
 	player_hp_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.98))
@@ -139,12 +120,9 @@ func _build_player_panel():
 	player_hp_label.add_theme_constant_override("outline_size", 4)
 	player_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	player_hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	player_hp_label.position = Vector2.ZERO
-	player_hp_label.size = hp_back.size
 	player_hp_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hp_back.add_child(player_hp_label)
 
-	player_block_label = Label.new()
+	player_block_label = %PlayerBlockLabel as Label
 	player_block_label.add_theme_font_size_override("font_size", 13)
 	player_block_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.98))
 	var chip_style := StyleBoxFlat.new()
@@ -157,66 +135,44 @@ func _build_player_panel():
 	chip_style.content_margin_top = 1.0
 	chip_style.content_margin_bottom = 1.0
 	player_block_label.add_theme_stylebox_override("normal", chip_style)
-	player_block_label.position = Vector2(98, 62)
 	player_block_label.visible = false
 	player_block_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(player_block_label)
 
 func _build_energy_gauge():
-	var panel := Panel.new()
-	energy_gauge_panel = panel
-	panel.name = "EnergyGauge"
+	energy_gauge_panel = %EnergyGauge as Panel
 	var style := StyleBoxFlat.new()
 	style.bg_color = PANEL_BG_COLOR
 	style.border_color = PANEL_BORDER_COLOR
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(10)
-	panel.add_theme_stylebox_override("panel", style)
-	panel.position = Vector2(24, 540)
-	panel.size = Vector2(88, 160)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ui_root.add_child(panel)
+	energy_gauge_panel.add_theme_stylebox_override("panel", style)
+	energy_gauge_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var ep_label := Label.new()
-	ep_label.text = "EP"
+	var ep_label := $UIRoot/EnergyGauge/EpLabel as Label
 	ep_label.add_theme_font_size_override("font_size", 14)
 	ep_label.add_theme_color_override("font_color", Color(0.6, 0.85, 1.0, 0.9))
 	ep_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	ep_label.position = Vector2(0, 6)
-	ep_label.size = Vector2(88, 18)
 	ep_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(ep_label)
 
 	# The left EP gauge is the character skill resource, not the card energy.
 	# Its charge mechanic is not implemented yet, so it displays a placeholder.
-	var ep_caption := Label.new()
-	ep_caption.text = "SKILL"
+	var ep_caption := $UIRoot/EnergyGauge/EpCaption as Label
 	ep_caption.add_theme_font_size_override("font_size", 9)
 	ep_caption.add_theme_color_override("font_color", Color(0.55, 0.72, 0.9, 0.7))
 	ep_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	ep_caption.position = Vector2(0, 22)
-	ep_caption.size = Vector2(88, 12)
 	ep_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(ep_caption)
 
-	energy_value_label = Label.new()
-	energy_value_label.text = "0"
+	energy_value_label = %EnergyValueLabel as Label
 	energy_value_label.add_theme_font_size_override("font_size", 40)
 	energy_value_label.add_theme_color_override("font_color", Color(0.75, 0.92, 1.0))
 	energy_value_label.add_theme_color_override("font_outline_color", Color(0.05, 0.15, 0.35, 0.9))
 	energy_value_label.add_theme_constant_override("outline_size", 5)
 	energy_value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	energy_value_label.position = Vector2(0, 34)
-	energy_value_label.size = Vector2(88, 44)
 	energy_value_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(energy_value_label)
 
-	energy_segment_container = VBoxContainer.new()
+	energy_segment_container = %EnergySegmentContainer as VBoxContainer
 	energy_segment_container.add_theme_constant_override("separation", 4)
-	energy_segment_container.position = Vector2(24, 82)
-	energy_segment_container.size = Vector2(40, 70)
 	energy_segment_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(energy_segment_container)
 
 	# Placeholder charge display until the skill-resource system exists.
 	_rebuild_energy_segments(3)
@@ -252,23 +208,18 @@ func _build_hand_rail():
 func _build_energy_orb():
 	# Card-play energy: just the number, sitting on top of the arch rail line
 	# (poking above the bright edge) so it reads clearly.
-	energy_orb_label = Label.new()
-	energy_orb_label.text = "0"
+	energy_orb_label = %EnergyOrbLabel as Label
 	energy_orb_label.add_theme_font_size_override("font_size", 46)
 	energy_orb_label.add_theme_color_override("font_color", Color(0.96, 0.99, 1.0))
 	energy_orb_label.add_theme_color_override("font_outline_color", Color(0.06, 0.24, 0.5, 0.96))
 	energy_orb_label.add_theme_constant_override("outline_size", 8)
 	energy_orb_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	energy_orb_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	energy_orb_label.size = Vector2(96, 50)
-	energy_orb_label.position = Vector2(640 - 48, 640)
 	energy_orb_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	energy_orb_label.z_index = 500
-	ui_root.add_child(energy_orb_label)
 
 func _build_hand_counter():
-	hand_count_label = Label.new()
-	hand_count_label.text = "0 / 7"
+	hand_count_label = %HandCountLabel as Label
 	hand_count_label.add_theme_font_size_override("font_size", 17)
 	hand_count_label.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0, 0.95))
 	var style := StyleBoxFlat.new()
@@ -280,15 +231,11 @@ func _build_hand_counter():
 	style.content_margin_bottom = 1.0
 	hand_count_label.add_theme_stylebox_override("normal", style)
 	hand_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hand_count_label.size = Vector2(108, 22)
-	hand_count_label.position = Vector2(640 - 54, 700)
 	hand_count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hand_count_label.z_index = 500
-	ui_root.add_child(hand_count_label)
 
 func _build_turn_chip():
-	turn_chip_label = Label.new()
-	turn_chip_label.text = "TURN 1"
+	turn_chip_label = %TurnChipLabel as Label
 	turn_chip_label.add_theme_font_size_override("font_size", 17)
 	turn_chip_label.add_theme_color_override("font_color", Color(0.85, 0.92, 1.0))
 	var style := StyleBoxFlat.new()
@@ -301,9 +248,7 @@ func _build_turn_chip():
 	style.content_margin_top = 3.0
 	style.content_margin_bottom = 3.0
 	turn_chip_label.add_theme_stylebox_override("normal", style)
-	turn_chip_label.position = Vector2(1152, 22)
 	turn_chip_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ui_root.add_child(turn_chip_label)
 
 func _build_toast_container():
 	toast_container = VBoxContainer.new()
@@ -408,7 +353,11 @@ func set_player_status(current_hp: int, max_hp: int, block: int):
 	var safe_current: int = clamp(current_hp, 0, safe_max)
 	player_hp_label.text = "%d / %d" % [safe_current, safe_max]
 	var ratio := float(safe_current) / float(safe_max)
-	player_hp_fill.size = Vector2(max(256.0 * ratio, 0.0), 22)
+	var hp_back := player_hp_fill.get_parent() as Control
+	var fill_size := Vector2(256.0, 22.0)
+	if hp_back != null:
+		fill_size = Vector2(max(hp_back.size.x - 2.0, 0.0), max(hp_back.size.y - 2.0, 0.0))
+	player_hp_fill.size = Vector2(fill_size.x * ratio, fill_size.y)
 	player_hp_fill_style.bg_color = HP_FILL_LOW_COLOR if ratio <= 0.3 else HP_FILL_COLOR
 	player_block_label.visible = block > 0
 	if block > 0:

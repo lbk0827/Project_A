@@ -4,3 +4,126 @@
 
 [node name="BattleMapOverlay" type="CanvasLayer"]
 script = ExtResource("1_overlay")
+
+[node name="UIRoot" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Scrim" type="ColorRect" parent="UIRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.01, 0.015, 0.025, 0.28)
+
+[node name="MiniMapPanel" type="Panel" parent="UIRoot"]
+z_index = 20
+layout_mode = 0
+offset_left = 18.0
+offset_top = 466.0
+offset_right = 390.0
+offset_bottom = 688.0
+
+[node name="TitleLabel" type="Label" parent="UIRoot/MiniMapPanel"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 8.0
+offset_right = 134.0
+offset_bottom = 28.0
+text = "ROUTE"
+
+[node name="ExpandButton" type="Button" parent="UIRoot/MiniMapPanel"]
+layout_mode = 0
+offset_left = 334.0
+offset_top = 8.0
+offset_right = 358.0
+offset_bottom = 32.0
+focus_mode = 0
+text = "+"
+
+[node name="MiniMapViewHost" type="Control" parent="UIRoot/MiniMapPanel"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 34.0
+offset_right = 358.0
+offset_bottom = 176.0
+mouse_filter = 2
+
+[node name="StatusLabel" type="Label" parent="UIRoot/MiniMapPanel"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 184.0
+offset_right = 358.0
+offset_bottom = 210.0
+
+[node name="ChoicePanel" type="Panel" parent="UIRoot"]
+z_index = 30
+layout_mode = 0
+offset_left = 744.0
+offset_top = 64.0
+offset_right = 1254.0
+offset_bottom = 654.0
+
+[node name="TitleLabel" type="Label" parent="UIRoot/ChoicePanel"]
+layout_mode = 0
+offset_left = 42.0
+offset_top = 16.0
+offset_right = 322.0
+offset_bottom = 52.0
+text = "NEXT ROUTE"
+
+[node name="SubtitleLabel" type="Label" parent="UIRoot/ChoicePanel"]
+layout_mode = 0
+offset_left = 44.0
+offset_top = 52.0
+offset_right = 324.0
+offset_bottom = 74.0
+text = "Choose one connected node."
+
+[node name="ChoiceContainer" type="VBoxContainer" parent="UIRoot/ChoicePanel"]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 96.0
+offset_right = 486.0
+offset_bottom = 560.0
+
+[node name="ExpandedMap" type="Panel" parent="UIRoot"]
+visible = false
+z_index = 80
+layout_mode = 0
+offset_left = 170.0
+offset_top = 98.0
+offset_right = 810.0
+offset_bottom = 488.0
+
+[node name="TitleLabel" type="Label" parent="UIRoot/ExpandedMap"]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 16.0
+offset_right = 242.0
+offset_bottom = 46.0
+text = "ROUTE MAP"
+
+[node name="CloseButton" type="Button" parent="UIRoot/ExpandedMap"]
+layout_mode = 0
+offset_left = 590.0
+offset_top = 14.0
+offset_right = 622.0
+offset_bottom = 46.0
+focus_mode = 0
+text = "X"
+
+[node name="ExpandedMapViewHost" type="Control" parent="UIRoot/ExpandedMap"]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 58.0
+offset_right = 618.0
+offset_bottom = 360.0
+mouse_filter = 2
