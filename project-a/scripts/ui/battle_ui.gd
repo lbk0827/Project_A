@@ -1,6 +1,11 @@
 extends CanvasLayer
 
+signal rp_skill_requested
+signal rp_skill_cancelled
+
 const HEROINE_PORTRAIT := preload("res://assets/characters/tsuki_portrait.png")
+const RP_CUTIN_ART := preload("res://assets/card/cardart_full/tsuki_moon_slash.png")
+const CARD_PREVIEW_SCENE := preload("res://scenes/ui/cards/CardViewLarge.tscn")
 const PANEL_BG_COLOR := Color(0.05, 0.07, 0.11, 0.74)
 const PANEL_BORDER_COLOR := Color(0.4, 0.65, 0.9, 0.4)
 const HP_FILL_COLOR := Color(0.32, 0.85, 0.45)
@@ -8,6 +13,8 @@ const HP_FILL_LOW_COLOR := Color(0.95, 0.55, 0.2)
 const HP_BACK_COLOR := Color(0.07, 0.1, 0.08, 0.9)
 const EP_FILL_COLOR := Color(0.35, 0.75, 1.0)
 const EP_EMPTY_COLOR := Color(0.16, 0.22, 0.3, 0.85)
+const RP_READY_COLOR := Color(0.75, 0.92, 1.0)
+const RP_AIM_COLOR := Color(0.35, 0.92, 1.0, 0.92)
 const BLOCK_CHIP_COLOR := Color(0.3, 0.55, 0.95, 0.92)
 const END_TURN_COLOR := Color(0.16, 0.42, 0.85)
 const END_TURN_HOVER_COLOR := Color(0.24, 0.55, 1.0)
@@ -33,6 +40,11 @@ var energy_gauge_panel: Panel
 var energy_segments: Array[Panel] = []
 var energy_segment_container: VBoxContainer
 var energy_max := 0
+var rp_portrait_button: Button
+var rp_cancel_button: Button
+var rp_skill_card: Control
+var rp_aim_layer: Control
+var rp_pulse_tween: Tween
 var energy_orb_label: Label
 var hand_rail: HandRail
 var hand_count_label: Label
@@ -50,6 +62,7 @@ var monster_info_rows: VBoxContainer
 func _ready():
 	_build_player_panel()
 	_build_energy_gauge()
+	_build_rp_skill_controls()
 	_build_hand_rail()
 	_build_energy_orb()
 	_build_hand_counter()
@@ -149,21 +162,21 @@ func _build_energy_gauge():
 	energy_gauge_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	var ep_label := $UIRoot/EnergyGauge/EpLabel as Label
+	ep_label.text = "RP"
 	ep_label.add_theme_font_size_override("font_size", 14)
 	ep_label.add_theme_color_override("font_color", Color(0.6, 0.85, 1.0, 0.9))
 	ep_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	ep_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# The left EP gauge is the character skill resource, not the card energy.
-	# Its charge mechanic is not implemented yet, so it displays a placeholder.
 	var ep_caption := $UIRoot/EnergyGauge/EpCaption as Label
+	ep_caption.text = "RAGE"
 	ep_caption.add_theme_font_size_override("font_size", 9)
 	ep_caption.add_theme_color_override("font_color", Color(0.55, 0.72, 0.9, 0.7))
 	ep_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	ep_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	energy_value_label = %EnergyValueLabel as Label
-	energy_value_label.add_theme_font_size_override("font_size", 40)
+	energy_value_label.add_theme_font_size_override("font_size", 25)
 	energy_value_label.add_theme_color_override("font_color", Color(0.75, 0.92, 1.0))
 	energy_value_label.add_theme_color_override("font_outline_color", Color(0.05, 0.15, 0.35, 0.9))
 	energy_value_label.add_theme_constant_override("outline_size", 5)
@@ -171,11 +184,10 @@ func _build_energy_gauge():
 	energy_value_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	energy_segment_container = %EnergySegmentContainer as VBoxContainer
-	energy_segment_container.add_theme_constant_override("separation", 4)
+	energy_segment_container.add_theme_constant_override("separation", 2)
 	energy_segment_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# Placeholder charge display until the skill-resource system exists.
-	_rebuild_energy_segments(3)
+	_rebuild_energy_segments(7)
 	energy_value_label.text = "0"
 
 func _rebuild_energy_segments(max_energy: int):
@@ -191,10 +203,65 @@ func _rebuild_energy_segments(max_energy: int):
 		style.border_color = Color(0.45, 0.65, 0.9, 0.4)
 		style.set_border_width_all(1)
 		segment.add_theme_stylebox_override("panel", style)
-		segment.custom_minimum_size = Vector2(40, 16)
+		segment.custom_minimum_size = Vector2(40, 11)
 		segment.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		energy_segment_container.add_child(segment)
 		energy_segments.append(segment)
+
+func _build_rp_skill_controls():
+	rp_aim_layer = Control.new()
+	rp_aim_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rp_aim_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rp_aim_layer.z_index = 320
+	ui_root.add_child(rp_aim_layer)
+
+	rp_portrait_button = Button.new()
+	rp_portrait_button.position = Vector2(120, 607)
+	rp_portrait_button.size = Vector2(76, 76)
+	rp_portrait_button.icon = HEROINE_PORTRAIT
+	rp_portrait_button.expand_icon = true
+	rp_portrait_button.tooltip_text = "MOON SLASH"
+	rp_portrait_button.z_index = 520
+	_style_rp_button(rp_portrait_button, false)
+	rp_portrait_button.pressed.connect(func(): rp_skill_requested.emit())
+	ui_root.add_child(rp_portrait_button)
+
+	rp_cancel_button = Button.new()
+	rp_cancel_button.position = rp_portrait_button.position
+	rp_cancel_button.size = rp_portrait_button.size
+	rp_cancel_button.text = "취소"
+	rp_cancel_button.add_theme_font_size_override("font_size", 19)
+	rp_cancel_button.z_index = 520
+	_style_rp_button(rp_cancel_button, true)
+	rp_cancel_button.visible = false
+	rp_cancel_button.pressed.connect(func(): rp_skill_cancelled.emit())
+	ui_root.add_child(rp_cancel_button)
+
+	rp_skill_card = CARD_PREVIEW_SCENE.instantiate() as Control
+	rp_skill_card.position = Vector2(205, 278)
+	rp_skill_card.z_index = 510
+	rp_skill_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rp_skill_card.visible = false
+	ui_root.add_child(rp_skill_card)
+
+func _style_rp_button(button: Button, is_cancel: bool):
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.22, 0.08, 0.09, 0.96) if is_cancel else Color(0.05, 0.12, 0.22, 0.96)
+	normal.border_color = Color(1.0, 0.62, 0.5, 0.9) if is_cancel else Color(0.45, 0.86, 1.0, 0.9)
+	normal.set_border_width_all(3)
+	normal.set_corner_radius_all(12)
+	button.add_theme_stylebox_override("normal", normal)
+	var hover: StyleBoxFlat = normal.duplicate()
+	hover.bg_color = normal.bg_color.lightened(0.12)
+	button.add_theme_stylebox_override("hover", hover)
+	var pressed: StyleBoxFlat = normal.duplicate()
+	pressed.bg_color = normal.bg_color.darkened(0.15)
+	button.add_theme_stylebox_override("pressed", pressed)
+	var disabled: StyleBoxFlat = normal.duplicate()
+	disabled.bg_color = Color(0.08, 0.1, 0.13, 0.88)
+	disabled.border_color = Color(0.28, 0.34, 0.42, 0.65)
+	button.add_theme_stylebox_override("disabled", disabled)
+	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
 func _build_hand_rail():
 	# Foreground arch rail that occludes the lower part of the fanned cards.
@@ -363,6 +430,193 @@ func set_player_status(current_hp: int, max_hp: int, block: int):
 	if block > 0:
 		player_block_label.text = "DEF %d" % block
 
+func set_rp_state(current_rp: float, max_rp: float, rp_cost: float, selected: bool, locked: bool):
+	var segment_count: int = max(int(ceil(max_rp)), 1)
+	if energy_segments.size() != segment_count:
+		_rebuild_energy_segments(segment_count)
+	for visual_index in range(energy_segments.size()):
+		var logical_index := energy_segments.size() - 1 - visual_index
+		var fill: float = clamp(current_rp - float(logical_index), 0.0, 1.0)
+		var segment_style := energy_segments[visual_index].get_theme_stylebox("panel") as StyleBoxFlat
+		if segment_style != null:
+			segment_style.bg_color = EP_EMPTY_COLOR.lerp(EP_FILL_COLOR, fill)
+	energy_value_label.text = "%s / %s" % [_format_rp(current_rp), _format_rp(max_rp)]
+
+	var can_use := rp_cost > 0.0 and not locked and current_rp + 0.001 >= rp_cost
+	var was_ready := not rp_portrait_button.disabled
+	rp_portrait_button.visible = not selected
+	rp_portrait_button.disabled = not can_use
+	rp_cancel_button.visible = selected
+	rp_cancel_button.disabled = locked
+	rp_skill_card.visible = selected
+	if can_use and not selected and (not was_ready or rp_pulse_tween == null or not rp_pulse_tween.is_valid()):
+		_start_rp_ready_pulse()
+	elif not can_use or selected:
+		_stop_rp_ready_pulse()
+
+func set_rp_skill_card(skill: Dictionary):
+	if rp_skill_card == null:
+		return
+	var damage_percent := float(skill.get("damage_percent", 0.0))
+	var hit_count := int(skill.get("hit_count", 5))
+	var rp_cost := float(skill.get("rp_cost", 0.0))
+	var card := CardData.new()
+	card.id = String(skill.get("id", "moon_slash"))
+	card.character = String(skill.get("character", "tsuki"))
+	card.display_name = String(skill.get("display_name", "달빛 베기"))
+	card.cost = int(round(rp_cost))
+	card.card_type = &"rp"
+	card.motion_animation = StringName(skill.get("motion_animation", "MoonSlash"))
+	card.requires_target = true
+	card.text = "모든 적에게 공격력 %s%% 피해를 %d회 줍니다." % [_format_rp(damage_percent), hit_count]
+	card.keywords = []
+	card.effects = [{
+		"type": "damage",
+		"target": "all_enemies",
+		"damage_percent": damage_percent,
+		"hit_count": hit_count,
+	}]
+	rp_skill_card.call("set_card", card, card.cost)
+	if rp_skill_card.has_method("set_cost_text"):
+		rp_skill_card.call("set_cost_text", _format_rp(rp_cost))
+
+func set_rp_targeting_positions(screen_positions: Array):
+	clear_rp_targeting()
+	if rp_aim_layer == null:
+		return
+	for screen_position in screen_positions:
+		var ring := Panel.new()
+		var diameter := 132.0
+		ring.position = Vector2(screen_position) - Vector2.ONE * diameter * 0.5
+		ring.size = Vector2.ONE * diameter
+		ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(0.1, 0.65, 1.0, 0.08)
+		style.border_color = RP_AIM_COLOR
+		style.set_border_width_all(4)
+		style.set_corner_radius_all(int(diameter * 0.5))
+		ring.add_theme_stylebox_override("panel", style)
+		ring.pivot_offset = ring.size * 0.5
+		rp_aim_layer.add_child(ring)
+
+		var aim_label := Label.new()
+		aim_label.text = "AIM"
+		aim_label.position = Vector2(36, -24)
+		aim_label.size = Vector2(60, 24)
+		aim_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		aim_label.add_theme_font_size_override("font_size", 17)
+		aim_label.add_theme_color_override("font_color", Color(0.72, 0.96, 1.0))
+		aim_label.add_theme_color_override("font_outline_color", Color(0.02, 0.08, 0.15, 0.95))
+		aim_label.add_theme_constant_override("outline_size", 4)
+		aim_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ring.add_child(aim_label)
+
+		var tween := ring.create_tween()
+		tween.set_loops()
+		tween.tween_property(ring, "scale", Vector2(1.08, 1.08), 0.42).set_trans(Tween.TRANS_SINE)
+		tween.tween_property(ring, "scale", Vector2.ONE, 0.42).set_trans(Tween.TRANS_SINE)
+
+func clear_rp_targeting():
+	if rp_aim_layer == null:
+		return
+	for child in rp_aim_layer.get_children():
+		child.free()
+
+func play_rp_cutin(hold_seconds: float = 1.0):
+	var viewport_size := get_viewport().get_visible_rect().size
+	var cutin_root := Control.new()
+	cutin_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cutin_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cutin_root.z_index = 1400
+	ui_root.add_child(cutin_root)
+
+	var dim := ColorRect.new()
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.color = Color(0.01, 0.02, 0.05, 0.0)
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cutin_root.add_child(dim)
+
+	var frame := Panel.new()
+	var cutin_width: float = min(440.0, viewport_size.x * 0.38)
+	frame.position = Vector2(-cutin_width - 36.0, 38.0)
+	frame.size = Vector2(cutin_width, viewport_size.y - 76.0)
+	frame.clip_contents = true
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var frame_style := StyleBoxFlat.new()
+	frame_style.bg_color = Color(0.03, 0.08, 0.16, 0.96)
+	frame_style.border_color = Color(0.62, 0.92, 1.0, 0.96)
+	frame_style.border_width_right = 4
+	frame_style.border_width_top = 2
+	frame_style.border_width_bottom = 2
+	frame_style.set_corner_radius_all(12)
+	frame.add_theme_stylebox_override("panel", frame_style)
+	cutin_root.add_child(frame)
+
+	var portrait := TextureRect.new()
+	portrait.texture = RP_CUTIN_ART
+	var portrait_area: Vector2 = frame.size - Vector2(12, 12)
+	var portrait_source_size := Vector2(RP_CUTIN_ART.get_width(), RP_CUTIN_ART.get_height())
+	var portrait_scale: float = min(
+		portrait_area.x / portrait_source_size.x,
+		portrait_area.y / portrait_source_size.y
+	)
+	portrait.size = portrait_source_size * portrait_scale
+	portrait.position = (frame.size - portrait.size) * 0.5
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_SCALE
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(portrait)
+
+	var title := Label.new()
+	title.text = "MOON SLASH"
+	title.position = Vector2(18, frame.size.y - 76)
+	title.size = Vector2(frame.size.x - 36, 52)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_color_override("font_color", Color(0.88, 0.98, 1.0))
+	title.add_theme_color_override("font_outline_color", Color(0.02, 0.06, 0.12, 0.96))
+	title.add_theme_constant_override("outline_size", 7)
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(title)
+
+	var enter_tween := create_tween()
+	enter_tween.set_parallel(true)
+	enter_tween.tween_property(frame, "position:x", 28.0, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	enter_tween.tween_property(dim, "color:a", 0.45, 0.2)
+	await enter_tween.finished
+	await get_tree().create_timer(max(hold_seconds, 0.0)).timeout
+
+	var exit_tween := create_tween()
+	exit_tween.set_parallel(true)
+	exit_tween.tween_property(frame, "position:y", -frame.size.y - 30.0, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	exit_tween.tween_property(dim, "color:a", 0.0, 0.3)
+	await exit_tween.finished
+	cutin_root.queue_free()
+
+func _format_rp(value: float) -> String:
+	if is_equal_approx(value, round(value)):
+		return str(int(round(value)))
+	return ("%.2f" % value).trim_suffix("0")
+
+func _start_rp_ready_pulse():
+	_stop_rp_ready_pulse()
+	if rp_portrait_button == null:
+		return
+	rp_portrait_button.pivot_offset = rp_portrait_button.size * 0.5
+	rp_portrait_button.modulate = RP_READY_COLOR
+	rp_pulse_tween = create_tween()
+	rp_pulse_tween.set_loops()
+	rp_pulse_tween.tween_property(rp_portrait_button, "scale", Vector2(1.08, 1.08), 0.5).set_trans(Tween.TRANS_SINE)
+	rp_pulse_tween.tween_property(rp_portrait_button, "scale", Vector2.ONE, 0.5).set_trans(Tween.TRANS_SINE)
+
+func _stop_rp_ready_pulse():
+	if rp_pulse_tween != null and rp_pulse_tween.is_valid():
+		rp_pulse_tween.kill()
+	rp_pulse_tween = null
+	if rp_portrait_button != null:
+		rp_portrait_button.scale = Vector2.ONE
+		rp_portrait_button.modulate = Color.WHITE
+
 func set_route_selection_mode(enabled: bool):
 	if player_status_panel != null:
 		player_status_panel.visible = true
@@ -393,9 +647,16 @@ func set_route_selection_mode(enabled: bool):
 		toast_container.visible = not enabled
 	if monster_info_panel != null:
 		monster_info_panel.visible = false
+	if rp_portrait_button != null:
+		rp_portrait_button.visible = not enabled
+	if rp_cancel_button != null:
+		rp_cancel_button.visible = false
+	if rp_skill_card != null:
+		rp_skill_card.visible = false
+	clear_rp_targeting()
 
-# Card-play energy is shown as the bottom-center number. The left EP gauge is a
-# separate character skill resource and is not driven from here.
+# Card-play energy is shown as the bottom-center number. The left RP gauge is
+# driven independently through set_rp_state().
 func set_energy(current_energy: int, max_energy: int = 3):
 	if energy_orb_label == null:
 		return

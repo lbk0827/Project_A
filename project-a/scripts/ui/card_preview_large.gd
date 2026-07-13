@@ -19,10 +19,14 @@ func set_card(card: CardData, effective_cost: int = -1):
 	art.texture = load(art_path) if ResourceLoader.exists(art_path) else null
 	cost_label.text = str(card.cost if effective_cost < 0 else effective_cost)
 	name_label.text = card.display_name
-	keyword_label.text = "[%s]" % _type_text(card.card_type)
+	keyword_label.text = _type_header_text(card.card_type)
 	type_label.text = _keyword_text(card)
 	body_label.text = _body_text(card)
 	_fit_all_labels()
+
+func set_cost_text(text: String):
+	_bind_nodes()
+	cost_label.text = text
 
 func set_inspired_state(is_inspired: bool, effective_cost: int):
 	_bind_nodes()
@@ -74,6 +78,8 @@ func _apply_type_style(card_type: StringName):
 			accent = Color(1.0, 0.32, 0.24, 1.0)
 		&"enhance":
 			accent = Color(0.58, 1.0, 0.72, 1.0)
+		&"rp":
+			accent = Color(0.7, 0.42, 1.0, 1.0)
 		_:
 			accent = Color(0.48, 0.86, 1.0, 1.0)
 	type_strip.color = accent
@@ -93,8 +99,16 @@ func _type_text(card_type: StringName) -> String:
 			return "공격"
 		&"enhance":
 			return "강화"
+		&"rp":
+			return "분노 스킬"
 		_:
 			return "기술"
+
+func _type_header_text(card_type: StringName) -> String:
+	var type_text := _type_text(card_type)
+	if card_type == &"rp":
+		return type_text
+	return "[%s]" % type_text
 
 func _keyword_text(card: CardData) -> String:
 	var labels: Array[String] = []
