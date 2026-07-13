@@ -55,7 +55,16 @@ def main() -> None:
         if alpha.getbbox() is None:
             raise ValueError(f"{image_path.name}: alpha channel has no visible content")
 
-    print(f"Validated {len(checked_files)} RP runtime files, card art, and transparent MoonSlash texture.")
+    sprite_sheet_path = root / "assets/vfx/moon_slash_sheet.png"
+    with Image.open(sprite_sheet_path) as sprite_sheet:
+        if sprite_sheet.width != sprite_sheet.height:
+            raise ValueError(f"{sprite_sheet_path.name}: expected a square sprite sheet")
+        if sprite_sheet.width % 4 != 0 or sprite_sheet.height % 4 != 0:
+            raise ValueError(f"{sprite_sheet_path.name}: dimensions must be divisible by 4")
+        if sprite_sheet.width // 4 < 256:
+            raise ValueError(f"{sprite_sheet_path.name}: frame resolution is too small")
+
+    print(f"Validated {len(checked_files)} RP runtime files, card art, and MoonSlash VFX textures.")
 
 
 if __name__ == "__main__":

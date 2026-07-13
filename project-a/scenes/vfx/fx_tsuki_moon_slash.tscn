@@ -1,14 +1,20 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/vfx/moon_slash_vfx.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/vfx/moon_slash_moon.png" id="2_moon"]
+[ext_resource type="Texture2D" path="res://assets/vfx/moon_slash_sheet.png" id="2_sheet"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
 
 [node name="FXTsukiMoonSlash" type="Node2D"]
 z_index = 24
 script = ExtResource("1_script")
 
-[node name="Moon" type="Sprite2D" parent="."]
+[node name="SpriteSheet" type="Sprite2D" parent="."]
 show_behind_parent = true
-texture = ExtResource("2_moon")
-scale = Vector2(0.145, 0.145)
+material = SubResource("CanvasItemMaterial_add")
+texture = ExtResource("2_sheet")
+hframes = 4
+vframes = 4
+scale = Vector2(0.78, 0.78)
 texture_filter = 1

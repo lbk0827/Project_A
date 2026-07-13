@@ -5,7 +5,7 @@ class_name MoonSlashVfx
 @export var reveal_time := 0.18
 @export var shatter_time := 0.38
 
-@onready var moon: Sprite2D = $Moon
+@onready var sprite_sheet: Sprite2D = $SpriteSheet
 
 var slash_stage := 0
 var active_slash := -1
@@ -33,6 +33,7 @@ var shard_polygons: Array[PackedVector2Array] = [
 ]
 
 func _ready():
+	sprite_sheet.frame = 0
 	modulate.a = 0.0
 	scale = Vector2(0.35, 0.35)
 	queue_redraw()
@@ -42,11 +43,13 @@ func reveal():
 	tween.set_parallel(true)
 	tween.tween_property(self, "modulate:a", 1.0, reveal_time)
 	tween.tween_property(self, "scale", Vector2.ONE, reveal_time).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_animate_sheet_frames(0, 3, reveal_time)
 	await tween.finished
 
 func apply_slash(hit_index: int):
 	active_slash = clamp(hit_index, 0, SLASH_PATHS.size() - 1)
 	slash_stage = max(slash_stage, active_slash + 1)
+	sprite_sheet.frame = 4 + active_slash
 	flash_alpha = 1.0
 	queue_redraw()
 	var tween := create_tween()
@@ -54,14 +57,23 @@ func apply_slash(hit_index: int):
 
 func shatter():
 	is_shattered = true
-	moon.visible = false
 	queue_redraw()
+	_animate_sheet_frames(9, 15, shatter_time)
 	var tween := create_tween()
 	tween.set_parallel(true)
 	tween.tween_method(_set_shatter_progress, 0.0, 1.0, shatter_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(self, "modulate:a", 0.0, shatter_time).set_delay(shatter_time * 0.45)
 	await tween.finished
 	queue_free()
+
+func _animate_sheet_frames(start_frame: int, end_frame: int, duration: float):
+	var frame_count: int = max(end_frame - start_frame + 1, 1)
+	var frame_time: float = max(duration / float(frame_count), 0.001)
+	for frame_index in range(start_frame, end_frame + 1):
+		if not is_instance_valid(sprite_sheet):
+			return
+		sprite_sheet.frame = frame_index
+		await get_tree().create_timer(frame_time).timeout
 
 func _set_flash_alpha(value: float):
 	flash_alpha = value
@@ -73,17 +85,6 @@ func _set_shatter_progress(value: float):
 
 func _draw():
 	if not is_shattered:
-		draw_circle(Vector2.ZERO, moon_radius + 16.0, Color(0.25, 0.85, 1.0, 0.08))
-		draw_arc(Vector2.ZERO, moon_radius + 5.0, 0.0, TAU, 80, Color(0.72, 0.96, 1.0, 0.72), 3.0, true)
-		for i in range(min(slash_stage, SLASH_PATHS.size())):
-			var path: Array = SLASH_PATHS[i]
-			var slash_start: Vector2 = path[0]
-			var slash_end: Vector2 = path[1]
-			draw_line(slash_start, slash_end, Color(0.03, 0.16, 0.3, 0.95), 7.0, true)
-			draw_line(slash_start, slash_end, Color(0.82, 0.98, 1.0, 0.88), 2.0, true)
-			var middle: Vector2 = slash_start.lerp(slash_end, 0.5)
-			var normal: Vector2 = (slash_end - slash_start).normalized().orthogonal()
-			draw_line(middle, middle + normal * (12.0 + i * 2.0), Color(0.16, 0.42, 0.62, 0.9), 3.0, true)
 		if active_slash >= 0 and flash_alpha > 0.0:
 			var active: Array = SLASH_PATHS[active_slash]
 			draw_line(active[0] * 1.28, active[1] * 1.28, Color(0.85, 1.0, 1.0, flash_alpha), 13.0, true)
@@ -96,6 +97,6 @@ func _draw():
 		var rotated := PackedVector2Array()
 		for point in shard_polygons[i]:
 			rotated.append(point.rotated(direction.angle() * shatter_progress * 0.16) + offset)
-		var color := Color(0.72 + 0.03 * (i % 2), 0.91, 1.0, 1.0 - shatter_progress * 0.45)
+		var color := Color(0.72 + 0.03 * (i % 2), 0.91, 1.0, (1.0 - shatter_progress) * 0.38)
 		draw_colored_polygon(rotated, color)
 		draw_polyline(rotated, Color(0.9, 1.0, 1.0, 0.8), 2.0, true)

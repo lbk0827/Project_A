@@ -70,6 +70,17 @@ RP 스킬은 적 행동 카운트를 감소시키지 않는다. 각 타격에는
 컷인 이미지는 원본 비율에 맞춘 축소 배율을 직접 계산해 중앙에 배치한다.
 따라서 화면 비율이 달라져도 일러스트가 잘리지 않고 전체가 표시된다.
 
+### Moon Slash 하이브리드 스프라이트시트
+
+- `moon_slash_sheet.png`는 4×4, 총 16프레임으로 구성한다.
+- 0~3프레임은 달 생성, 4~8프레임은 5연베기 누적, 9~15프레임은
+  균열 확산과 달 파괴를 담당한다.
+- 검은 배경은 Godot의 가산 합성으로 제거해 청백색 달과 보라색 검광의
+  빛 번짐을 유지한다.
+- 실제 5타 피해 판정 시점에 4~8프레임을 각각 연결한다.
+- 기존 절차형 VFX는 순간 참격 섬광과 보조 파편으로 남겨 타격감을 보강한다.
+- 시트는 1252×1252이며 각 프레임은 313×313이다.
+
 ## 리소스 및 코드 분류
 
 ### 데이터 및 검증
@@ -94,6 +105,7 @@ RP 스킬은 적 행동 카운트를 감소시키지 않는다. 각 타격에는
 - `project-a/scripts/vfx/moon_slash_vfx.gd`
 - `project-a/scenes/vfx/fx_tsuki_moon_slash.tscn`
 - `project-a/assets/vfx/moon_slash_moon.png`
+- `project-a/assets/vfx/moon_slash_sheet.png`
 - `project-a/assets/card/cardart_full/tsuki_moon_slash.png`
 
 ## 검증 결과
