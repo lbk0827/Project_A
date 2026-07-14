@@ -1,0 +1,74 @@
+[
+	{
+		"pattern_step_id": "mire_imp_basic_start",
+		"pattern_id": "mire_imp_basic",
+		"step_id": "start",
+		"step_order": 1,
+		"action_id": "mire_imp_swing",
+		"action_count": 5,
+		"next_step_id": "after_swing",
+		"condition_id": null,
+		"weight": 1,
+		"note": "인카운터 시작 시 공격 예고."
+	},
+	{
+		"pattern_step_id": "mire_imp_basic_after_swing",
+		"pattern_id": "mire_imp_basic",
+		"step_id": "after_swing",
+		"step_order": 2,
+		"action_id": "mire_imp_guard",
+		"action_count": 3,
+		"next_step_id": "start",
+		"condition_id": null,
+		"weight": 1,
+		"note": "휘두르기 이후 방어 예고."
+	},
+	{
+		"pattern_step_id": "frost_revenant_basic_start",
+		"pattern_id": "frost_revenant_basic",
+		"step_id": "start",
+		"step_order": 1,
+		"action_id": "frost_morale",
+		"action_count": 5,
+		"next_step_id": "after_morale",
+		"condition_id": null,
+		"weight": 1,
+		"note": "인카운터 시작 시 사기 예고."
+	},
+	{
+		"pattern_step_id": "frost_revenant_basic_after_morale",
+		"pattern_id": "frost_revenant_basic",
+		"step_id": "after_morale",
+		"step_order": 2,
+		"action_id": "frost_ice_blade",
+		"action_count": 5,
+		"next_step_id": "after_ice_blade",
+		"condition_id": null,
+		"weight": 1,
+		"note": "사기 이후 얼음 칼날 예고."
+	},
+	{
+		"pattern_step_id": "frost_revenant_basic_after_ice_blade",
+		"pattern_id": "frost_revenant_basic",
+		"step_id": "after_ice_blade",
+		"step_order": 3,
+		"action_id": "frost_ice_armor",
+		"action_count": 5,
+		"next_step_id": "after_ice_armor",
+		"condition_id": null,
+		"weight": 1,
+		"note": "얼음 칼날 이후 얼음 갑옷 예고."
+	},
+	{
+		"pattern_step_id": "frost_revenant_basic_after_ice_armor",
+		"pattern_id": "frost_revenant_basic",
+		"step_id": "after_ice_armor",
+		"step_order": 4,
+		"action_id": "frost_ice_blade",
+		"action_count": 5,
+		"next_step_id": "after_ice_blade",
+		"condition_id": null,
+		"weight": 1,
+		"note": "얼음 갑옷 이후 다시 얼음 칼날로 반복."
+	}
+]

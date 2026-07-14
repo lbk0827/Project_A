@@ -1,0 +1,26 @@
+[
+	{
+		"monster_id": "mire_imp",
+		"display_name": "마이어 임프",
+		"stats_id": "mire_imp",
+		"default_pattern_id": "mire_imp_basic",
+		"scene_path": "res://scenes/monster/monster_mire_imp.tscn",
+		"hp_bar_offset_x": 0,
+		"hp_bar_offset_y": -172,
+		"intent_offset_x": -14,
+		"intent_offset_y": -48,
+		"designer_note": "기본 온보딩 몬스터. 인카운터 시작 위치에 따라 공격/방어 예고가 갈린다."
+	},
+	{
+		"monster_id": "frost_revenant",
+		"display_name": "프로스트 레버넌트",
+		"stats_id": "frost_revenant",
+		"default_pattern_id": "frost_revenant_basic",
+		"scene_path": "res://scenes/monster/monster_frost_revenant.tscn",
+		"hp_bar_offset_x": 0,
+		"hp_bar_offset_y": -172,
+		"intent_offset_x": -14,
+		"intent_offset_y": -48,
+		"designer_note": "버프 후 공격과 방어를 반복하는 엘리트 후보."
+	}
+]

@@ -1,0 +1,15 @@
+[
+	{
+		"rule_id": "frost_hp50_armor",
+		"monster_id": "frost_revenant",
+		"pattern_id": "frost_revenant_basic",
+		"trigger_type": "hp_below",
+		"trigger_value": 50,
+		"once": true,
+		"priority": 100,
+		"set_pattern_id": null,
+		"set_step_id": "after_ice_blade",
+		"action_count_override": 3,
+		"note": "HP 50% 이하가 되면 다음 행동을 빠른 얼음 갑옷으로 전환하는 예시."
+	}
+]

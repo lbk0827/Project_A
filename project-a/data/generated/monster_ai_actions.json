@@ -1,0 +1,62 @@
+[
+	{
+		"action_id": "mire_imp_swing",
+		"display_name": "휘두르기",
+		"action_type": "attack",
+		"target_type": "player",
+		"power_type": "attack_percent",
+		"power_value": 100,
+		"icon_label": "ATK",
+		"description": "대상에게 attack의 100% 피해를 준다.",
+		"vfx_id": null,
+		"sfx_id": null
+	},
+	{
+		"action_id": "mire_imp_guard",
+		"display_name": "방어",
+		"action_type": "defense",
+		"target_type": "self",
+		"power_type": "defense_percent",
+		"power_value": 100,
+		"icon_label": "DEF",
+		"description": "자신에게 defense의 100% 실드를 부여한다.",
+		"vfx_id": null,
+		"sfx_id": null
+	},
+	{
+		"action_id": "frost_morale",
+		"display_name": "사기",
+		"action_type": "buff",
+		"target_type": "self",
+		"power_type": "flat",
+		"power_value": 1,
+		"icon_label": "BUF",
+		"description": "자신에게 사기 1을 부여한다.",
+		"vfx_id": null,
+		"sfx_id": null
+	},
+	{
+		"action_id": "frost_ice_blade",
+		"display_name": "얼음 칼날",
+		"action_type": "attack",
+		"target_type": "player",
+		"power_type": "attack_percent",
+		"power_value": 130,
+		"icon_label": "ATK",
+		"description": "대상에게 attack의 130% 피해를 준다.",
+		"vfx_id": null,
+		"sfx_id": null
+	},
+	{
+		"action_id": "frost_ice_armor",
+		"display_name": "얼음 갑옷",
+		"action_type": "defense",
+		"target_type": "self",
+		"power_type": "defense_percent",
+		"power_value": 150,
+		"icon_label": "DEF",
+		"description": "자신에게 defense의 150% 실드를 부여한다.",
+		"vfx_id": null,
+		"sfx_id": null
+	}
+]

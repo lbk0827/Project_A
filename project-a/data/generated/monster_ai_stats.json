@@ -1,0 +1,16 @@
+[
+	{
+		"stats_id": "mire_imp",
+		"max_hp": 500,
+		"attack": 14,
+		"defense": 18,
+		"designer_note": "attack/defense는 행동 power_type 계산의 기준값."
+	},
+	{
+		"stats_id": "frost_revenant",
+		"max_hp": 1200,
+		"attack": 24,
+		"defense": 40,
+		"designer_note": "얼음 갑옷은 defense_percent 기반으로 조정한다."
+	}
+]
