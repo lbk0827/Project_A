@@ -264,7 +264,7 @@ func _index_table_by_id(rows: Array, id_field: String) -> Dictionary:
 	for row in rows:
 		if not (row is Dictionary):
 			continue
-		var id := String(row.get(id_field, ""))
+		var id := str(row.get(id_field, ""))
 		if not id.is_empty():
 			indexed[id] = row
 	return indexed
@@ -277,8 +277,8 @@ func _load_monster_ai_tables():
 	for row in _load_table_array(MONSTER_AI_PATTERNS_PATH):
 		if not (row is Dictionary):
 			continue
-		var pattern_id := String(row.get("pattern_id", ""))
-		var step_id := String(row.get("step_id", ""))
+		var pattern_id := str(row.get("pattern_id", ""))
+		var step_id := str(row.get("step_id", ""))
 		if pattern_id.is_empty() or step_id.is_empty():
 			continue
 		var steps: Dictionary = monster_ai_pattern_steps.get(pattern_id, {})
@@ -288,7 +288,7 @@ func _load_monster_ai_tables():
 	for row in _load_table_array(MONSTER_AI_RULES_PATH):
 		if not (row is Dictionary):
 			continue
-		var monster_id := String(row.get("monster_id", ""))
+		var monster_id := str(row.get("monster_id", ""))
 		if monster_id.is_empty():
 			continue
 		var rules: Array = monster_ai_rules_by_monster.get(monster_id, [])
@@ -523,7 +523,7 @@ func _setup_enemy_ai(enemy: CombatEnemy):
 	if not monster_ai_monsters.has(monster_id):
 		return
 	var monster_row: Dictionary = monster_ai_monsters[monster_id]
-	var pattern_id := String(monster_row.get("default_pattern_id", ""))
+	var pattern_id := str(monster_row.get("default_pattern_id", ""))
 	if pattern_id.is_empty() or not monster_ai_pattern_steps.has(pattern_id):
 		return
 	enemy.ai_enabled = true
@@ -539,7 +539,7 @@ func _set_enemy_ai_step(enemy: CombatEnemy, step_id: String, count_override: Var
 		enemy.ai_enabled = false
 		return
 	var step: Dictionary = pattern_steps[step_id]
-	var action_id := String(step.get("action_id", ""))
+	var action_id := str(step.get("action_id", ""))
 	if not monster_ai_actions.has(action_id):
 		enemy.ai_enabled = false
 		return
@@ -555,7 +555,7 @@ func _set_enemy_ai_step(enemy: CombatEnemy, step_id: String, count_override: Var
 func _advance_enemy_ai_step(enemy: CombatEnemy):
 	var pattern_steps: Dictionary = monster_ai_pattern_steps.get(enemy.ai_pattern_id, {})
 	var step: Dictionary = pattern_steps.get(enemy.ai_step_id, {})
-	var next_step_id := String(step.get("next_step_id", "start"))
+	var next_step_id := str(step.get("next_step_id", "start"))
 	_set_enemy_ai_step(enemy, next_step_id)
 	if enemy.ai_next_count_delta != 0:
 		enemy.ai_action_count_remaining = max(enemy.ai_action_count_remaining + enemy.ai_next_count_delta, 1)
@@ -571,7 +571,7 @@ func _apply_enemy_ai_rules(enemy: CombatEnemy):
 	for rule in rules:
 		if not (rule is Dictionary):
 			continue
-		var rule_id := String(rule.get("rule_id", ""))
+		var rule_id := str(rule.get("rule_id", ""))
 		if bool(rule.get("once", false)) and enemy.ai_triggered_rules.has(rule_id):
 			continue
 		if not _enemy_ai_rule_matches(enemy, rule):
@@ -582,17 +582,17 @@ func _apply_enemy_ai_rules(enemy: CombatEnemy):
 			selected_priority = priority
 	if selected_rule.is_empty():
 		return
-	var selected_rule_id := String(selected_rule.get("rule_id", ""))
+	var selected_rule_id := str(selected_rule.get("rule_id", ""))
 	if bool(selected_rule.get("once", false)):
 		enemy.ai_triggered_rules[selected_rule_id] = true
-	var set_pattern_id := String(selected_rule.get("set_pattern_id", ""))
+	var set_pattern_id := str(selected_rule.get("set_pattern_id", ""))
 	if not set_pattern_id.is_empty() and monster_ai_pattern_steps.has(set_pattern_id):
 		enemy.ai_pattern_id = set_pattern_id
 	var count_override: Variant = selected_rule.get("action_count_override", null)
-	_set_enemy_ai_step(enemy, String(selected_rule.get("set_step_id", "start")), count_override, false)
+	_set_enemy_ai_step(enemy, str(selected_rule.get("set_step_id", "start")), count_override, false)
 
 func _enemy_ai_rule_matches(enemy: CombatEnemy, rule: Dictionary) -> bool:
-	var trigger_type := String(rule.get("trigger_type", ""))
+	var trigger_type := str(rule.get("trigger_type", ""))
 	match trigger_type:
 		"hp_below":
 			var threshold := float(rule.get("trigger_value", 0))
@@ -1355,7 +1355,7 @@ func _enemy_turn():
 
 func _perform_enemy_ai_action(enemy: CombatEnemy):
 	var action := enemy.ai_current_action
-	var action_type := String(action.get("action_type", "skill"))
+	var action_type := str(action.get("action_type", "skill"))
 	match action_type:
 		"attack":
 			await _play_enemy_attack_sequence(enemy, _enemy_ai_attack_damage(enemy, action))
@@ -1367,13 +1367,13 @@ func _perform_enemy_ai_action(enemy: CombatEnemy):
 		"buff":
 			var gain: int = max(int(action.get("power_value", 1)), 1)
 			enemy.ai_attack_bonus_percent += 20 * gain
-			_show_popup(_enemy_screen_position(enemy), "%s +%d" % [String(action.get("display_name", "강화")), gain], BLOCK_GAIN_COLOR, 28)
+			_show_popup(_enemy_screen_position(enemy), "%s +%d" % [str(action.get("display_name", "강화")), gain], BLOCK_GAIN_COLOR, 28)
 		"skill":
-			if String(action.get("power_type", "")) == "count_delta":
+			if str(action.get("power_type", "")) == "count_delta":
 				enemy.ai_next_count_delta += int(action.get("power_value", 0))
-			_show_popup(_enemy_screen_position(enemy), String(action.get("display_name", "기술")), Color(0.78, 0.62, 1.0), 28)
+			_show_popup(_enemy_screen_position(enemy), str(action.get("display_name", "기술")), Color(0.78, 0.62, 1.0), 28)
 		_:
-			_show_popup(_enemy_screen_position(enemy), String(action.get("display_name", "기술")), Color(0.78, 0.62, 1.0), 28)
+			_show_popup(_enemy_screen_position(enemy), str(action.get("display_name", "기술")), Color(0.78, 0.62, 1.0), 28)
 
 func _enemy_ai_attack_damage(enemy: CombatEnemy, action: Dictionary) -> int:
 	var base := _enemy_ai_attack(enemy)
@@ -1385,7 +1385,7 @@ func _enemy_ai_attack_damage(enemy: CombatEnemy, action: Dictionary) -> int:
 	return damage
 
 func _enemy_ai_defense_amount(enemy: CombatEnemy, action: Dictionary) -> int:
-	var power_type := String(action.get("power_type", "flat"))
+	var power_type := str(action.get("power_type", "flat"))
 	var power_value := int(action.get("power_value", 0))
 	if power_type == "defense_percent":
 		return int(round(_enemy_ai_defense(enemy) * float(power_value) / 100.0))
@@ -1886,7 +1886,7 @@ func _enemy_ai_defense(enemy: CombatEnemy) -> int:
 	return enemy.data.stats.defense_power
 
 func _enemy_ai_intent_type(action: Dictionary) -> StringName:
-	var action_type := String(action.get("action_type", "skill"))
+	var action_type := str(action.get("action_type", "skill"))
 	match action_type:
 		"attack":
 			return &"attack"
@@ -1895,8 +1895,8 @@ func _enemy_ai_intent_type(action: Dictionary) -> StringName:
 	return &"skill"
 
 func _enemy_ai_display_amount(enemy: CombatEnemy, action: Dictionary) -> int:
-	var action_type := String(action.get("action_type", "skill"))
-	var power_type := String(action.get("power_type", "flat"))
+	var action_type := str(action.get("action_type", "skill"))
+	var power_type := str(action.get("power_type", "flat"))
 	var power_value := int(action.get("power_value", 0))
 	if action_type == "attack":
 		return power_value
@@ -1916,18 +1916,18 @@ func _enemy_info_intents(enemy: CombatEnemy) -> Array:
 		if not pattern_steps.has(step_id):
 			break
 		var step: Dictionary = pattern_steps[step_id]
-		var action_id := String(step.get("action_id", ""))
+		var action_id := str(step.get("action_id", ""))
 		if not monster_ai_actions.has(action_id):
 			break
 		var action: Dictionary = monster_ai_actions[action_id]
 		var intent := EnemyIntentData.new()
-		intent.display_name = String(action.get("display_name", ""))
+		intent.display_name = str(action.get("display_name", ""))
 		intent.intent_type = _enemy_ai_intent_type(action)
 		intent.amount = _enemy_ai_display_amount(enemy, action)
-		intent.icon_label = String(action.get("icon_label", ""))
-		intent.description = String(action.get("description", ""))
+		intent.icon_label = str(action.get("icon_label", ""))
+		intent.description = str(action.get("description", ""))
 		result.append(intent)
-		var next_step_id := String(step.get("next_step_id", ""))
+		var next_step_id := str(step.get("next_step_id", ""))
 		if next_step_id.is_empty() or next_step_id == step_id:
 			break
 		step_id = next_step_id
@@ -1947,7 +1947,7 @@ func _update_enemy_bar(enemy: CombatEnemy):
 		enemy.status_bar.clear_intent()
 		return
 	if enemy.ai_enabled and not enemy.ai_current_action.is_empty():
-		enemy.status_bar.set_intent(_enemy_ai_intent_type(enemy.ai_current_action), _enemy_ai_display_amount(enemy, enemy.ai_current_action), enemy.ai_action_count_remaining, String(enemy.ai_current_action.get("display_name", "")))
+		enemy.status_bar.set_intent(_enemy_ai_intent_type(enemy.ai_current_action), _enemy_ai_display_amount(enemy, enemy.ai_current_action), enemy.ai_action_count_remaining, str(enemy.ai_current_action.get("display_name", "")))
 		return
 	if enemy.intents.is_empty():
 		enemy.status_bar.clear_intent()
