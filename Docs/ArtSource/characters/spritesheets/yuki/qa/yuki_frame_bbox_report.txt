@@ -1,0 +1,41 @@
+sheet=yuki_spritesheet.png size=(884, 1768) grid=4x8 cell=221x221
+[Idle row1] width 128-130 avg 129.5; height 190-190 avg 190.0; min_margin 13
+[Run rows2-3] width 126-144 avg 133.8; height 178-189 avg 182.5; min_margin 16
+[Attack rows4-6] width 90-220 avg 184.0; height 150-193 avg 170.5; min_margin 0
+[Special row7] width 160-207 avg 181.0; height 185-221 avg 208.0; min_margin 0
+[Down row8] width 157-203 avg 179.5; height 85-191 avg 140.0; min_margin 0
+edge_risk_frames=r4c2(idx13, margin=3), r4c3(idx14, margin=0), r4c4(idx15, margin=0), r5c2(idx17, margin=3), r5c3(idx18, margin=0), r5c4(idx19, margin=0), r6c1(idx20, margin=0), r6c2(idx21, margin=0), r7c2(idx25, margin=0), r7c3(idx26, margin=0), r7c4(idx27, margin=0), r8c2(idx29, margin=0), r8c3(idx30, margin=0), r8c4(idx31, margin=1)
+
+per_frame: idx row col w h left top right bottom
+00 1 1 130 190 45 18 46 13
+01 1 2 128 190 35 18 58 13
+02 1 3 130 190 28 18 63 13
+03 1 4 130 190 25 18 66 13
+04 2 1 130 189 41 16 50 16
+05 2 2 126 187 30 17 65 17
+06 2 3 130 187 34 17 57 17
+07 2 4 138 178 30 25 53 18
+08 3 1 136 182 54 23 31 16
+09 3 2 131 178 43 22 47 21
+10 3 3 144 180 41 24 36 17
+11 3 4 135 179 33 26 53 16
+12 4 1 145 172 29 23 47 26
+13 4 2 209 168 3 29 9 24
+14 4 3 207 170 14 31 0 20
+15 4 4 200 154 0 45 21 22
+16 5 1 172 177 17 21 32 23
+17 5 2 209 152 9 42 3 27
+18 5 3 214 179 7 21 0 21
+19 5 4 189 150 0 50 32 21
+20 6 1 191 159 30 38 0 24
+21 6 2 220 181 0 40 1 0
+22 6 3 162 191 12 12 47 18
+23 6 4 90 193 39 13 92 15
+24 7 1 160 207 24 9 37 5
+25 7 2 182 221 13 0 26 0
+26 7 3 207 185 14 26 0 10
+27 7 4 175 219 0 1 46 1
+28 8 1 157 148 31 39 33 34
+29 8 2 203 191 18 0 0 30
+30 8 3 167 136 0 47 54 38
+31 8 4 191 85 1 106 29 30
