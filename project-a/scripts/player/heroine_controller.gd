@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 const FX_HEROINE_SLASH_SCENE := preload("res://scenes/vfx/fx_heroine_slash.tscn")
-const FX_TSUKI_MOON_SLASH_SCENE := preload("res://scenes/vfx/fx_tsuki_five_slash.tscn")
+const FX_TSUKI_FIVE_SLASH_SCENE := preload("res://scenes/vfx/fx_tsuki_five_slash.tscn")
 
 @export var speed := 180.0
 @export var attack_action: StringName = &"ui_accept"
@@ -201,7 +201,7 @@ func _has_animation(animation_name: StringName) -> bool:
 func _attack_fx_scene(animation_name: StringName) -> PackedScene:
 	match animation_name:
 		&"MoonSlash":
-			return FX_TSUKI_MOON_SLASH_SCENE
+			return FX_TSUKI_FIVE_SLASH_SCENE
 		_:
 			return FX_HEROINE_SLASH_SCENE
 
