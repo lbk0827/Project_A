@@ -846,15 +846,19 @@ func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool, attack
 
 	var effect_label := Label.new()
 	var is_attack: bool = intent.intent_type == &"attack"
+	var is_block: bool = intent.intent_type == &"block" or intent.intent_type == &"defense"
 	if is_attack:
 		effect_label.text = "피해 %d%% (%d)" % [intent.amount, int(round(attack_power * float(intent.amount) / 100.0))]
-	else:
+	elif is_block:
 		effect_label.text = "방어 %d" % intent.amount
-	icon.set_icon(IntentIcon.Kind.SWORD if is_attack else IntentIcon.Kind.SHIELD, Color(1, 1, 1, 0.98))
+	else:
+		effect_label.text = "기술 %d" % intent.amount
+	var icon_kind := IntentIcon.Kind.SWORD if is_attack else (IntentIcon.Kind.SHIELD if is_block else IntentIcon.Kind.SKILL)
+	icon.set_icon(icon_kind, Color(1, 1, 1, 0.98))
 	effect_label.add_theme_font_size_override("font_size", 16 if is_next else 13)
 	effect_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.98))
 	var chip_style := StyleBoxFlat.new()
-	chip_style.bg_color = Color(0.85, 0.18, 0.25, 0.92) if is_attack else Color(0.25, 0.5, 0.9, 0.92)
+	chip_style.bg_color = Color(0.85, 0.18, 0.25, 0.92) if is_attack else (Color(0.25, 0.5, 0.9, 0.92) if is_block else Color(0.55, 0.32, 0.9, 0.92))
 	chip_style.set_corner_radius_all(9)
 	chip_style.content_margin_left = 8.0
 	chip_style.content_margin_right = 8.0

@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_2axyr")
-display_name = "Heavy Blow"
+display_name = "강타"
 amount = 150
 icon_label = "POW"
 description = "공격력의 150% 피해."

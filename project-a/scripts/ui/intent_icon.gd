@@ -2,7 +2,7 @@
 extends Control
 class_name IntentIcon
 
-enum Kind { NONE, SWORD, SHIELD }
+enum Kind { NONE, SWORD, SHIELD, SKILL }
 
 var kind: int = Kind.NONE
 var icon_color := Color(1, 1, 1, 0.98)
@@ -18,6 +18,8 @@ func _draw():
 			_draw_sword()
 		Kind.SHIELD:
 			_draw_shield()
+		Kind.SKILL:
+			_draw_skill()
 
 func _draw_sword():
 	# Blade points downward. Coordinates are fractions of the control size.
@@ -73,3 +75,18 @@ func _draw_shield():
 	draw_polyline(outline, icon_color.darkened(0.4), 1.0, true)
 	# Center vertical accent line.
 	draw_line(Vector2(s.x * 0.5, s.y * 0.18), Vector2(s.x * 0.5, s.y * 0.82), icon_color.darkened(0.4), 1.0, true)
+
+func _draw_skill():
+	var s: Vector2 = size
+	var center: Vector2 = s * 0.5
+	var outer: float = min(s.x, s.y) * 0.45
+	var inner: float = outer * 0.45
+	var points := PackedVector2Array()
+	for i in range(10):
+		var angle: float = -PI * 0.5 + float(i) * PI / 5.0
+		var radius: float = outer if i % 2 == 0 else inner
+		points.append(center + Vector2(cos(angle), sin(angle)) * radius)
+	draw_colored_polygon(points, icon_color)
+	var outline := points.duplicate()
+	outline.append(points[0])
+	draw_polyline(outline, icon_color.darkened(0.4), 1.0, true)

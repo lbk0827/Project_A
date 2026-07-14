@@ -11,7 +11,7 @@
 [resource]
 script = ExtResource("1_data")
 id = "abyssal_crown_guardian"
-display_name = "Abyssal Crown Guardian"
+display_name = "심연 왕관 수호자"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")
 intents = Array[ExtResource("1_vf4hy")]([ExtResource("4_heavy"), ExtResource("5_brace"), ExtResource("4_heavy"), ExtResource("6_stab")])

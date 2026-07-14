@@ -11,7 +11,7 @@
 [resource]
 script = ExtResource("1_data")
 id = "gravebound_crawler"
-display_name = "Gravebound Crawler"
+display_name = "무덤 크롤러"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")
 intents = Array[ExtResource("1_intent")]([ExtResource("4_brace"), ExtResource("5_stab"), ExtResource("6_heavy")])

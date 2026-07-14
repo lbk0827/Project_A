@@ -11,7 +11,7 @@
 [resource]
 script = ExtResource("1_data")
 id = "mire_imp"
-display_name = "Mire Imp"
+display_name = "마이어 임프"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")
 intents = Array[ExtResource("1_54vcn")]([ExtResource("4_stab"), ExtResource("5_brace"), ExtResource("6_heavy")])

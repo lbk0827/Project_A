@@ -17,20 +17,20 @@ import openpyxl
 
 # id, display_name, intent_type, power, icon_label, description_template
 MONSTER_INTENTS = [
-	("stab", "Stab", "attack", 100, "ATK", "공격력의 {0}% 피해."),
-	("heavy_blow", "Heavy Blow", "attack", 150, "POW", "공격력의 {0}% 피해."),
-	("brace", "Brace", "block", 80, "SHD", "실드 {0} 획득."),
+	("stab", "찌르기", "attack", 100, "ATK", "공격력의 {0}% 피해."),
+	("heavy_blow", "강타", "attack", 150, "POW", "공격력의 {0}% 피해."),
+	("brace", "방어", "block", 80, "SHD", "실드 {0} 획득."),
 ]
 
 # id, display_name, action_count, intents (in cast order)
 MONSTERS = [
-	("mire_imp", "Mire Imp", 3, ["stab", "brace", "heavy_blow"]),
-	("bog_stalker", "Bog Stalker", 2, ["stab", "stab", "heavy_blow"]),
-	("bone_crawler", "Bone Crawler", 2, ["heavy_blow", "stab", "brace"]),
-	("gravebound_crawler", "Gravebound Crawler", 3, ["brace", "stab", "heavy_blow"]),
-	("frost_revenant", "Frost Revenant", 2, ["brace", "heavy_blow", "stab", "heavy_blow"]),
-	("crown_acolyte", "Crown Acolyte", 2, ["heavy_blow", "brace", "heavy_blow"]),
-	("abyssal_crown_guardian", "Abyssal Crown Guardian", 3, ["heavy_blow", "brace", "heavy_blow", "stab"]),
+	("mire_imp", "마이어 임프", 3, ["stab", "brace", "heavy_blow"]),
+	("bog_stalker", "늪 추적자", 2, ["stab", "stab", "heavy_blow"]),
+	("bone_crawler", "뼈 크롤러", 2, ["heavy_blow", "stab", "brace"]),
+	("gravebound_crawler", "무덤 크롤러", 3, ["brace", "stab", "heavy_blow"]),
+	("frost_revenant", "프로스트 레버넌트", 2, ["brace", "heavy_blow", "stab", "heavy_blow"]),
+	("crown_acolyte", "왕관 시종", 2, ["heavy_blow", "brace", "heavy_blow"]),
+	("abyssal_crown_guardian", "심연 왕관 수호자", 3, ["heavy_blow", "brace", "heavy_blow", "stab"]),
 ]
 
 

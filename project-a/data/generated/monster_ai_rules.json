@@ -1,5 +1,57 @@
 [
 	{
+		"rule_id": "mire_imp_hp50_giggle",
+		"monster_id": "mire_imp",
+		"pattern_id": "mire_imp_basic",
+		"trigger_type": "hp_below",
+		"trigger_value": 50,
+		"once": true,
+		"priority": 100,
+		"set_pattern_id": null,
+		"set_step_id": "giggle",
+		"action_count_override": null,
+		"note": "HP 50% 이하가 되면 낄낄대기로 템포 압박."
+	},
+	{
+		"rule_id": "bog_stalker_hp40_cover",
+		"monster_id": "bog_stalker",
+		"pattern_id": "bog_stalker_basic",
+		"trigger_type": "hp_below",
+		"trigger_value": 40,
+		"once": true,
+		"priority": 100,
+		"set_pattern_id": null,
+		"set_step_id": "after_ambush",
+		"action_count_override": null,
+		"note": "HP 40% 이하에서 진흙 엄폐 후 기습 루프로 전환."
+	},
+	{
+		"rule_id": "bone_crawler_hp60_crack",
+		"monster_id": "bone_crawler",
+		"pattern_id": "bone_crawler_basic",
+		"trigger_type": "hp_below",
+		"trigger_value": 60,
+		"once": true,
+		"priority": 100,
+		"set_pattern_id": null,
+		"set_step_id": "after_claw",
+		"action_count_override": null,
+		"note": "HP 60% 이하에서 금 간 뼈로 정비."
+	},
+	{
+		"rule_id": "gravebound_hp35_hard_bones",
+		"monster_id": "gravebound_crawler",
+		"pattern_id": "gravebound_crawler_basic",
+		"trigger_type": "hp_below",
+		"trigger_value": 35,
+		"once": true,
+		"priority": 100,
+		"set_pattern_id": null,
+		"set_step_id": "after_bite",
+		"action_count_override": null,
+		"note": "HP 35% 이하에서 망자의 강골 우선."
+	},
+	{
 		"rule_id": "frost_hp50_armor",
 		"monster_id": "frost_revenant",
 		"pattern_id": "frost_revenant_basic",
@@ -10,6 +62,45 @@
 		"set_pattern_id": null,
 		"set_step_id": "after_ice_blade",
 		"action_count_override": 3,
-		"note": "HP 50% 이하가 되면 다음 행동을 빠른 얼음 갑옷으로 전환하는 예시."
+		"note": "HP 50% 이하가 되면 빠른 얼음 갑옷."
+	},
+	{
+		"rule_id": "crown_hp30_deep_faith",
+		"monster_id": "crown_acolyte",
+		"pattern_id": "crown_acolyte_basic",
+		"trigger_type": "hp_below",
+		"trigger_value": 30,
+		"once": true,
+		"priority": 100,
+		"set_pattern_id": null,
+		"set_step_id": "after_staff",
+		"action_count_override": null,
+		"note": "HP 30% 이하에서 깊은 신앙으로 강화."
+	},
+	{
+		"rule_id": "guardian_hp70_authority",
+		"monster_id": "abyssal_crown_guardian",
+		"pattern_id": "abyssal_crown_guardian_basic",
+		"trigger_type": "hp_below",
+		"trigger_value": 70,
+		"once": true,
+		"priority": 90,
+		"set_pattern_id": null,
+		"set_step_id": "after_barrier",
+		"action_count_override": null,
+		"note": "HP 70% 이하에서 왕관의 권능으로 전환."
+	},
+	{
+		"rule_id": "guardian_hp40_sentence",
+		"monster_id": "abyssal_crown_guardian",
+		"pattern_id": "abyssal_crown_guardian_basic",
+		"trigger_type": "hp_below",
+		"trigger_value": 40,
+		"once": true,
+		"priority": 100,
+		"set_pattern_id": null,
+		"set_step_id": "start",
+		"action_count_override": null,
+		"note": "HP 40% 이하에서 심연 선고 루프로 복귀."
 	}
 ]

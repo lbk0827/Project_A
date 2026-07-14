@@ -1,7 +1,7 @@
 [
 	{
 		"id": "stab",
-		"display_name": "Stab",
+		"display_name": "찌르기",
 		"intent_type": "attack",
 		"power": 100,
 		"icon_label": "ATK",
@@ -9,7 +9,7 @@
 	},
 	{
 		"id": "heavy_blow",
-		"display_name": "Heavy Blow",
+		"display_name": "강타",
 		"intent_type": "attack",
 		"power": 150,
 		"icon_label": "POW",
@@ -17,7 +17,7 @@
 	},
 	{
 		"id": "brace",
-		"display_name": "Brace",
+		"display_name": "방어",
 		"intent_type": "block",
 		"power": 80,
 		"icon_label": "SHD",

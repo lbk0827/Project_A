@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_j6xop")
-display_name = "Stab"
+display_name = "찌르기"
 amount = 100
 icon_label = "ATK"
 description = "공격력의 100% 피해."

@@ -1,7 +1,7 @@
 [
 	{
 		"id": "mire_imp",
-		"display_name": "Mire Imp",
+		"display_name": "마이어 임프",
 		"action_count": 3,
 		"intents": [
 			"stab",
@@ -11,7 +11,7 @@
 	},
 	{
 		"id": "bog_stalker",
-		"display_name": "Bog Stalker",
+		"display_name": "늪 추적자",
 		"action_count": 2,
 		"intents": [
 			"stab",
@@ -21,7 +21,7 @@
 	},
 	{
 		"id": "bone_crawler",
-		"display_name": "Bone Crawler",
+		"display_name": "뼈 크롤러",
 		"action_count": 2,
 		"intents": [
 			"heavy_blow",
@@ -31,7 +31,7 @@
 	},
 	{
 		"id": "gravebound_crawler",
-		"display_name": "Gravebound Crawler",
+		"display_name": "무덤 크롤러",
 		"action_count": 3,
 		"intents": [
 			"brace",
@@ -41,7 +41,7 @@
 	},
 	{
 		"id": "frost_revenant",
-		"display_name": "Frost Revenant",
+		"display_name": "프로스트 레버넌트",
 		"action_count": 2,
 		"intents": [
 			"brace",
@@ -52,7 +52,7 @@
 	},
 	{
 		"id": "crown_acolyte",
-		"display_name": "Crown Acolyte",
+		"display_name": "왕관 시종",
 		"action_count": 2,
 		"intents": [
 			"heavy_blow",
@@ -62,7 +62,7 @@
 	},
 	{
 		"id": "abyssal_crown_guardian",
-		"display_name": "Abyssal Crown Guardian",
+		"display_name": "심연 왕관 수호자",
 		"action_count": 3,
 		"intents": [
 			"heavy_blow",

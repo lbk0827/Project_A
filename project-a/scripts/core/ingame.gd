@@ -7,6 +7,14 @@ class CombatEnemy:
 	var data: MonsterData
 	var intents: Array = []
 	var intent_index := 0
+	var ai_enabled := false
+	var ai_pattern_id := ""
+	var ai_step_id := ""
+	var ai_current_action: Dictionary = {}
+	var ai_action_count_remaining := 1
+	var ai_next_count_delta := 0
+	var ai_attack_bonus_percent := 0
+	var ai_triggered_rules: Dictionary = {}
 	var hp := 0
 	var block := 0
 	var status_bar: EnemyStatusBar
@@ -107,6 +115,11 @@ const CHARACTER_CARDS_PATH := "res://data/generated/character_cards.json"
 const CARD_EFFECT_ROWS_PATH := "res://data/generated/card_effect_rows.json"
 const CHARACTER_RP_SETTINGS_PATH := "res://data/generated/character_rp_settings.json"
 const CHARACTER_RP_SKILLS_PATH := "res://data/generated/character_rp_skills.json"
+const MONSTER_AI_MONSTERS_PATH := "res://data/generated/monster_ai_monsters.json"
+const MONSTER_AI_STATS_PATH := "res://data/generated/monster_ai_stats.json"
+const MONSTER_AI_ACTIONS_PATH := "res://data/generated/monster_ai_actions.json"
+const MONSTER_AI_PATTERNS_PATH := "res://data/generated/monster_ai_patterns.json"
+const MONSTER_AI_RULES_PATH := "res://data/generated/monster_ai_rules.json"
 const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
 const ROUTE_WIPE_OVERSCAN := 96.0
 
@@ -128,6 +141,11 @@ var energy := 0
 var rage_point := 0.0
 var rp_settings: Dictionary = {}
 var rp_skill: Dictionary = {}
+var monster_ai_monsters: Dictionary = {}
+var monster_ai_stats: Dictionary = {}
+var monster_ai_actions: Dictionary = {}
+var monster_ai_pattern_steps: Dictionary = {}
+var monster_ai_rules_by_monster: Dictionary = {}
 var rp_skill_selected := false
 # Temporary +% bonus to Tsuki's attack-card damage for the current turn.
 var _attack_damage_bonus_percent := 0
@@ -167,6 +185,7 @@ func _ready():
 	card_library = _load_card_library()
 	rp_settings = _load_character_table_entry(CHARACTER_RP_SETTINGS_PATH, "tsuki")
 	rp_skill = _load_character_table_entry(CHARACTER_RP_SKILLS_PATH, "tsuki")
+	_load_monster_ai_tables()
 	_setup_scene()
 	_build_ui()
 	if _has_active_combat():
@@ -231,6 +250,50 @@ func _load_card_effect_rows() -> Dictionary:
 		rows.append(row)
 		rows_by_card[key] = rows
 	return rows_by_card
+
+func _load_table_array(path: String) -> Array:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return []
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	file.close()
+	return parsed if parsed is Array else []
+
+func _index_table_by_id(rows: Array, id_field: String) -> Dictionary:
+	var indexed: Dictionary = {}
+	for row in rows:
+		if not (row is Dictionary):
+			continue
+		var id := String(row.get(id_field, ""))
+		if not id.is_empty():
+			indexed[id] = row
+	return indexed
+
+func _load_monster_ai_tables():
+	monster_ai_monsters = _index_table_by_id(_load_table_array(MONSTER_AI_MONSTERS_PATH), "monster_id")
+	monster_ai_stats = _index_table_by_id(_load_table_array(MONSTER_AI_STATS_PATH), "stats_id")
+	monster_ai_actions = _index_table_by_id(_load_table_array(MONSTER_AI_ACTIONS_PATH), "action_id")
+	monster_ai_pattern_steps.clear()
+	for row in _load_table_array(MONSTER_AI_PATTERNS_PATH):
+		if not (row is Dictionary):
+			continue
+		var pattern_id := String(row.get("pattern_id", ""))
+		var step_id := String(row.get("step_id", ""))
+		if pattern_id.is_empty() or step_id.is_empty():
+			continue
+		var steps: Dictionary = monster_ai_pattern_steps.get(pattern_id, {})
+		steps[step_id] = row
+		monster_ai_pattern_steps[pattern_id] = steps
+	monster_ai_rules_by_monster.clear()
+	for row in _load_table_array(MONSTER_AI_RULES_PATH):
+		if not (row is Dictionary):
+			continue
+		var monster_id := String(row.get("monster_id", ""))
+		if monster_id.is_empty():
+			continue
+		var rules: Array = monster_ai_rules_by_monster.get(monster_id, [])
+		rules.append(row)
+		monster_ai_rules_by_monster[monster_id] = rules
 
 func _card_key(character: String, card_id: String) -> String:
 	return "%s/%s" % [character, card_id]
@@ -441,6 +504,7 @@ func _setup_enemies(datas: Array):
 		var enemy := CombatEnemy.new()
 		enemy.data = data
 		enemy.intents = data.intents.duplicate()
+		_setup_enemy_ai(enemy)
 		enemy.node = data.scene.instantiate()
 		enemy.node.name = "Monster%d" % i
 		add_child(enemy.node)
@@ -453,6 +517,88 @@ func _setup_enemies(datas: Array):
 		enemy.node.add_child(enemy.status_bar)
 		enemy.status_bar.position = data.hp_bar_offset - EnemyStatusBar.PANEL_SIZE * 0.5
 		enemies.append(enemy)
+
+func _setup_enemy_ai(enemy: CombatEnemy):
+	var monster_id := enemy.data.id
+	if not monster_ai_monsters.has(monster_id):
+		return
+	var monster_row: Dictionary = monster_ai_monsters[monster_id]
+	var pattern_id := String(monster_row.get("default_pattern_id", ""))
+	if pattern_id.is_empty() or not monster_ai_pattern_steps.has(pattern_id):
+		return
+	enemy.ai_enabled = true
+	enemy.ai_pattern_id = pattern_id
+	enemy.ai_step_id = "start"
+	_set_enemy_ai_step(enemy, enemy.ai_step_id, null, false)
+
+func _set_enemy_ai_step(enemy: CombatEnemy, step_id: String, count_override: Variant = null, apply_rules := true):
+	var pattern_steps: Dictionary = monster_ai_pattern_steps.get(enemy.ai_pattern_id, {})
+	if not pattern_steps.has(step_id):
+		step_id = "start"
+	if not pattern_steps.has(step_id):
+		enemy.ai_enabled = false
+		return
+	var step: Dictionary = pattern_steps[step_id]
+	var action_id := String(step.get("action_id", ""))
+	if not monster_ai_actions.has(action_id):
+		enemy.ai_enabled = false
+		return
+	enemy.ai_step_id = step_id
+	enemy.ai_current_action = monster_ai_actions[action_id]
+	if count_override != null:
+		enemy.ai_action_count_remaining = max(int(count_override), 1)
+	else:
+		enemy.ai_action_count_remaining = max(int(step.get("action_count", 1)), 1)
+	if apply_rules:
+		_apply_enemy_ai_rules(enemy)
+
+func _advance_enemy_ai_step(enemy: CombatEnemy):
+	var pattern_steps: Dictionary = monster_ai_pattern_steps.get(enemy.ai_pattern_id, {})
+	var step: Dictionary = pattern_steps.get(enemy.ai_step_id, {})
+	var next_step_id := String(step.get("next_step_id", "start"))
+	_set_enemy_ai_step(enemy, next_step_id)
+	if enemy.ai_next_count_delta != 0:
+		enemy.ai_action_count_remaining = max(enemy.ai_action_count_remaining + enemy.ai_next_count_delta, 1)
+		enemy.ai_next_count_delta = 0
+
+func _apply_enemy_ai_rules(enemy: CombatEnemy):
+	if not enemy.ai_enabled:
+		return
+	var monster_id := enemy.data.id
+	var rules: Array = monster_ai_rules_by_monster.get(monster_id, [])
+	var selected_rule: Dictionary = {}
+	var selected_priority := -999999
+	for rule in rules:
+		if not (rule is Dictionary):
+			continue
+		var rule_id := String(rule.get("rule_id", ""))
+		if bool(rule.get("once", false)) and enemy.ai_triggered_rules.has(rule_id):
+			continue
+		if not _enemy_ai_rule_matches(enemy, rule):
+			continue
+		var priority := int(rule.get("priority", 0))
+		if priority > selected_priority:
+			selected_rule = rule
+			selected_priority = priority
+	if selected_rule.is_empty():
+		return
+	var selected_rule_id := String(selected_rule.get("rule_id", ""))
+	if bool(selected_rule.get("once", false)):
+		enemy.ai_triggered_rules[selected_rule_id] = true
+	var set_pattern_id := String(selected_rule.get("set_pattern_id", ""))
+	if not set_pattern_id.is_empty() and monster_ai_pattern_steps.has(set_pattern_id):
+		enemy.ai_pattern_id = set_pattern_id
+	var count_override: Variant = selected_rule.get("action_count_override", null)
+	_set_enemy_ai_step(enemy, String(selected_rule.get("set_step_id", "start")), count_override, false)
+
+func _enemy_ai_rule_matches(enemy: CombatEnemy, rule: Dictionary) -> bool:
+	var trigger_type := String(rule.get("trigger_type", ""))
+	match trigger_type:
+		"hp_below":
+			var threshold := float(rule.get("trigger_value", 0))
+			var ratio := float(enemy.hp) / float(max(enemy.max_hp(), 1)) * 100.0
+			return ratio <= threshold
+	return false
 
 func _clear_enemies():
 	_clear_selected_monster_info()
@@ -563,6 +709,11 @@ func _start_battle():
 		enemy.hp = enemy.max_hp()
 		enemy.block = 0
 		enemy.intent_index = 0
+		enemy.ai_next_count_delta = 0
+		enemy.ai_attack_bonus_percent = 0
+		enemy.ai_triggered_rules.clear()
+		if enemy.ai_enabled:
+			_set_enemy_ai_step(enemy, "start")
 		enemy.dead = false
 		enemy.node.global_position = enemy.home_position
 		if is_instance_valid(enemy.node) and enemy.node.has_method("reset_combat_state"):
@@ -1062,6 +1213,8 @@ func _damage_enemy(enemy: CombatEnemy, amount: int, is_crit := false):
 		if enemy.hp <= 0:
 			_kill_enemy(enemy)
 		else:
+			if enemy.ai_enabled:
+				_apply_enemy_ai_rules(enemy)
 			_play_enemy_hit(enemy)
 
 	_update_enemy_bar(enemy)
@@ -1178,7 +1331,16 @@ func _enemy_turn():
 	for enemy in enemies:
 		if battle_over:
 			return
-		if not enemy.is_alive() or enemy.intents.is_empty():
+		if not enemy.is_alive():
+			continue
+		if enemy.ai_enabled:
+			if enemy.ai_action_count_remaining > 0 or enemy.ai_current_action.is_empty():
+				continue
+			await _perform_enemy_ai_action(enemy)
+			_advance_enemy_ai_step(enemy)
+			_update_enemy_bar(enemy)
+			continue
+		if enemy.intents.is_empty():
 			continue
 		var intent: EnemyIntentData = enemy.intents[enemy.intent_index]
 		match intent.intent_type:
@@ -1190,6 +1352,44 @@ func _enemy_turn():
 				_update_enemy_bar(enemy)
 		enemy.intent_index = (enemy.intent_index + 1) % enemy.intents.size()
 		_update_enemy_bar(enemy)
+
+func _perform_enemy_ai_action(enemy: CombatEnemy):
+	var action := enemy.ai_current_action
+	var action_type := String(action.get("action_type", "skill"))
+	match action_type:
+		"attack":
+			await _play_enemy_attack_sequence(enemy, _enemy_ai_attack_damage(enemy, action))
+		"defense", "block":
+			var block_amount := _enemy_ai_defense_amount(enemy, action)
+			enemy.block += block_amount
+			_show_popup(_enemy_screen_position(enemy), "+%d DEF" % block_amount, BLOCK_GAIN_COLOR, 28)
+			_update_enemy_bar(enemy)
+		"buff":
+			var gain: int = max(int(action.get("power_value", 1)), 1)
+			enemy.ai_attack_bonus_percent += 20 * gain
+			_show_popup(_enemy_screen_position(enemy), "%s +%d" % [String(action.get("display_name", "강화")), gain], BLOCK_GAIN_COLOR, 28)
+		"skill":
+			if String(action.get("power_type", "")) == "count_delta":
+				enemy.ai_next_count_delta += int(action.get("power_value", 0))
+			_show_popup(_enemy_screen_position(enemy), String(action.get("display_name", "기술")), Color(0.78, 0.62, 1.0), 28)
+		_:
+			_show_popup(_enemy_screen_position(enemy), String(action.get("display_name", "기술")), Color(0.78, 0.62, 1.0), 28)
+
+func _enemy_ai_attack_damage(enemy: CombatEnemy, action: Dictionary) -> int:
+	var base := _enemy_ai_attack(enemy)
+	var percent := int(action.get("power_value", 100))
+	var damage := int(round(base * float(percent) / 100.0))
+	if enemy.ai_attack_bonus_percent > 0:
+		damage = int(round(damage * (1.0 + float(enemy.ai_attack_bonus_percent) / 100.0)))
+		enemy.ai_attack_bonus_percent = 0
+	return damage
+
+func _enemy_ai_defense_amount(enemy: CombatEnemy, action: Dictionary) -> int:
+	var power_type := String(action.get("power_type", "flat"))
+	var power_value := int(action.get("power_value", 0))
+	if power_type == "defense_percent":
+		return int(round(_enemy_ai_defense(enemy) * float(power_value) / 100.0))
+	return power_value
 
 # Attack intent damage = the monster's attack_power scaled by the intent percent.
 func _enemy_attack_damage(enemy: CombatEnemy, intent: EnemyIntentData) -> int:
@@ -1615,11 +1815,11 @@ func _select_monster_info(enemy: CombatEnemy):
 	if selected_info_enemy != enemy:
 		selected_info_enemy = enemy
 		_refresh_enemy_selection_visuals()
-	battle_ui.call("show_monster_info", enemy.data.display_name, enemy.intents, enemy.intent_index, enemy_action_count_remaining, enemy.data.stats.attack_power)
+	battle_ui.call("show_monster_info", enemy.data.display_name, _enemy_info_intents(enemy), _enemy_info_intent_index(enemy), _enemy_display_action_count(enemy), _enemy_ai_attack(enemy))
 
 func _refresh_selected_monster_info():
 	if selected_info_enemy != null and selected_info_enemy.is_alive() and is_instance_valid(battle_ui):
-		battle_ui.call("show_monster_info", selected_info_enemy.data.display_name, selected_info_enemy.intents, selected_info_enemy.intent_index, enemy_action_count_remaining, selected_info_enemy.data.stats.attack_power)
+		battle_ui.call("show_monster_info", selected_info_enemy.data.display_name, _enemy_info_intents(selected_info_enemy), _enemy_info_intent_index(selected_info_enemy), _enemy_display_action_count(selected_info_enemy), _enemy_ai_attack(selected_info_enemy))
 
 func _clear_selected_monster_info():
 	selected_info_enemy = null
@@ -1670,11 +1870,86 @@ func _update_all_enemy_bars():
 	for enemy in enemies:
 		_update_enemy_bar(enemy)
 
+func _enemy_ai_stats(enemy: CombatEnemy) -> Dictionary:
+	return monster_ai_stats.get(enemy.data.id, {})
+
+func _enemy_ai_attack(enemy: CombatEnemy) -> int:
+	var stats: Dictionary = _enemy_ai_stats(enemy)
+	if stats.has("attack"):
+		return int(stats.get("attack", enemy.data.stats.attack_power))
+	return enemy.data.stats.attack_power
+
+func _enemy_ai_defense(enemy: CombatEnemy) -> int:
+	var stats: Dictionary = _enemy_ai_stats(enemy)
+	if stats.has("defense"):
+		return int(stats.get("defense", enemy.data.stats.defense_power))
+	return enemy.data.stats.defense_power
+
+func _enemy_ai_intent_type(action: Dictionary) -> StringName:
+	var action_type := String(action.get("action_type", "skill"))
+	match action_type:
+		"attack":
+			return &"attack"
+		"defense", "block":
+			return &"defense"
+	return &"skill"
+
+func _enemy_ai_display_amount(enemy: CombatEnemy, action: Dictionary) -> int:
+	var action_type := String(action.get("action_type", "skill"))
+	var power_type := String(action.get("power_type", "flat"))
+	var power_value := int(action.get("power_value", 0))
+	if action_type == "attack":
+		return power_value
+	if action_type == "defense" or action_type == "block":
+		if power_type == "defense_percent":
+			return int(round(_enemy_ai_defense(enemy) * float(power_value) / 100.0))
+		return power_value
+	return abs(power_value)
+
+func _enemy_info_intents(enemy: CombatEnemy) -> Array:
+	if not enemy.ai_enabled:
+		return enemy.intents
+	var result: Array = []
+	var pattern_steps: Dictionary = monster_ai_pattern_steps.get(enemy.ai_pattern_id, {})
+	var step_id := enemy.ai_step_id
+	for _i in range(5):
+		if not pattern_steps.has(step_id):
+			break
+		var step: Dictionary = pattern_steps[step_id]
+		var action_id := String(step.get("action_id", ""))
+		if not monster_ai_actions.has(action_id):
+			break
+		var action: Dictionary = monster_ai_actions[action_id]
+		var intent := EnemyIntentData.new()
+		intent.display_name = String(action.get("display_name", ""))
+		intent.intent_type = _enemy_ai_intent_type(action)
+		intent.amount = _enemy_ai_display_amount(enemy, action)
+		intent.icon_label = String(action.get("icon_label", ""))
+		intent.description = String(action.get("description", ""))
+		result.append(intent)
+		var next_step_id := String(step.get("next_step_id", ""))
+		if next_step_id.is_empty() or next_step_id == step_id:
+			break
+		step_id = next_step_id
+	return result
+
+func _enemy_info_intent_index(enemy: CombatEnemy) -> int:
+	return 0 if enemy.ai_enabled else enemy.intent_index
+
+func _enemy_display_action_count(enemy: CombatEnemy) -> int:
+	return enemy.ai_action_count_remaining if enemy.ai_enabled else enemy_action_count_remaining
+
 func _update_enemy_bar(enemy: CombatEnemy):
 	if not is_instance_valid(enemy.status_bar):
 		return
 	enemy.status_bar.set_status(enemy.hp, enemy.max_hp(), enemy.block)
-	if battle_over or enemy.dead or enemy.intents.is_empty():
+	if battle_over or enemy.dead:
+		enemy.status_bar.clear_intent()
+		return
+	if enemy.ai_enabled and not enemy.ai_current_action.is_empty():
+		enemy.status_bar.set_intent(_enemy_ai_intent_type(enemy.ai_current_action), _enemy_ai_display_amount(enemy, enemy.ai_current_action), enemy.ai_action_count_remaining, String(enemy.ai_current_action.get("display_name", "")))
+		return
+	if enemy.intents.is_empty():
 		enemy.status_bar.clear_intent()
 		return
 	var intent: EnemyIntentData = enemy.intents[enemy.intent_index]
@@ -1686,10 +1961,42 @@ func _get_enemy_action_count() -> int:
 			return max(enemy.data.action_count, 1)
 	return 1
 
+func _uses_monster_ai() -> bool:
+	for enemy in enemies:
+		if enemy.is_alive() and enemy.ai_enabled:
+			return true
+	return false
+
 # Ticks the shared enemy action counter down when a card is played. End Turn can
 # force the shared enemy turn immediately. After enemies act, the counter resets.
 func _tick_enemy_action_count(force_enemy_turn := false):
 	if battle_over or _alive_enemies().is_empty():
+		return
+	if _uses_monster_ai():
+		for enemy in enemies:
+			if not enemy.is_alive() or not enemy.ai_enabled:
+				continue
+			enemy.ai_action_count_remaining = 0 if force_enemy_turn else max(enemy.ai_action_count_remaining - 1, 0)
+		var has_ready_enemy := false
+		for enemy in enemies:
+			if enemy.is_alive() and enemy.ai_enabled and enemy.ai_action_count_remaining <= 0:
+				has_ready_enemy = true
+				break
+		if not has_ready_enemy:
+			_update_all_enemy_bars()
+			_refresh_selected_monster_info()
+			_refresh_ui()
+			return
+		combat_sequence_active = true
+		if is_instance_valid(battle_ui):
+			battle_ui.call("show_turn_banner", "ENEMY TURN", Color(1.0, 0.55, 0.5))
+		_refresh_ui()
+		await get_tree().create_timer(0.5).timeout
+		combat_sequence_active = false
+		await _enemy_turn()
+		_update_all_enemy_bars()
+		_refresh_selected_monster_info()
+		_refresh_ui()
 		return
 	enemy_action_count_remaining = 0 if force_enemy_turn else max(enemy_action_count_remaining - 1, 0)
 	if enemy_action_count_remaining > 0:

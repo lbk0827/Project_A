@@ -10,7 +10,7 @@
 [resource]
 script = ExtResource("1_data")
 id = "bog_stalker"
-display_name = "Bog Stalker"
+display_name = "늪 추적자"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")
 intents = Array[ExtResource("1_intent")]([ExtResource("4_stab"), ExtResource("4_stab"), ExtResource("5_heavy")])

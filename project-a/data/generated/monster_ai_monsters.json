@@ -9,7 +9,43 @@
 		"hp_bar_offset_y": -172,
 		"intent_offset_x": -14,
 		"intent_offset_y": -48,
-		"designer_note": "기본 온보딩 몬스터. 인카운터 시작 위치에 따라 공격/방어 예고가 갈린다."
+		"designer_note": "예고 읽기와 개체별 시작 행동을 가르치는 온보딩 몬스터."
+	},
+	{
+		"monster_id": "bog_stalker",
+		"display_name": "늪 추적자",
+		"stats_id": "bog_stalker",
+		"default_pattern_id": "bog_stalker_basic",
+		"scene_path": "res://scenes/monster/monster_bog_stalker.tscn",
+		"hp_bar_offset_x": 0,
+		"hp_bar_offset_y": -172,
+		"intent_offset_x": -14,
+		"intent_offset_y": -48,
+		"designer_note": "짧은 행동 카운트로 카드 사용량을 압박하는 초반 몬스터."
+	},
+	{
+		"monster_id": "bone_crawler",
+		"display_name": "뼈 크롤러",
+		"stats_id": "bone_crawler",
+		"default_pattern_id": "bone_crawler_basic",
+		"scene_path": "res://scenes/monster/monster_bone_crawler.tscn",
+		"hp_bar_offset_x": 0,
+		"hp_bar_offset_y": -172,
+		"intent_offset_x": -14,
+		"intent_offset_y": -48,
+		"designer_note": "강한 선공 예고 뒤 빈틈을 주는 위험 몬스터."
+	},
+	{
+		"monster_id": "gravebound_crawler",
+		"display_name": "무덤 크롤러",
+		"stats_id": "gravebound_crawler",
+		"default_pattern_id": "gravebound_crawler_basic",
+		"scene_path": "res://scenes/monster/monster_gravebound_crawler.tscn",
+		"hp_bar_offset_x": 0,
+		"hp_bar_offset_y": -172,
+		"intent_offset_x": -14,
+		"intent_offset_y": -48,
+		"designer_note": "방어 누적과 장기전 돌파를 요구하는 몬스터."
 	},
 	{
 		"monster_id": "frost_revenant",
@@ -21,6 +57,30 @@
 		"hp_bar_offset_y": -172,
 		"intent_offset_x": -14,
 		"intent_offset_y": -48,
-		"designer_note": "버프 후 공격과 방어를 반복하는 엘리트 후보."
+		"designer_note": "버프-공격-방어 주기를 읽게 하는 엘리트형 몬스터."
+	},
+	{
+		"monster_id": "crown_acolyte",
+		"display_name": "왕관 시종",
+		"stats_id": "crown_acolyte",
+		"default_pattern_id": "crown_acolyte_basic",
+		"scene_path": "res://scenes/monster/monster_crown_acolyte.tscn",
+		"hp_bar_offset_x": 0,
+		"hp_bar_offset_y": -172,
+		"intent_offset_x": -14,
+		"intent_offset_y": -48,
+		"designer_note": "단죄 전조와 고압박 공격으로 위험 턴을 예측하게 하는 몬스터."
+	},
+	{
+		"monster_id": "abyssal_crown_guardian",
+		"display_name": "심연 왕관 수호자",
+		"stats_id": "abyssal_crown_guardian",
+		"default_pattern_id": "abyssal_crown_guardian_basic",
+		"scene_path": "res://scenes/monster/monster_abyssal_crown_guardian.tscn",
+		"hp_bar_offset_x": 0,
+		"hp_bar_offset_y": -172,
+		"intent_offset_x": -14,
+		"intent_offset_y": -48,
+		"designer_note": "큰 전조 후 강공격을 사용하는 보스 몬스터."
 	}
 ]

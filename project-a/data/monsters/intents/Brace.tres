@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_jup3t")
-display_name = "Brace"
+display_name = "방어"
 intent_type = &"block"
 amount = 80
 icon_label = "SHD"

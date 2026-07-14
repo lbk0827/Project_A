@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_stats")
 id = "crown_acolyte"
-display_name = "Crown Acolyte"
+display_name = "왕관 시종"
 max_hp = 1400
 attack_power = 28
+defense_power = 32

@@ -11,6 +11,7 @@ const HP_BACK_COLOR := Color(0.09, 0.04, 0.08, 0.88)
 const HP_BORDER_COLOR := Color(0.85, 0.55, 0.65, 0.55)
 const BADGE_ATTACK_COLOR := Color(0.9, 0.14, 0.42)
 const BADGE_BLOCK_COLOR := Color(0.28, 0.5, 0.92)
+const BADGE_SKILL_COLOR := Color(0.64, 0.38, 0.95)
 const BLOCK_CHIP_COLOR := Color(0.3, 0.55, 0.95, 0.92)
 
 var hp_label: Label
@@ -164,10 +165,12 @@ func set_intent(intent_type: StringName, _amount: int, action_count_remaining: i
 	icon_disc.visible = true
 	count_label.text = str(max(action_count_remaining, 0))
 	var is_attack: bool = intent_type == &"attack"
-	var accent := BADGE_ATTACK_COLOR if is_attack else BADGE_BLOCK_COLOR
+	var is_block: bool = intent_type == &"block" or intent_type == &"defense"
+	var accent := BADGE_ATTACK_COLOR if is_attack else (BADGE_BLOCK_COLOR if is_block else BADGE_SKILL_COLOR)
 	badge_diamond_style.bg_color = accent
 	icon_disc_style.border_color = accent.lightened(0.15)
-	intent_icon.set_icon(IntentIcon.Kind.SWORD if is_attack else IntentIcon.Kind.SHIELD, Color(1, 1, 1, 0.98))
+	var icon_kind := IntentIcon.Kind.SWORD if is_attack else (IntentIcon.Kind.SHIELD if is_block else IntentIcon.Kind.SKILL)
+	intent_icon.set_icon(icon_kind, Color(1, 1, 1, 0.98))
 
 func clear_intent():
 	_build()

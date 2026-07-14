@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://fr0strevenantdata"]
+[gd_resource type="Resource" script_class="MonsterData" format=3 uid="uid://d02qu2xdud2w5"]
 
 [ext_resource type="Script" uid="uid://deq25iy1a8nfv" path="res://scripts/data/enemy_intent_data.gd" id="1_intent"]
 [ext_resource type="Script" uid="uid://b5mireimpdata" path="res://scripts/data/monster_data.gd" id="1_data"]
@@ -11,7 +11,7 @@
 [resource]
 script = ExtResource("1_data")
 id = "frost_revenant"
-display_name = "Frost Revenant"
+display_name = "프로스트 레버넌트"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")
 intents = Array[ExtResource("1_intent")]([ExtResource("4_brace"), ExtResource("5_heavy"), ExtResource("6_stab"), ExtResource("5_heavy")])

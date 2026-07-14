@@ -4,13 +4,48 @@
 		"max_hp": 500,
 		"attack": 14,
 		"defense": 18,
-		"designer_note": "attack/defense는 행동 power_type 계산의 기준값."
+		"designer_note": "낮은 방어로 학습용 방어 행동 제공."
+	},
+	{
+		"stats_id": "bog_stalker",
+		"max_hp": 650,
+		"attack": 16,
+		"defense": 14,
+		"designer_note": "회피/독성 느낌의 얕은 방어."
+	},
+	{
+		"stats_id": "bone_crawler",
+		"max_hp": 800,
+		"attack": 18,
+		"defense": 20,
+		"designer_note": "선공 후 뼈를 추스르는 방어."
+	},
+	{
+		"stats_id": "gravebound_crawler",
+		"max_hp": 950,
+		"attack": 20,
+		"defense": 36,
+		"designer_note": "장기전 정체성 강화."
 	},
 	{
 		"stats_id": "frost_revenant",
 		"max_hp": 1200,
 		"attack": 24,
 		"defense": 40,
-		"designer_note": "얼음 갑옷은 defense_percent 기반으로 조정한다."
+		"designer_note": "얼음 갑옷을 의미 있게 만들기."
+	},
+	{
+		"stats_id": "crown_acolyte",
+		"max_hp": 1400,
+		"attack": 28,
+		"defense": 32,
+		"designer_note": "공격형이지만 신앙 보호막 보유."
+	},
+	{
+		"stats_id": "abyssal_crown_guardian",
+		"max_hp": 2500,
+		"attack": 30,
+		"defense": 48,
+		"designer_note": "보스의 패턴 방어 기준."
 	}
 ]
