@@ -18,9 +18,10 @@ from typing import Any
 try:
     import openpyxl
 except ImportError as exc:
-    raise SystemExit(
-        "Missing dependency: openpyxl. Install it with `python -m pip install openpyxl`."
-    ) from exc
+    openpyxl = None
+    OPENPYXL_IMPORT_ERROR = exc
+else:
+    OPENPYXL_IMPORT_ERROR = None
 
 
 HEADER_KIND_ROW = 2
@@ -58,6 +59,13 @@ class ExportError:
         return f"{location} - {self.message}"
 
 
+@dataclass
+class ExportResult:
+    exported_count: int
+    output_dir: Path
+    errors: list[ExportError]
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Export Excel #data sheets to JSON.")
     parser.add_argument(
@@ -82,15 +90,34 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    input_dir = args.input_dir
-    output_dir = args.output_dir
 
-    if not input_dir.exists():
-        print(f"Input directory does not exist: {input_dir}", file=sys.stderr)
+    try:
+        result = export_tables(args.input_dir, args.output_dir, args.clean)
+    except (FileNotFoundError, RuntimeError) as exc:
+        print(str(exc), file=sys.stderr)
         return 1
 
+    if result.errors:
+        print("Export failed:")
+        for error in result.errors:
+            print(f"  {error.format()}")
+        return 1
+
+    print(f"Exported {result.exported_count} table(s) to {result.output_dir}")
+    return 0
+
+
+def export_tables(input_dir: Path, output_dir: Path, clean: bool = False) -> ExportResult:
+    if openpyxl is None:
+        raise RuntimeError(
+            "Missing dependency: openpyxl. Install it with `python -m pip install openpyxl`."
+        ) from OPENPYXL_IMPORT_ERROR
+
+    if not input_dir.exists():
+        raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
+
     output_dir.mkdir(parents=True, exist_ok=True)
-    if args.clean:
+    if clean:
         for path in output_dir.glob("*.json"):
             path.unlink()
 
@@ -100,14 +127,7 @@ def main() -> int:
     for workbook_path in sorted(iter_workbooks(input_dir)):
         exported_count += export_workbook(workbook_path, output_dir, errors)
 
-    if errors:
-        print("Export failed:")
-        for error in errors:
-            print(f"  {error.format()}")
-        return 1
-
-    print(f"Exported {exported_count} table(s) to {output_dir}")
-    return 0
+    return ExportResult(exported_count, output_dir, errors)
 
 
 def iter_workbooks(input_dir: Path) -> list[Path]:

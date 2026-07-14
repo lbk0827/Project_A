@@ -35,6 +35,28 @@ Supported options:
 - `key`: marks the unique row key. Required for now.
 - `null`: allows an empty or `null` cell to export as JSON `null`.
 
+## GUI Usage
+
+For a simple folder-picker GUI on macOS, double-click:
+
+```text
+tools/table_exporter/launch_table_exporter.command
+```
+
+Or run directly:
+
+```powershell
+python tools/table_exporter/table_exporter_gui.py
+```
+
+The GUI uses these defaults:
+
+- Excel folder: `tables/excel`
+- JSON output folder: `data/generated`
+- Clean old JSON files before export: on
+
+## Command Line Usage
+
 Usage from `project-a`:
 
 ```powershell
