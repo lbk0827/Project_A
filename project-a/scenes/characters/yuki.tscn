@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3]
+[gd_scene load_steps=50 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/characters/spritesheets/yuki_spritesheet.png" id="1_sheet"]
 
@@ -98,6 +98,22 @@ region = Rect2(362, 905, 181, 181)
 atlas = ExtResource("1_sheet")
 region = Rect2(543, 905, 181, 181)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_24"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 1086, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_25"]
+atlas = ExtResource("1_sheet")
+region = Rect2(181, 1086, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_26"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 1086, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_27"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 1086, 181, 181)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_yuki_28"]
 atlas = ExtResource("1_sheet")
 region = Rect2(0, 1267, 181, 181)
@@ -130,10 +146,62 @@ region = Rect2(362, 1448, 181, 181)
 atlas = ExtResource("1_sheet")
 region = Rect2(543, 1448, 181, 181)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_36"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 1629, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_37"]
+atlas = ExtResource("1_sheet")
+region = Rect2(181, 1629, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_38"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 1629, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_39"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 1629, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_40"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 1810, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_41"]
+atlas = ExtResource("1_sheet")
+region = Rect2(181, 1810, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_42"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 1810, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_43"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 1810, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_44"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 1991, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_45"]
+atlas = ExtResource("1_sheet")
+region = Rect2(181, 1991, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_46"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 1991, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_47"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 1991, 181, 181)
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_yuki"]
 animations = [
 {
 "frames": [
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yuki_07")
+},
 {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_yuki_08")
@@ -152,19 +220,11 @@ animations = [
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_12")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_13")
-},
-{
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_yuki_14")
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_15")
+"texture": SubResource("AtlasTexture_yuki_13")
 }
 ],
 "loop": false,
@@ -175,47 +235,47 @@ animations = [
 "frames": [
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_32")
+"texture": SubResource("AtlasTexture_yuki_43")
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_33")
+"texture": SubResource("AtlasTexture_yuki_42")
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_34")
+"texture": SubResource("AtlasTexture_yuki_44")
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_35")
+"texture": SubResource("AtlasTexture_yuki_45")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yuki_46")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yuki_47")
 }
 ],
 "loop": true,
 "name": &"Dead",
-"speed": 5.0
+"speed": 7.0
 },
 {
 "frames": [
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_28")
+"texture": SubResource("AtlasTexture_yuki_42")
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_29")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_30")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_31")
+"texture": SubResource("AtlasTexture_yuki_43")
 }
 ],
 "loop": false,
 "name": &"Hit",
-"speed": 7.0
+"speed": 5.0
 },
 {
 "frames": [
@@ -234,6 +294,14 @@ animations = [
 {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_yuki_03")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yuki_04")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yuki_05")
 }
 ],
 "loop": true,
@@ -265,14 +333,6 @@ animations = [
 {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_yuki_21")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_22")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_23")
 }
 ],
 "loop": true,
@@ -283,31 +343,31 @@ animations = [
 "frames": [
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_04")
+"texture": SubResource("AtlasTexture_yuki_24")
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_05")
+"texture": SubResource("AtlasTexture_yuki_25")
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_06")
+"texture": SubResource("AtlasTexture_yuki_26")
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_07")
+"texture": SubResource("AtlasTexture_yuki_27")
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_08")
+"texture": SubResource("AtlasTexture_yuki_28")
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_09")
+"texture": SubResource("AtlasTexture_yuki_29")
 },
 {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_10")
+"texture": SubResource("AtlasTexture_yuki_30")
 }
 ],
 "loop": true,
