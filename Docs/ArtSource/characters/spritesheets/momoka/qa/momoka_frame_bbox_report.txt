@@ -1,0 +1,37 @@
+sheet=momoka_spritesheet.png size=(724, 1448) grid=4x8 cell=181x181 chroma_cleanup=green_edge_remove_and_despill
+00: bbox=(61,3,119,177) size=58x174 margin=3
+01: bbox=(53,3,127,176) size=74x173 margin=3
+02: bbox=(56,3,124,177) size=68x174 margin=3
+03: bbox=(60,3,121,177) size=61x174 margin=3
+04: bbox=(27,3,154,177) size=127x174 margin=3
+05: bbox=(47,3,134,177) size=87x174 margin=3
+06: bbox=(16,3,164,177) size=148x174 margin=3
+07: bbox=(51,3,130,177) size=79x174 margin=3
+08: bbox=(35,3,146,177) size=111x174 margin=3
+09: bbox=(23,3,157,177) size=134x174 margin=3
+10: bbox=(34,3,146,177) size=112x174 margin=3
+11: bbox=(33,3,148,177) size=115x174 margin=3
+12: bbox=(43,3,137,177) size=94x174 margin=3
+13: bbox=(45,3,135,177) size=90x174 margin=3
+14: bbox=(47,3,133,177) size=86x174 margin=3
+15: bbox=(43,3,138,177) size=95x174 margin=3
+16: bbox=(42,3,138,177) size=96x174 margin=3
+17: bbox=(32,3,150,177) size=118x174 margin=3
+18: bbox=(42,3,139,177) size=97x174 margin=3
+19: bbox=(33,26,148,176) size=115x150 margin=5
+20: bbox=(40,45,141,171) size=101x126 margin=10
+21: bbox=(21,45,159,171) size=138x126 margin=10
+22: bbox=(7,66,173,171) size=166x105 margin=7
+23: bbox=(11,82,170,171) size=159x89 margin=10
+24: bbox=(3,78,178,171) size=175x93 margin=3
+25: bbox=(2,88,178,171) size=176x83 margin=2
+26: bbox=(2,94,178,171) size=176x77 margin=2
+27: bbox=(2,99,177,171) size=175x72 margin=2
+28: bbox=(2,116,178,171) size=176x55 margin=2
+29: bbox=(2,82,178,171) size=176x89 margin=2
+30: bbox=(2,108,174,171) size=172x63 margin=2
+31: bbox=(2,106,178,171) size=176x65 margin=2
+width_range=58-176
+height_range=55-174
+avg_height=140.6
+edge_risk_frames=[]
