@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3]
+[gd_scene load_steps=34 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/characters/spritesheets/yuki_spritesheet.png" id="1_sheet"]
 
@@ -98,22 +98,6 @@ region = Rect2(362, 905, 181, 181)
 atlas = ExtResource("1_sheet")
 region = Rect2(543, 905, 181, 181)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_24"]
-atlas = ExtResource("1_sheet")
-region = Rect2(0, 1086, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_25"]
-atlas = ExtResource("1_sheet")
-region = Rect2(181, 1086, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_26"]
-atlas = ExtResource("1_sheet")
-region = Rect2(362, 1086, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_yuki_27"]
-atlas = ExtResource("1_sheet")
-region = Rect2(543, 1086, 181, 181)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_yuki_28"]
 atlas = ExtResource("1_sheet")
 region = Rect2(0, 1267, 181, 181)
@@ -186,21 +170,6 @@ animations = [
 "loop": false,
 "name": &"Attack",
 "speed": 14.0
-},
-{
-"frames": [
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_30")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_31")
-}
-],
-"loop": true,
-"name": &"Crouch",
-"speed": 6.0
 },
 {
 "frames": [
@@ -309,29 +278,6 @@ animations = [
 "loop": true,
 "name": &"Run",
 "speed": 12.0
-},
-{
-"frames": [
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_24")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_25")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_26")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yuki_27")
-}
-],
-"loop": false,
-"name": &"Special",
-"speed": 8.0
 },
 {
 "frames": [
