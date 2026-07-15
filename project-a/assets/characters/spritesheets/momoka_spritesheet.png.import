@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://momokasprite"
-path="res://.godot/imported/momoka_spritesheet.png-994a5d77f4e342d2b0c7e291981e1c42.ctex"
+path="res://.godot/imported/momoka_spritesheet.png-0598351d11d517405439a0b7bddb2ed9.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://assets/characters/spritesheets/momoka_spritesheet.png"
-dest_files=["res://.godot/imported/momoka_spritesheet.png-994a5d77f4e342d2b0c7e291981e1c42.ctex"]
+dest_files=["res://.godot/imported/momoka_spritesheet.png-0598351d11d517405439a0b7bddb2ed9.ctex"]
 
 [params]
 

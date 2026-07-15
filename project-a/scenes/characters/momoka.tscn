@@ -1,30 +1,6 @@
-[gd_scene load_steps=34 format=3]
+[gd_scene format=3 uid="uid://bkgi68ygjatpl"]
 
-[ext_resource type="Texture2D" path="res://assets/characters/spritesheets/momoka_spritesheet.png" id="1_sheet"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_00"]
-atlas = ExtResource("1_sheet")
-region = Rect2(0, 0, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_01"]
-atlas = ExtResource("1_sheet")
-region = Rect2(181, 0, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_02"]
-atlas = ExtResource("1_sheet")
-region = Rect2(362, 0, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_03"]
-atlas = ExtResource("1_sheet")
-region = Rect2(543, 0, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_04"]
-atlas = ExtResource("1_sheet")
-region = Rect2(0, 181, 181, 181)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_05"]
-atlas = ExtResource("1_sheet")
-region = Rect2(181, 181, 181, 181)
+[ext_resource type="Texture2D" uid="uid://momokasprite" path="res://assets/characters/spritesheets/momoka_spritesheet.png" id="1_sheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_momoka_06"]
 atlas = ExtResource("1_sheet")
@@ -82,6 +58,38 @@ region = Rect2(362, 724, 181, 181)
 atlas = ExtResource("1_sheet")
 region = Rect2(543, 724, 181, 181)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_28"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 1267, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_29"]
+atlas = ExtResource("1_sheet")
+region = Rect2(181, 1267, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_30"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 1267, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_31"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 1267, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_32"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 1448, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_33"]
+atlas = ExtResource("1_sheet")
+region = Rect2(181, 1448, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_34"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 1448, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_35"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 1448, 181, 181)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_momoka_20"]
 atlas = ExtResource("1_sheet")
 region = Rect2(0, 905, 181, 181)
@@ -114,192 +122,225 @@ region = Rect2(362, 1086, 181, 181)
 atlas = ExtResource("1_sheet")
 region = Rect2(543, 1086, 181, 181)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_28"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_00"]
 atlas = ExtResource("1_sheet")
-region = Rect2(0, 1267, 181, 181)
+region = Rect2(0, 0, 181, 181)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_29"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_01"]
 atlas = ExtResource("1_sheet")
-region = Rect2(181, 1267, 181, 181)
+region = Rect2(181, 0, 181, 181)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_30"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_02"]
 atlas = ExtResource("1_sheet")
-region = Rect2(362, 1267, 181, 181)
+region = Rect2(362, 0, 181, 181)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_31"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_momoka_03"]
 atlas = ExtResource("1_sheet")
-region = Rect2(543, 1267, 181, 181)
+region = Rect2(543, 0, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oiae6"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 362, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wkwwv"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 181, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d6l0i"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 181, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ac6k3"]
+atlas = ExtResource("1_sheet")
+region = Rect2(181, 181, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2u18f"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 181, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_26tui"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 181, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_litwh"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 362, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0dm4l"]
+atlas = ExtResource("1_sheet")
+region = Rect2(181, 362, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vgg6x"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 362, 181, 181)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_momoka"]
-animations = [
-{
-"frames": [
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_04")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_05")
-},
-{
+animations = [{
+"frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_06")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_07")
-}
-],
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_08")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_09")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_11")
+}],
 "loop": false,
 "name": &"Attack",
-"speed": 14.0
-},
-{
-"frames": [
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_24")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_25")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_26")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_27")
-},
-{
+"speed": 7.0
+}, {
+"frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_28")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_29")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_30")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_31")
-}
-],
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_32")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_33")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_34")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_35")
+}],
 "loop": false,
 "name": &"Dead",
 "speed": 7.0
-},
-{
-"frames": [
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_16")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_17")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_18")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_19")
-},
-{
+}, {
+"frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_20")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_21")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_22")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_23")
-}
-],
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_24")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_25")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_26")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_27")
+}],
 "loop": false,
 "name": &"Hit",
 "speed": 5.0
-},
-{
-"frames": [
-{
+}, {
+"frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_00")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_01")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_02")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_03")
-}
-],
+}],
 "loop": true,
 "name": &"Idle",
 "speed": 5.0
-},
-{
-"frames": [
-{
+}, {
+"frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_08")
-},
-{
+"texture": SubResource("AtlasTexture_oiae6")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_09")
-},
-{
+"texture": SubResource("AtlasTexture_wkwwv")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_10")
-},
-{
+"texture": SubResource("AtlasTexture_d6l0i")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_momoka_11")
-},
-{
+"texture": SubResource("AtlasTexture_ac6k3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2u18f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_26tui")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_litwh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0dm4l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vgg6x")
+}],
+"loop": false,
+"name": &"PowerKick",
+"speed": 7.0
+}, {
+"frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_12")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_13")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_14")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_momoka_15")
-}
-],
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_16")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_17")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_18")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_momoka_19")
+}],
 "loop": true,
 "name": &"Run",
-"speed": 12.0
-}
-]
+"speed": 13.0
+}]
 
-[node name="Momoka" type="Node2D"]
+[node name="Momoka" type="Node2D" unique_id=2072768073]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=641959813]
 sprite_frames = SubResource("SpriteFrames_momoka")
-animation = &"Idle"
+animation = &"PowerKick"
 autoplay = "Idle"
+frame = 8
+frame_progress = 1.0

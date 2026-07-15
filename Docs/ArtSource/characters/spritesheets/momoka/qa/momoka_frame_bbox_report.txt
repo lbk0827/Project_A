@@ -1,37 +1,42 @@
-sheet=momoka_spritesheet.png size=(724, 1448) grid=4x8 cell=181x181 chroma_cleanup=green_edge_remove_and_despill
-00: bbox=(61,3,119,177) size=58x174 margin=3
-01: bbox=(53,3,127,176) size=74x173 margin=3
-02: bbox=(56,3,124,177) size=68x174 margin=3
-03: bbox=(60,3,121,177) size=61x174 margin=3
-04: bbox=(27,3,154,177) size=127x174 margin=3
-05: bbox=(47,3,134,177) size=87x174 margin=3
-06: bbox=(16,3,164,177) size=148x174 margin=3
-07: bbox=(51,3,130,177) size=79x174 margin=3
-08: bbox=(35,3,146,177) size=111x174 margin=3
-09: bbox=(23,3,157,177) size=134x174 margin=3
-10: bbox=(34,3,146,177) size=112x174 margin=3
-11: bbox=(33,3,148,177) size=115x174 margin=3
-12: bbox=(43,3,137,177) size=94x174 margin=3
-13: bbox=(45,3,135,177) size=90x174 margin=3
-14: bbox=(47,3,133,177) size=86x174 margin=3
-15: bbox=(43,3,138,177) size=95x174 margin=3
-16: bbox=(42,3,138,177) size=96x174 margin=3
-17: bbox=(32,3,150,177) size=118x174 margin=3
-18: bbox=(42,3,139,177) size=97x174 margin=3
-19: bbox=(33,26,148,176) size=115x150 margin=5
-20: bbox=(40,45,141,171) size=101x126 margin=10
-21: bbox=(21,45,159,171) size=138x126 margin=10
-22: bbox=(7,66,173,171) size=166x105 margin=7
-23: bbox=(11,82,170,171) size=159x89 margin=10
-24: bbox=(3,78,178,171) size=175x93 margin=3
-25: bbox=(2,88,178,171) size=176x83 margin=2
-26: bbox=(2,94,178,171) size=176x77 margin=2
-27: bbox=(2,99,177,171) size=175x72 margin=2
-28: bbox=(2,116,178,171) size=176x55 margin=2
-29: bbox=(2,82,178,171) size=176x89 margin=2
-30: bbox=(2,108,174,171) size=172x63 margin=2
-31: bbox=(2,106,178,171) size=176x65 margin=2
-width_range=58-176
-height_range=55-174
-avg_height=140.6
-edge_risk_frames=[]
+sheet=momoka_spritesheet.png size=724x1629 grid=4x9 cell=181x181
+mapping=idle:0-3 attack:4-11 run:12-19 hit:20-27 dead:28-35
+attack_original_keyframes=5,7,8,11
+attack_generated_bridges=4,6,9,10
+run_generated_alternating_steps=12-19
+00: bbox=58x174 margins=l61,t3,r62,b4
+01: bbox=74x173 margins=l53,t3,r54,b5
+02: bbox=68x174 margins=l56,t3,r57,b4
+03: bbox=61x174 margins=l60,t3,r60,b4
+04: bbox=90x174 margins=l45,t3,r46,b4
+05: bbox=125x174 margins=l29,t3,r27,b4
+06: bbox=84x174 margins=l48,t3,r49,b4
+07: bbox=84x174 margins=l49,t3,r48,b4
+08: bbox=148x173 margins=l16,t4,r17,b4
+09: bbox=149x174 margins=l16,t3,r16,b4
+10: bbox=88x174 margins=l46,t3,r47,b4
+11: bbox=79x174 margins=l51,t3,r51,b4
+12: bbox=119x174 margins=l31,t3,r31,b4
+13: bbox=93x174 margins=l44,t3,r44,b4
+14: bbox=126x174 margins=l27,t3,r28,b4
+15: bbox=127x174 margins=l27,t3,r27,b4
+16: bbox=136x174 margins=l22,t3,r23,b4
+17: bbox=92x174 margins=l44,t3,r45,b4
+18: bbox=124x174 margins=l28,t3,r29,b4
+19: bbox=124x174 margins=l28,t3,r29,b4
+20: bbox=95x174 margins=l42,t3,r44,b4
+21: bbox=115x174 margins=l35,t3,r31,b4
+22: bbox=97x174 margins=l42,t3,r42,b4
+23: bbox=115x150 margins=l33,t26,r33,b5
+24: bbox=101x126 margins=l40,t45,r40,b10
+25: bbox=138x126 margins=l21,t45,r22,b10
+26: bbox=166x105 margins=l7,t66,r8,b10
+27: bbox=159x89 margins=l11,t82,r11,b10
+28: bbox=175x92 margins=l3,t78,r3,b11
+29: bbox=170x83 margins=l3,t88,r8,b10
+30: bbox=176x76 margins=l2,t95,r3,b10
+31: bbox=173x72 margins=l2,t99,r6,b10
+32: bbox=176x55 margins=l2,t116,r3,b10
+33: bbox=176x89 margins=l2,t82,r3,b10
+34: bbox=172x60 margins=l2,t111,r7,b10
+35: bbox=174x62 margins=l2,t109,r5,b10
+edge_risk_frames=[30, 31, 32, 33, 34, 35]
