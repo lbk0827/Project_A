@@ -85,6 +85,7 @@ const CARD_PREVIEW_SCENE := preload("res://scenes/ui/cards/CardViewLarge.tscn")
 const CARD_TRANSFER_VFX := preload("res://scripts/vfx/card_transfer_vfx.gd")
 const CARD_DISSOLVE_VFX := preload("res://scripts/vfx/card_dissolve_vfx.gd")
 const MOON_SLASH_VFX_SCENE := preload("res://scenes/vfx/fx_tsuki_moon_slash.tscn")
+const SONIC_BOOM_VFX_SCENE := preload("res://scenes/vfx/fx_sonic_boom.tscn")
 const MapRouteData := preload("res://scripts/map/map_route_data.gd")
 const DAMAGE_TO_ENEMY_COLOR := Color(1.0, 0.9, 0.4)
 const CRIT_COLOR := Color(1.0, 0.5, 0.1)
@@ -1157,9 +1158,7 @@ func _move_player_to_attack_position(enemy: CombatEnemy):
 	if heroine.has_method("play_run_animation"):
 		heroine.call("play_run_animation", direction)
 
-	var tween := create_tween()
-	tween.tween_property(heroine, "global_position", attack_position, _get_heroine_motion_value("approach_time", 0.35))
-	await tween.finished
+	await _dash_actor_with_sonic_boom(heroine, attack_position, _get_heroine_motion_value("approach_time", 0.35))
 
 func _return_player_home():
 	if not is_instance_valid(heroine):
@@ -1171,9 +1170,7 @@ func _return_player_home():
 	if heroine.has_method("play_run_animation"):
 		heroine.call("play_run_animation", direction)
 
-	var tween := create_tween()
-	tween.tween_property(heroine, "global_position", player_home_position, _get_heroine_motion_value("return_time", 0.3))
-	await tween.finished
+	await _dash_actor_with_sonic_boom(heroine, player_home_position, _get_heroine_motion_value("return_time", 0.3))
 
 func _face_player_to(enemy: CombatEnemy):
 	if not is_instance_valid(heroine) or enemy == null or not is_instance_valid(enemy.node):
@@ -1191,6 +1188,29 @@ func _get_heroine_motion_value(property_name: StringName, fallback: float) -> fl
 	if value is float or value is int:
 		return float(value)
 	return fallback
+
+func _dash_actor_with_sonic_boom(actor: Node2D, target_position: Vector2, requested_duration: float):
+	if not is_instance_valid(actor):
+		return
+	var start_position := actor.global_position
+	var direction := target_position - start_position
+	var distance := direction.length()
+	if distance <= 1.0:
+		return
+	_spawn_sonic_boom(start_position, direction, distance, false)
+	var tween := create_tween()
+	tween.tween_property(actor, "global_position", target_position, _sonic_boom_dash_time(requested_duration)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await tween.finished
+	_spawn_sonic_boom(target_position, direction, distance, true)
+
+func _sonic_boom_dash_time(requested_duration: float) -> float:
+	return clamp(requested_duration * 0.42, 0.1, 0.16)
+
+func _spawn_sonic_boom(position: Vector2, direction: Vector2, distance: float, is_arrival: bool):
+	var vfx := SONIC_BOOM_VFX_SCENE.instantiate()
+	add_child(vfx)
+	vfx.global_position = position
+	vfx.call("play_burst", direction, distance, is_arrival)
 
 func _damage_enemy(enemy: CombatEnemy, amount: int, is_crit := false):
 	if enemy == null or enemy.dead:
