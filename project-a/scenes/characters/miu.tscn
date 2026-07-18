@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3]
+[gd_scene load_steps=39 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/characters/spritesheets/miu_spritesheet.png" id="1_sheet"]
 [ext_resource type="Script" uid="uid://qdct5rji41m1" path="res://scripts/player/heroine_controller.gd" id="2_controller"]
@@ -115,18 +115,42 @@ region = Rect2(362, 1086, 181, 181)
 atlas = ExtResource("1_sheet")
 region = Rect2(543, 1086, 181, 181)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_miu_28"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 1267, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_miu_29"]
+atlas = ExtResource("1_sheet")
+region = Rect2(181, 1267, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_miu_30"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 1267, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_miu_31"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 1267, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_miu_32"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 1448, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_miu_33"]
+atlas = ExtResource("1_sheet")
+region = Rect2(181, 1448, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_miu_34"]
+atlas = ExtResource("1_sheet")
+region = Rect2(362, 1448, 181, 181)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_miu_35"]
+atlas = ExtResource("1_sheet")
+region = Rect2(543, 1448, 181, 181)
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_miu"]
 animations = [
 {
 "frames": [
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_04")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_05")
-},
 {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_miu_06")
@@ -150,83 +174,7 @@ animations = [
 {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_miu_11")
-}
-],
-"loop": false,
-"name": &"Attack",
-"speed": 14.0
 },
-{
-"frames": [
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_24")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_25")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_26")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_27")
-}
-],
-"loop": false,
-"name": &"Dead",
-"speed": 7.0
-},
-{
-"frames": [
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_20")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_21")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_22")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_23")
-}
-],
-"loop": false,
-"name": &"Hit",
-"speed": 5.0
-},
-{
-"frames": [
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_00")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_01")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_02")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_miu_03")
-}
-],
-"loop": true,
-"name": &"Idle",
-"speed": 5.0
-},
-{
-"frames": [
 {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_miu_12")
@@ -250,7 +198,99 @@ animations = [
 {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_miu_17")
+}
+],
+"loop": false,
+"name": &"Attack",
+"speed": 12.0
 },
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_32")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_33")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_34")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_35")
+}
+],
+"loop": false,
+"name": &"Dead",
+"speed": 7.0
+},
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_26")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_27")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_28")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_29")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_30")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_31")
+}
+],
+"loop": false,
+"name": &"Hit",
+"speed": 8.0
+},
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_00")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_01")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_02")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_03")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_04")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_05")
+}
+],
+"loop": true,
+"name": &"Idle",
+"speed": 5.0
+},
+{
+"frames": [
 {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_miu_18")
@@ -258,6 +298,30 @@ animations = [
 {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_miu_19")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_20")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_21")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_22")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_23")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_24")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_miu_25")
 }
 ],
 "loop": true,

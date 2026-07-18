@@ -1,33 +1,42 @@
-sheet=miu_spritesheet.png size=(724, 1267) grid=4x7 cell=181x181 source=(1254, 1254) components=28 method=component_detect_relayout
-00: bbox=(63,3,118,177) size=55x174 margin=3
-01: bbox=(62,3,118,177) size=56x174 margin=3
-02: bbox=(62,3,118,177) size=56x174 margin=3
-03: bbox=(57,3,123,177) size=66x174 margin=3
-04: bbox=(60,3,120,177) size=60x174 margin=3
-05: bbox=(43,3,137,177) size=94x174 margin=3
-06: bbox=(42,3,138,177) size=96x174 margin=3
-07: bbox=(61,3,119,177) size=58x174 margin=3
-08: bbox=(62,3,118,177) size=56x174 margin=3
-09: bbox=(57,3,124,177) size=67x174 margin=3
-10: bbox=(26,3,154,177) size=128x174 margin=3
-11: bbox=(63,3,117,177) size=54x174 margin=3
-12: bbox=(36,3,144,177) size=108x174 margin=3
-13: bbox=(22,3,158,177) size=136x174 margin=3
-14: bbox=(32,3,148,177) size=116x174 margin=3
-15: bbox=(65,3,116,177) size=51x174 margin=3
-16: bbox=(27,3,153,177) size=126x174 margin=3
-17: bbox=(37,3,144,177) size=107x174 margin=3
-18: bbox=(41,3,140,177) size=99x174 margin=3
-19: bbox=(31,3,149,177) size=118x174 margin=3
-20: bbox=(2,13,178,177) size=176x164 margin=2
-21: bbox=(2,52,178,177) size=176x125 margin=2
-22: bbox=(2,62,178,177) size=176x115 margin=2
-23: bbox=(23,3,157,177) size=134x174 margin=3
-24: bbox=(2,98,178,171) size=176x73 margin=2
-25: bbox=(2,98,178,171) size=176x73 margin=2
-26: bbox=(2,109,178,171) size=176x62 margin=2
-27: bbox=(2,98,178,171) size=176x73 margin=2
-width_range=51-176
-height_range=62-174
-avg_height=155.0
-edge_risk_frames=[]
+sheet=miu_spritesheet.png size=724x1629 grid=4x9 cell=181x181
+mapping=idle:0-5 attack:6-17 run:18-25 hit:26-31 dead:32-35
+idle=reworked stationary breathing
+attack=reworked 12-frame stationary handgun sequence
+hit=reworked standing in-place hit
+00: bbox=55x174 margins=l63,t3,r63,b4
+01: bbox=55x174 margins=l63,t3,r63,b4
+02: bbox=55x173 margins=l63,t4,r63,b4
+03: bbox=55x174 margins=l63,t3,r63,b4
+04: bbox=55x174 margins=l63,t3,r63,b4
+05: bbox=55x174 margins=l63,t4,r63,b3
+06: bbox=60x174 margins=l60,t3,r61,b4
+07: bbox=60x174 margins=l59,t3,r62,b4
+08: bbox=94x174 margins=l43,t3,r44,b4
+09: bbox=96x174 margins=l42,t3,r43,b4
+10: bbox=67x174 margins=l56,t3,r58,b4
+11: bbox=67x174 margins=l57,t3,r57,b4
+12: bbox=128x174 margins=l26,t3,r27,b4
+13: bbox=128x174 margins=l23,t3,r30,b4
+14: bbox=67x174 margins=l55,t3,r59,b4
+15: bbox=96x174 margins=l42,t3,r43,b4
+16: bbox=94x174 margins=l43,t3,r44,b4
+17: bbox=60x174 margins=l60,t3,r61,b4
+18: bbox=108x174 margins=l36,t3,r37,b4
+19: bbox=136x174 margins=l22,t3,r23,b4
+20: bbox=116x174 margins=l32,t3,r33,b4
+21: bbox=51x174 margins=l65,t3,r65,b4
+22: bbox=126x174 margins=l27,t3,r28,b4
+23: bbox=107x174 margins=l37,t3,r37,b4
+24: bbox=99x174 margins=l41,t3,r41,b4
+25: bbox=118x174 margins=l31,t3,r32,b4
+26: bbox=52x164 margins=l64,t13,r65,b4
+27: bbox=52x164 margins=l62,t13,r67,b4
+28: bbox=52x164 margins=l59,t13,r70,b4
+29: bbox=52x164 margins=l61,t14,r68,b3
+30: bbox=52x164 margins=l63,t13,r66,b4
+31: bbox=52x164 margins=l64,t13,r65,b4
+32: bbox=176x73 margins=l2,t98,r3,b10
+33: bbox=176x73 margins=l2,t98,r3,b10
+34: bbox=176x62 margins=l2,t109,r3,b10
+35: bbox=176x73 margins=l2,t98,r3,b10
+edge_risk_frames=[32, 33, 34, 35]

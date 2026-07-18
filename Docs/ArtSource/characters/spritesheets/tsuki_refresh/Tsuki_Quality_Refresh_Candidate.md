@@ -10,4 +10,6 @@
 
 Notes:
 - Tsuki identity was preserved as a white-haired sword user, with Momoka/Miu-style higher polish.
-- Before runtime replacement, split/cell fitting QA is still required because this is a visual candidate, not an applied Godot sheet.
+- Runtime replacement is still on hold because this sheet is a visual candidate, not a stable Godot-ready 4x12 sheet.
+- A temporary split/cell fitting test showed uneven source spacing, so it was not applied to `project-a/assets/characters/spritesheets/tsuki_spritesheet.png`.
+- For now, only the separate five-slash runtime sheet has been applied.
