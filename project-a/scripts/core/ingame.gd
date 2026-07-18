@@ -1118,7 +1118,11 @@ func _play_player_attack_sequence(damage_effects: Array, target_enemy: CombatEne
 	combat_sequence_active = true
 	_refresh_ui()
 	var focus: CombatEnemy = target_enemy if (target_enemy != null and target_enemy.is_alive()) else _first_alive_enemy()
-	await _move_player_to_attack_position(focus)
+	var moves_to_attack_position := _should_player_move_to_attack_position(motion_animation)
+	if moves_to_attack_position:
+		await _move_player_to_attack_position(focus)
+	else:
+		_face_player_to(focus)
 	_play_heroine_attack(focus, motion_animation)
 	await get_tree().create_timer(_get_heroine_motion_value("attack_impact_delay", 0.18)).timeout
 	for effect in damage_effects:
@@ -1130,7 +1134,8 @@ func _play_player_attack_sequence(damage_effects: Array, target_enemy: CombatEne
 				break
 			_damage_enemy(enemy, int(hit["amount"]), bool(hit["crit"]))
 	await get_tree().create_timer(_get_heroine_motion_value("attack_recover_delay", 0.38)).timeout
-	await _return_player_home()
+	if moves_to_attack_position:
+		await _return_player_home()
 	combat_sequence_active = false
 	_face_player_to(_first_alive_enemy())
 	if not battle_over and heroine.has_method("play_idle_animation"):
@@ -1182,6 +1187,16 @@ func _get_heroine_attack_position(target_position: Vector2) -> Vector2:
 	if heroine.has_method("get_attack_position"):
 		return heroine.call("get_attack_position", target_position)
 	return target_position + Vector2(-120, 0)
+
+func _should_player_move_to_attack_position(_motion_animation: StringName) -> bool:
+	if not is_instance_valid(heroine):
+		return true
+	if heroine.has_method("should_move_to_attack_position"):
+		return bool(heroine.call("should_move_to_attack_position", _motion_animation))
+	var value: Variant = heroine.get("move_to_attack_position")
+	if value is bool:
+		return value
+	return true
 
 func _get_heroine_motion_value(property_name: StringName, fallback: float) -> float:
 	var value: Variant = heroine.get(property_name)

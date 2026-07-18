@@ -7,11 +7,13 @@ const FX_TSUKI_FIVE_SLASH_SCENE := preload("res://scenes/vfx/fx_tsuki_five_slash
 @export var attack_action: StringName = &"ui_accept"
 @export_group("Combat Motion")
 @export var attack_offset_from_target := Vector2(-120, 0)
+@export var move_to_attack_position := true
 @export var approach_time := 0.35
 @export var attack_impact_delay := 0.18
 @export var attack_recover_delay := 0.38
 @export var return_time := 0.3
 @export_group("Attack VFX")
+@export var attack_fx_enabled := true
 @export var slash_fx_offset := Vector2(-45, -10)
 @onready var anim: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -122,6 +124,9 @@ func set_facing_direction(direction: Vector2):
 func get_attack_position(target_position: Vector2) -> Vector2:
 	return target_position + attack_offset_from_target
 
+func should_move_to_attack_position(_animation_name: StringName = &"Attack") -> bool:
+	return move_to_attack_position
+
 func play_hit_animation():
 	if is_dead or not _has_animation("Hit"):
 		return
@@ -168,7 +173,7 @@ func _start_attack(target_position: Variant = null, animation_name: StringName =
 	is_attacking = true
 	velocity = Vector2.ZERO
 	anim.play(animation_name)
-	if target_position is Vector2:
+	if attack_fx_enabled and target_position is Vector2:
 		_spawn_slash_fx_after_impact(target_position, attack_sequence_id, animation_name)
 
 func _spawn_slash_fx_after_impact(target_position: Vector2, sequence_id: int, animation_name: StringName):

@@ -1,0 +1,33 @@
+sheet=miu_spritesheet.png size=(724, 1267) grid=4x7 cell=181x181 source=(1254, 1254) components=28 method=component_detect_relayout
+00: bbox=(63,3,118,177) size=55x174 margin=3
+01: bbox=(62,3,118,177) size=56x174 margin=3
+02: bbox=(62,3,118,177) size=56x174 margin=3
+03: bbox=(57,3,123,177) size=66x174 margin=3
+04: bbox=(60,3,120,177) size=60x174 margin=3
+05: bbox=(43,3,137,177) size=94x174 margin=3
+06: bbox=(42,3,138,177) size=96x174 margin=3
+07: bbox=(61,3,119,177) size=58x174 margin=3
+08: bbox=(62,3,118,177) size=56x174 margin=3
+09: bbox=(57,3,124,177) size=67x174 margin=3
+10: bbox=(26,3,154,177) size=128x174 margin=3
+11: bbox=(63,3,117,177) size=54x174 margin=3
+12: bbox=(36,3,144,177) size=108x174 margin=3
+13: bbox=(22,3,158,177) size=136x174 margin=3
+14: bbox=(32,3,148,177) size=116x174 margin=3
+15: bbox=(65,3,116,177) size=51x174 margin=3
+16: bbox=(27,3,153,177) size=126x174 margin=3
+17: bbox=(37,3,144,177) size=107x174 margin=3
+18: bbox=(41,3,140,177) size=99x174 margin=3
+19: bbox=(31,3,149,177) size=118x174 margin=3
+20: bbox=(2,13,178,177) size=176x164 margin=2
+21: bbox=(2,52,178,177) size=176x125 margin=2
+22: bbox=(2,62,178,177) size=176x115 margin=2
+23: bbox=(23,3,157,177) size=134x174 margin=3
+24: bbox=(2,98,178,171) size=176x73 margin=2
+25: bbox=(2,98,178,171) size=176x73 margin=2
+26: bbox=(2,109,178,171) size=176x62 margin=2
+27: bbox=(2,98,178,171) size=176x73 margin=2
+width_range=51-176
+height_range=62-174
+avg_height=155.0
+edge_risk_frames=[]
