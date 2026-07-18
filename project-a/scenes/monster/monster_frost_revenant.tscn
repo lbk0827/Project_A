@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://fr0strevenantscn"]
+[gd_scene format=3 uid="uid://baxcpljbeef4t"]
 
 [ext_resource type="Script" uid="uid://bqv5dcgl6dwiu" path="res://scripts/monster/monster_actor.gd" id="1_actor"]
 [ext_resource type="Texture2D" uid="uid://dh4o1hqsr42em" path="res://assets/monster/spritesheets/frost_revenant_spritesheet.png" id="2_sheet"]
