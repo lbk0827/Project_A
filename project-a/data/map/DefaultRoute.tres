@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="MapRouteResource" format=3 uid="uid://r8mc1e2nlxx3"]
 
-[ext_resource type="Script" uid="uid://edilr45dee7v" path="res://scripts/data/map_route_node_data.gd" id="1_node"]
-[ext_resource type="Script" uid="uid://dir405lw3co8f" path="res://scripts/data/map_route_resource.gd" id="2_route"]
+[ext_resource type="Script" path="res://scripts/data/map_route_node_data.gd" id="1_node"]
+[ext_resource type="Script" path="res://scripts/data/map_route_resource.gd" id="2_route"]
 
 [sub_resource type="Resource" id="Resource_base_camp"]
 script = ExtResource("1_node")
