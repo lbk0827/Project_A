@@ -1080,9 +1080,7 @@ func _move_player_to_moon_slash_position(targets: Array):
 		heroine.call("set_facing_direction", direction)
 	if heroine.has_method("play_run_animation"):
 		heroine.call("play_run_animation", direction.normalized())
-	var tween := create_tween()
-	tween.tween_property(heroine, "global_position", skill_position, 0.36).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	await tween.finished
+	await _dash_actor_with_sonic_boom(heroine, skill_position, 0.36)
 	if heroine.has_method("set_facing_direction"):
 		heroine.call("set_facing_direction", focus_position - heroine.global_position)
 
@@ -1219,7 +1217,7 @@ func _dash_actor_with_sonic_boom(actor: Node2D, target_position: Vector2, reques
 	_spawn_sonic_boom(target_position, direction, distance, true)
 
 func _sonic_boom_dash_time(requested_duration: float) -> float:
-	return clamp(requested_duration * 0.42, 0.1, 0.16)
+	return clampf(requested_duration * 0.42, 0.1, 0.16)
 
 func _spawn_sonic_boom(position: Vector2, direction: Vector2, distance: float, is_arrival: bool):
 	var vfx := SONIC_BOOM_VFX_SCENE.instantiate()
