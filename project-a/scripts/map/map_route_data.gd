@@ -1,9 +1,23 @@
 extends RefCounted
 
 const DEFAULT_ROUTE: MapRouteResource = preload("res://data/map/DefaultRoute.tres")
+const DEFAULT_NEXT_IDS := {
+	"base_camp": ["battle_1", "event_1"],
+	"battle_1": ["treasure_1", "battle_2"],
+	"event_1": ["battle_2"],
+	"treasure_1": ["elite_1"],
+	"battle_2": ["elite_1", "rest_1"],
+	"elite_1": ["rest_1"],
+	"rest_1": ["boss_1"],
+}
 
 static func get_nodes() -> Array:
-	return DEFAULT_ROUTE.get_nodes()
+	var nodes: Array = []
+	for node_data in DEFAULT_ROUTE.get_nodes():
+		var normalized_node: Dictionary = node_data.duplicate(true)
+		_apply_default_next_ids(normalized_node)
+		nodes.append(normalized_node)
+	return nodes
 
 static func build_lookup() -> Dictionary:
 	var lookup: Dictionary = {}
@@ -26,6 +40,15 @@ static func get_next_nodes(node_id: String) -> Array:
 		if lookup.has(next_id):
 			nodes.append(lookup[next_id].duplicate(true))
 	return nodes
+
+static func _apply_default_next_ids(node_data: Dictionary):
+	var node_id := String(node_data.get("id", ""))
+	if not DEFAULT_NEXT_IDS.has(node_id):
+		return
+	var next_ids: Array = node_data.get("next", [])
+	if not next_ids.is_empty():
+		return
+	node_data["next"] = DEFAULT_NEXT_IDS[node_id].duplicate()
 
 static func is_result_node(node_id: String) -> bool:
 	var node_data := get_node(node_id)
