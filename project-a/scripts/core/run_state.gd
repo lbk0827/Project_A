@@ -38,15 +38,14 @@ func add_card_to_deck(card_id: String):
 func _default_deck() -> Array[String]:
 	# Tsuki's starting deck (card id repeated per its copy count).
 	var starter: Array[String] = []
-	starter.append("long_sword_slash")
-	starter.append("long_sword_slash")
-	starter.append("high_speed_slash")
-	starter.append("let_flow")
-	starter.append("suppress_ready")
-	starter.append("steal_slash")
-	starter.append("feint_strike")
-	starter.append("freezing_blade")
-	starter.append("iceberg_cleave")
+	starter.append("crescent_slash")
+	starter.append("crescent_slash")
+	starter.append("flow_guard")
+	starter.append("stance_shift")
+	starter.append("afterimage_thrust")
+	starter.append("breath_reset")
+	starter.append("rupture_cleave")
+	starter.append("halfmoon_combo")
 	return starter
 
 func start_combat_node(node_id: String, monster_id := ""):
