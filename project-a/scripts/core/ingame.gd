@@ -94,6 +94,7 @@ const BLOCK_GAIN_COLOR := Color(0.55, 0.8, 1.0)
 const BLOCKED_HIT_COLOR := Color(0.7, 0.75, 0.85)
 const STANCE_MOON_SHADOW := "월영"
 const STANCE_CLEAVING_MOON := "참월"
+const ENEMY_DEATH_CLEANUP_PADDING := 0.08
 const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
 const BASE_CAMP_STAGE_TEXTURE := preload("res://assets/stage/base_camp.png")
@@ -1306,6 +1307,10 @@ func _return_player_home():
 		heroine.call("play_run_animation", direction)
 
 	await _dash_actor_with_sonic_boom(heroine, player_home_position, _get_heroine_motion_value("return_time", 0.3))
+	if heroine.has_method("set_facing_direction"):
+		heroine.call("set_facing_direction", Vector2.RIGHT)
+	if heroine.has_method("play_idle_animation"):
+		heroine.call("play_idle_animation")
 
 func _face_player_to(enemy: CombatEnemy):
 	if not is_instance_valid(heroine) or enemy == null or not is_instance_valid(enemy.node):
@@ -1392,7 +1397,9 @@ func _kill_enemy(enemy: CombatEnemy):
 	_gain_rp(float(rp_settings.get("rp_per_enemy_kill", 0.0)), "KILL")
 	if is_instance_valid(enemy.status_bar):
 		enemy.status_bar.clear_intent()
+		enemy.status_bar.visible = false
 	_play_enemy_death(enemy)
+	_remove_enemy_after_death(enemy)
 
 func _check_victory():
 	if battle_over:
@@ -2019,6 +2026,22 @@ func _play_enemy_death(enemy: CombatEnemy):
 	if is_instance_valid(enemy.sprite):
 		enemy.sprite.modulate = Color(0.45, 0.45, 0.45, 0.75)
 
+func _remove_enemy_after_death(enemy: CombatEnemy):
+	if enemy == null or not is_instance_valid(enemy.node):
+		return
+	var death_node := enemy.node
+	var cleanup_delay := _get_enemy_death_cleanup_delay(enemy)
+	await get_tree().create_timer(cleanup_delay).timeout
+	if enemy.dead and is_instance_valid(death_node):
+		death_node.queue_free()
+
+func _get_enemy_death_cleanup_delay(enemy: CombatEnemy) -> float:
+	if enemy != null and is_instance_valid(enemy.node):
+		var value: Variant = enemy.node.get("death_fade_time")
+		if value is float or value is int:
+			return max(float(value) + ENEMY_DEATH_CLEANUP_PADDING, 0.05)
+	return 0.5
+
 func _update_player_hp_bar():
 	if is_instance_valid(battle_ui):
 		battle_ui.call("set_player_status", player_hp, PLAYER_STATS.max_hp, player_block)
@@ -2108,10 +2131,11 @@ func _enemy_display_action_count(enemy: CombatEnemy) -> int:
 func _update_enemy_bar(enemy: CombatEnemy):
 	if not is_instance_valid(enemy.status_bar):
 		return
-	enemy.status_bar.set_status(enemy.hp, enemy.max_hp(), enemy.block)
 	if battle_over or enemy.dead:
 		enemy.status_bar.clear_intent()
+		enemy.status_bar.visible = false
 		return
+	enemy.status_bar.set_status(enemy.hp, enemy.max_hp(), enemy.block)
 	if enemy.ai_enabled and not enemy.ai_current_action.is_empty():
 		enemy.status_bar.set_intent(_enemy_ai_intent_type(enemy.ai_current_action), _enemy_ai_display_amount(enemy, enemy.ai_current_action), enemy.ai_action_count_remaining, str(enemy.ai_current_action.get("display_name", "")))
 		return
