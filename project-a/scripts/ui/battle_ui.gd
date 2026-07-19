@@ -23,6 +23,15 @@ const END_TURN_DISABLED_COLOR := Color(0.2, 0.24, 0.3, 0.8)
 const MONSTER_INFO_WIDTH := 420.0
 const TOAST_LIFETIME := 2.4
 const MAX_TOASTS := 4
+const POPUP_STACK_WINDOW_MS := 450
+const POPUP_STACK_BUCKET_SIZE := 48.0
+const POPUP_STACK_OFFSETS := [
+	Vector2(-34, -30),
+	Vector2(18, -56),
+	Vector2(-8, -82),
+	Vector2(42, -38),
+	Vector2(-48, -66),
+]
 
 @onready var ui_root: Control = %UIRoot
 @onready var deck_hand: Control = %DeckHand
@@ -60,6 +69,7 @@ var monster_info_panel: Panel
 var monster_info_name_label: Label
 var monster_info_count_label: Label
 var monster_info_rows: VBoxContainer
+var recent_popup_slots: Dictionary = {}
 
 func _ready():
 	ui_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -887,7 +897,7 @@ func show_damage_popup(screen_position: Vector2, text: String, color: Color, fon
 	popup.add_theme_constant_override("outline_size", 7)
 	popup.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	popup_layer.add_child(popup)
-	popup.position = screen_position + Vector2(randf_range(-14.0, 14.0) - 30.0, -30.0)
+	popup.position = _popup_start_position(screen_position)
 	popup.scale = Vector2(0.6, 0.6)
 	popup.pivot_offset = Vector2(30, 20)
 	var tween := popup.create_tween()
@@ -896,3 +906,28 @@ func show_damage_popup(screen_position: Vector2, text: String, color: Color, fon
 	tween.tween_property(popup, "position:y", popup.position.y - 46.0, 0.7).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(popup, "modulate:a", 0.0, 0.3).set_delay(0.4)
 	tween.chain().tween_callback(popup.queue_free)
+
+func _popup_start_position(screen_position: Vector2) -> Vector2:
+	var bucket := "%d:%d" % [
+		int(round(screen_position.x / POPUP_STACK_BUCKET_SIZE)),
+		int(round(screen_position.y / POPUP_STACK_BUCKET_SIZE)),
+	]
+	var now := Time.get_ticks_msec()
+	var slot := 0
+	if recent_popup_slots.has(bucket):
+		var previous: Dictionary = recent_popup_slots[bucket]
+		if now - int(previous.get("time", 0)) <= POPUP_STACK_WINDOW_MS:
+			slot = int(previous.get("slot", 0)) + 1
+	recent_popup_slots[bucket] = {
+		"time": now,
+		"slot": slot,
+	}
+	_prune_popup_slots(now)
+	var offset: Vector2 = POPUP_STACK_OFFSETS[slot % POPUP_STACK_OFFSETS.size()]
+	return screen_position + offset + Vector2(randf_range(-6.0, 6.0), randf_range(-4.0, 4.0))
+
+func _prune_popup_slots(now: int):
+	for bucket in recent_popup_slots.keys():
+		var previous: Dictionary = recent_popup_slots[bucket]
+		if now - int(previous.get("time", 0)) > POPUP_STACK_WINDOW_MS:
+			recent_popup_slots.erase(bucket)
