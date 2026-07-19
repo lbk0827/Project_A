@@ -92,6 +92,8 @@ const CRIT_COLOR := Color(1.0, 0.5, 0.1)
 const DAMAGE_TO_PLAYER_COLOR := Color(1.0, 0.35, 0.35)
 const BLOCK_GAIN_COLOR := Color(0.55, 0.8, 1.0)
 const BLOCKED_HIT_COLOR := Color(0.7, 0.75, 0.85)
+const STANCE_MOON_SHADOW := "월영"
+const STANCE_CLEAVING_MOON := "참월"
 const CARD_HAND_SETTINGS := preload("res://scenes/ui/cards/CardHandSettings.tres")
 const PLAYER_STATS := preload("res://data/player/PlayerStats.tres")
 const BASE_CAMP_STAGE_TEXTURE := preload("res://assets/stage/base_camp.png")
@@ -148,6 +150,8 @@ var monster_ai_actions: Dictionary = {}
 var monster_ai_pattern_steps: Dictionary = {}
 var monster_ai_rules_by_monster: Dictionary = {}
 var rp_skill_selected := false
+var current_stance := STANCE_MOON_SHADOW
+var stance_changed_this_turn := false
 # Temporary +% bonus to Tsuki's attack-card damage for the current turn.
 var _attack_damage_bonus_percent := 0
 # Passive effects installed by enhance cards for this combat.
@@ -175,6 +179,8 @@ var targeting_dot_style: StyleBoxFlat
 var selected_card_index := -1
 var is_card_play_lifted := false
 var is_targeting_active := false
+var stance_badge: Panel
+var stance_badge_label: Label
 var draw_animation_card_indices: Array[int] = []
 var reshuffle_animation_pending := false
 var card_preview_large: Control
@@ -193,6 +199,13 @@ func _ready():
 		_enter_combat_mode()
 	else:
 		_enter_route_selection_mode()
+
+func _process(_delta: float):
+	if route_selection_mode:
+		if is_instance_valid(stance_badge):
+			stance_badge.visible = false
+		return
+	_update_stance_badge()
 
 func _load_card_library() -> Dictionary:
 	var library: Dictionary = {}
@@ -221,6 +234,7 @@ func _load_card_library() -> Dictionary:
 		card.card_type = StringName(String(entry.get("card_type", "skill")))
 		card.motion_animation = StringName(String(entry.get("motion_animation", _default_card_motion_animation(card.card_type))))
 		card.effects = _build_card_effects(entry, effect_rows)
+		card.stance_effects = _build_card_stance_effects(entry, effect_rows)
 		var keywords: Variant = entry.get("keywords", [])
 		card.keywords = keywords if keywords is Array else []
 		card.inspiration = _build_card_inspiration(entry, effect_rows)
@@ -343,13 +357,29 @@ func _build_card_effects(entry: Dictionary, effect_rows: Array) -> Array:
 		var trigger := String(row.get("trigger", "on_play"))
 		if trigger == "on_play":
 			effects.append(_effect_from_row(row))
-		elif trigger != "on_inspiration" and trigger != "text_only":
+		elif trigger != "on_inspiration" and trigger != "on_stance" and trigger != "text_only":
 			effects.append({
 				"type": "passive",
 				"trigger": trigger,
 				"effect": _effect_from_row(row),
 			})
 	return effects
+
+func _build_card_stance_effects(entry: Dictionary, effect_rows: Array) -> Dictionary:
+	var existing: Variant = entry.get("stance_effects", null)
+	if existing is Dictionary:
+		return existing
+	var stance_effects: Dictionary = {}
+	for row in effect_rows:
+		if String(row.get("trigger", "")) != "on_stance":
+			continue
+		var stance := String(row.get("stance", ""))
+		if stance.is_empty():
+			continue
+		var effects: Array = stance_effects.get(stance, [])
+		effects.append(_effect_from_row(row))
+		stance_effects[stance] = effects
+	return stance_effects
 
 func _build_card_inspiration(entry: Dictionary, effect_rows: Array) -> Array:
 	var existing: Variant = entry.get("inspiration", null)
@@ -365,12 +395,14 @@ func _effect_from_row(row: Dictionary) -> Dictionary:
 	var effect := {
 		"type": String(row.get("effect_type", "")),
 	}
-	for field in ["target", "card_type", "buff", "scope"]:
+	for field in ["target", "card_type", "buff", "scope", "condition"]:
 		if _has_table_value(row, field):
 			effect[field] = String(row[field])
 	for field in ["percent", "amount", "duration_turns"]:
 		if _has_table_value(row, field):
 			effect[field] = int(row[field])
+	if effect["type"] == "add_card_to_hand" and effect.has("scope"):
+		effect["card_id"] = effect["scope"]
 	return effect
 
 func _has_table_value(entry: Dictionary, field: String) -> bool:
@@ -651,6 +683,7 @@ func _build_ui():
 	targeting_dot = battle_ui.get_node("%TargetingDot")
 	end_turn_button = battle_ui.get_node("%EndTurnButton")
 	restart_button = battle_ui.get_node("%RestartButton")
+	_build_stance_badge()
 
 	targeting_dot_style = StyleBoxFlat.new()
 	targeting_dot.add_theme_stylebox_override("panel", targeting_dot_style)
@@ -660,6 +693,53 @@ func _build_ui():
 	battle_ui.connect("rp_skill_requested", Callable(self, "_on_rp_skill_requested"))
 	battle_ui.connect("rp_skill_cancelled", Callable(self, "_on_rp_skill_cancelled"))
 	battle_ui.connect("monster_info_close_requested", Callable(self, "_clear_selected_monster_info"))
+
+func _build_stance_badge():
+	if not is_instance_valid(ui_root) or is_instance_valid(stance_badge):
+		return
+	stance_badge = Panel.new()
+	stance_badge.name = "TsukiStanceBadge"
+	stance_badge.custom_minimum_size = Vector2(92, 30)
+	stance_badge.size = Vector2(92, 30)
+	stance_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stance_badge.z_as_relative = false
+	stance_badge.z_index = 550
+
+	stance_badge_label = Label.new()
+	stance_badge_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	stance_badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stance_badge_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	stance_badge_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stance_badge_label.add_theme_font_size_override("font_size", 16)
+	stance_badge_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.92))
+	stance_badge_label.add_theme_constant_override("outline_size", 4)
+	stance_badge.add_child(stance_badge_label)
+	ui_root.add_child(stance_badge)
+	_update_stance_badge()
+
+func _update_stance_badge():
+	if not is_instance_valid(stance_badge) or not is_instance_valid(stance_badge_label):
+		return
+	stance_badge.visible = is_instance_valid(heroine) and not battle_over and not route_selection_mode
+	if not stance_badge.visible:
+		return
+
+	stance_badge_label.text = current_stance
+	var style := StyleBoxFlat.new()
+	if current_stance == STANCE_CLEAVING_MOON:
+		style.bg_color = Color(0.34, 0.08, 0.03, 0.86)
+		style.border_color = Color(1.0, 0.57, 0.24, 0.98)
+		stance_badge_label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.46, 1.0))
+	else:
+		style.bg_color = Color(0.03, 0.12, 0.22, 0.86)
+		style.border_color = Color(0.48, 0.87, 1.0, 0.98)
+		stance_badge_label.add_theme_color_override("font_color", Color(0.68, 0.92, 1.0, 1.0))
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	stance_badge.add_theme_stylebox_override("panel", style)
+
+	var screen_position := heroine.get_global_transform_with_canvas().origin
+	stance_badge.global_position = screen_position + Vector2(-46, -146)
 
 func _build_route_transition():
 	route_transition_layer = CanvasLayer.new()
@@ -687,6 +767,7 @@ func _start_battle():
 	player_block = 0
 	energy = PLAYER_STATS.starting_energy
 	rage_point = clamp(float(rp_settings.get("starting_rp", 0.0)), 0.0, _max_rp())
+	stance_changed_this_turn = false
 	turn_number = 1
 	battle_over = false
 	battle_won = false
@@ -706,6 +787,8 @@ func _start_battle():
 	heroine.global_position = player_home_position
 	if heroine.has_method("reset_combat_state"):
 		heroine.call("reset_combat_state", player_hp, PLAYER_STATS.max_hp)
+	if heroine.has_method("set_facing_direction"):
+		heroine.call("set_facing_direction", Vector2.RIGHT)
 	for enemy in enemies:
 		enemy.hp = enemy.max_hp()
 		enemy.block = 0
@@ -737,6 +820,7 @@ func _start_player_turn(is_first_turn := false):
 	player_block = 0
 	energy = PLAYER_STATS.starting_energy
 	_attack_damage_bonus_percent = 0
+	stance_changed_this_turn = false
 	if not is_first_turn:
 		turn_number += 1
 	_log("Turn %d. Draw %d cards and spend your energy." % [turn_number, DRAW_CARDS_PER_TURN])
@@ -844,10 +928,15 @@ func _play_card(index: int, target_enemy: CombatEnemy = null):
 	# instant effects (block/draw/energy applied right away). Passives install
 	# a lasting effect rather than resolving now.
 	var attack_effects: Array = []
+	var attack_modifiers: Array = []
 	var instant_effects: Array = []
-	for effect in card.effects:
+	var card_effects := card.effects.duplicate(true)
+	card_effects.append_array(_stance_effects_for(card))
+	for effect in card_effects:
 		if String(effect.get("type", "")) == "passive":
 			_install_passive(effect)
+		elif _is_attack_modifier_effect(effect):
+			attack_modifiers.append(effect.duplicate())
 		elif _is_enemy_damage_effect(effect):
 			attack_effects.append(effect.duplicate())
 		else:
@@ -855,6 +944,8 @@ func _play_card(index: int, target_enemy: CombatEnemy = null):
 
 	if is_inspired:
 		_apply_inspiration(card, attack_effects)
+	for modifier in attack_modifiers:
+		_apply_attack_modifier(modifier, attack_effects)
 	if is_inspired:
 		for passive_effect in _inspired_play_passive_effects:
 			attack_effects.append(passive_effect.duplicate())
@@ -889,17 +980,46 @@ func _effective_cost(card: CardData) -> int:
 # (extra hits, per-hit damage change). Cost changes are handled separately.
 func _apply_inspiration(card: CardData, attack_effects: Array):
 	for entry in card.inspiration:
-		match String(entry.get("type", "")):
-			"add_hit":
-				var base_hits: Array = attack_effects.duplicate()
-				for _i in range(int(entry.get("amount", 0))):
-					for effect in base_hits:
-						attack_effects.append(effect.duplicate())
-			"damage_delta":
-				var delta: float = float(entry.get("percent", 0))
-				for effect in attack_effects:
-					if effect.has("percent"):
-						effect["percent"] = int(round(float(effect["percent"]) * (1.0 + delta / 100.0)))
+		_apply_attack_modifier(entry, attack_effects)
+
+func _apply_attack_modifier(entry: Dictionary, attack_effects: Array):
+	if not _modifier_condition_met(entry):
+		return
+	match String(entry.get("type", "")):
+		"add_hit":
+			var base_hits: Array = []
+			for effect in attack_effects:
+				if _is_enemy_damage_effect(effect):
+					base_hits.append(effect.duplicate())
+			for _i in range(int(entry.get("amount", 0))):
+				for effect in base_hits:
+					attack_effects.append(effect.duplicate())
+		"damage_delta":
+			var delta: float = float(entry.get("percent", 0))
+			for effect in attack_effects:
+				if _is_enemy_damage_effect(effect) and effect.has("percent"):
+					effect["percent"] = int(round(float(effect["percent"]) * (1.0 + delta / 100.0)))
+
+func _modifier_condition_met(entry: Dictionary) -> bool:
+	match String(entry.get("condition", "")):
+		"stance_changed_this_turn":
+			return stance_changed_this_turn
+		_:
+			return true
+
+func _is_attack_modifier_effect(effect: Dictionary) -> bool:
+	return String(effect.get("type", "")) in ["add_hit", "damage_delta"]
+
+func _stance_effects_for(card: CardData) -> Array:
+	var effects: Variant = card.stance_effects.get(current_stance, [])
+	if effects is Array:
+		return effects.duplicate(true)
+	return []
+
+func _toggle_stance():
+	current_stance = STANCE_CLEAVING_MOON if current_stance == STANCE_MOON_SHADOW else STANCE_MOON_SHADOW
+	stance_changed_this_turn = true
+	_show_popup(_get_player_screen_position(), current_stance, Color(0.75, 0.9, 1.0), 28)
 
 func _install_passive(effect: Dictionary):
 	if String(effect.get("trigger", "")) == "on_play_inspired_card" and effect.get("effect", null) is Dictionary:
@@ -936,14 +1056,26 @@ func _apply_instant_effects(effects: Array):
 				var gain := int(effect.get("amount", 0))
 				energy += gain
 				_show_popup(_get_player_screen_position(), "+%d EP" % gain, Color(0.5, 0.9, 1.0), 28)
+			"add_card_to_hand":
+				_add_card_to_hand(String(effect.get("card_id", "")))
 			"buff":
 				if String(effect.get("buff", "")) == "attack_damage_up":
 					_attack_damage_bonus_percent += int(effect.get("percent", 0))
 					_show_popup(_get_player_screen_position(), "공격 강화", Color(1.0, 0.8, 0.3), 24)
+			"stance_change":
+				_toggle_stance()
 			"damage":
 				_damage_player(int(effect.get("amount", 0)))
 			"activate_inspiration":
 				_activate_random_inspiration(int(effect.get("amount", 1)))
+
+func _add_card_to_hand(card_id: String) -> bool:
+	if hand.size() >= MAX_HAND_SIZE or card_id.is_empty() or not card_library.has(card_id):
+		return false
+	hand.append(_instance_for_hand(card_library[card_id]))
+	_show_popup(_get_player_screen_position(), "+카드", Color(0.75, 0.9, 1.0), 24)
+	_refresh_ui()
+	return true
 
 # Computed damage of a single attack effect: percent of attack power (or flat
 # amount), boosted by this turn's attack buff, then rolled for a critical hit.
@@ -1591,6 +1723,7 @@ func _refresh_ui():
 			battle_ui.call("set_rp_targeting_positions", rp_positions)
 		else:
 			battle_ui.call("clear_rp_targeting")
+	_update_stance_badge()
 	_update_player_hp_bar()
 	_update_all_enemy_bars()
 
@@ -1601,7 +1734,7 @@ func _refresh_ui():
 		var card: CardData = hand[i]
 		var effective_cost: int = _effective_cost(card)
 		var card_view: Control = CARD_VIEW_SCENE.instantiate()
-		card_view.call("set_card", card, i, battle_over or combat_sequence_active or rp_skill_selected or effective_cost > energy, CARD_HAND_SETTINGS)
+		card_view.call("set_card", card, i, battle_over or combat_sequence_active or rp_skill_selected or effective_cost > energy, CARD_HAND_SETTINGS, current_stance)
 		card_view.call("set_inspired_state", card.inspired, effective_cost)
 		card_view.call("set_hand_order", i)
 		card_view.connect("card_drag_started", Callable(self, "_on_card_drag_started"))
@@ -1686,7 +1819,7 @@ func _create_card_transition_proxy(index: int, card: CardData) -> Control:
 		return null
 	var proxy_card: Control = CARD_VIEW_SCENE.instantiate()
 	ui_root.add_child(proxy_card)
-	proxy_card.call("set_card", card, index, true, CARD_HAND_SETTINGS)
+	proxy_card.call("set_card", card, index, true, CARD_HAND_SETTINGS, current_stance)
 	proxy_card.call("set_inspired_state", card.inspired, _effective_cost(card))
 	proxy_card.call("set_hand_order", 800 + index)
 	proxy_card.size = source_card.size
@@ -2160,7 +2293,7 @@ func _show_large_card_preview(index: int, screen_position: Vector2):
 	card_preview_large.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui_root.add_child(card_preview_large)
 	var effective_cost := _effective_cost(card)
-	card_preview_large.call("set_card", card, effective_cost)
+	card_preview_large.call("set_card", card, effective_cost, current_stance)
 	card_preview_large.call("set_inspired_state", card.inspired, effective_cost)
 	_update_large_card_preview_position(screen_position)
 	var tween := create_tween()

@@ -14,6 +14,9 @@ class_name CardData
 # {"type": "damage", "amount": 6, "target": "enemy"}. Supported types:
 # damage, block, draw, energy. Replaces per-id branching in combat.
 @export var effects: Array = []
+# Optional effects keyed by Tsuki's stance. Example:
+# {"월영": [{"type": "draw", "amount": 1}], "참월": [{"type": "add_hit", "amount": 1}]}.
+@export var stance_effects: Dictionary = {}
 # Keyword tags (보존/유일/영감 등); definitions live in the card_effects table.
 @export var keywords: Array = []
 # Bonus effects applied when this card's inspiration (영감) is active.

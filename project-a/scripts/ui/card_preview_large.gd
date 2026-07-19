@@ -6,14 +6,15 @@ var cost_label: Label
 var name_label: Label
 var keyword_label: Label
 var type_label: Label
-var body_label: Label
+var body_label: RichTextLabel
 var inspired_glow: Panel
 
 func _ready():
 	_bind_nodes()
 
-func set_card(card: CardData, effective_cost: int = -1):
+func set_card(card: CardData, effective_cost: int = -1, active_stance := ""):
 	_bind_nodes()
+	body_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_apply_type_style(card.card_type)
 	var art_path := _card_art_path(card)
 	art.texture = load(art_path) if ResourceLoader.exists(art_path) else null
@@ -21,7 +22,7 @@ func set_card(card: CardData, effective_cost: int = -1):
 	name_label.text = card.display_name
 	keyword_label.text = _type_header_text(card.card_type)
 	type_label.text = _keyword_text(card)
-	body_label.text = _body_text(card)
+	body_label.text = _body_text(card, active_stance)
 	_fit_all_labels()
 
 func set_cost_text(text: String):
@@ -55,21 +56,31 @@ func _fit_all_labels():
 	_fit_label(type_label, 20, 13)
 	_fit_label(body_label, 22, 14)
 
-func _fit_label(label: Label, max_size: int, min_size: int):
-	if label == null or label.text.is_empty():
+func _fit_label(label: Control, max_size: int, min_size: int):
+	if label == null:
+		return
+	var label_text := String(label.get("text"))
+	if label_text.is_empty():
 		return
 	var font := label.get_theme_font(&"font")
 	if font == null:
 		return
 	var avail := label.size
 	if avail.x <= 1.0 or avail.y <= 1.0:
-		label.add_theme_font_size_override("font_size", max_size)
+		_set_label_font_size(label, max_size)
 		return
+	var measured_text := _plain_text(label_text)
 	for font_size in range(max_size, min_size - 1, -1):
-		if font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_CENTER, avail.x, font_size).y <= avail.y:
-			label.add_theme_font_size_override("font_size", font_size)
+		if font.get_multiline_string_size(measured_text, HORIZONTAL_ALIGNMENT_CENTER, avail.x, font_size).y <= avail.y:
+			_set_label_font_size(label, font_size)
 			return
-	label.add_theme_font_size_override("font_size", min_size)
+	_set_label_font_size(label, min_size)
+
+func _set_label_font_size(label: Control, font_size: int):
+	if label is RichTextLabel:
+		label.add_theme_font_size_override("normal_font_size", font_size)
+	else:
+		label.add_theme_font_size_override("font_size", font_size)
 
 func _apply_type_style(card_type: StringName):
 	var accent := Color(0.55, 0.95, 1.0, 1.0)
@@ -127,7 +138,7 @@ func _append_keyword_label(labels: Array[String], keyword: String):
 	if not labels.has(label):
 		labels.append(label)
 
-func _body_text(card: CardData) -> String:
+func _body_text(card: CardData, active_stance := "") -> String:
 	var text := card.text.strip_edges()
 	var hidden_tags: Array[String] = []
 	hidden_tags.append(_type_text(card.card_type))
@@ -137,7 +148,25 @@ func _body_text(card: CardData) -> String:
 		hidden_tags.append("영감")
 	for tag in hidden_tags:
 		text = _remove_leading_tag(text, tag)
-	return text
+	return _highlight_stance_lines(text, active_stance)
+
+func _highlight_stance_lines(text: String, active_stance: String) -> String:
+	var lines := text.split("\n")
+	for i in range(lines.size()):
+		var line := String(lines[i])
+		if line.begins_with("[월영]"):
+			lines[i] = _format_stance_line(line, active_stance == "월영", "#86dfff")
+		elif line.begins_with("[참월]"):
+			lines[i] = _format_stance_line(line, active_stance == "참월", "#ffb26b")
+	return "\n".join(lines)
+
+func _format_stance_line(line: String, is_active: bool, active_color: String) -> String:
+	if is_active:
+		return "[color=%s]%s[/color]" % [active_color, line]
+	return "[color=#7f8794]%s[/color]" % line
+
+func _plain_text(text: String) -> String:
+	return text.replace("[color=#86dfff]", "").replace("[color=#ffb26b]", "").replace("[color=#7f8794]", "").replace("[/color]", "")
 
 func _remove_leading_tag(text: String, tag: String) -> String:
 	var marker := "[%s]" % tag
