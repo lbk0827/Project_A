@@ -182,6 +182,7 @@ var is_card_play_lifted := false
 var is_targeting_active := false
 var stance_badge: Panel
 var stance_badge_label: Label
+var stance_badge_suppressed := false
 var draw_animation_card_indices: Array[int] = []
 var reshuffle_animation_pending := false
 var card_preview_large: Control
@@ -721,7 +722,7 @@ func _build_stance_badge():
 func _update_stance_badge():
 	if not is_instance_valid(stance_badge) or not is_instance_valid(stance_badge_label):
 		return
-	stance_badge.visible = is_instance_valid(heroine) and not battle_over and not route_selection_mode
+	stance_badge.visible = is_instance_valid(heroine) and not battle_over and not route_selection_mode and not stance_badge_suppressed
 	if not stance_badge.visible:
 		return
 
@@ -741,6 +742,10 @@ func _update_stance_badge():
 
 	var screen_position := heroine.get_global_transform_with_canvas().origin
 	stance_badge.global_position = screen_position + Vector2(-46, -146)
+
+func _set_stance_badge_suppressed(suppressed: bool):
+	stance_badge_suppressed = suppressed
+	_update_stance_badge()
 
 func _build_route_transition():
 	route_transition_layer = CanvasLayer.new()
@@ -1161,6 +1166,7 @@ func _execute_rp_skill():
 		await battle_ui.call("play_rp_cutin", float(rp_skill.get("cutin_hold_seconds", 1.0)))
 
 	var targets: Array = _alive_enemies()
+	_set_stance_badge_suppressed(true)
 	await _move_player_to_moon_slash_position(targets)
 	if heroine.has_method("play_card_animation"):
 		heroine.call("play_card_animation", StringName(String(rp_skill.get("motion_animation", "MoonSlash"))))
@@ -1194,6 +1200,7 @@ func _execute_rp_skill():
 			vfx.call("shatter")
 	await get_tree().create_timer(0.4).timeout
 	await _return_player_home()
+	_set_stance_badge_suppressed(false)
 	combat_sequence_active = false
 	_face_player_to(_first_alive_enemy())
 	if not battle_over and heroine.has_method("play_idle_animation"):
@@ -1247,6 +1254,7 @@ func _draw_typed_card(card_type: String) -> bool:
 
 func _play_player_attack_sequence(damage_effects: Array, target_enemy: CombatEnemy, motion_animation: StringName = &"Attack"):
 	combat_sequence_active = true
+	_set_stance_badge_suppressed(true)
 	_refresh_ui()
 	var focus: CombatEnemy = target_enemy if (target_enemy != null and target_enemy.is_alive()) else _first_alive_enemy()
 	var moves_to_attack_position := _should_player_move_to_attack_position(motion_animation)
@@ -1267,6 +1275,7 @@ func _play_player_attack_sequence(damage_effects: Array, target_enemy: CombatEne
 	await get_tree().create_timer(_get_heroine_motion_value("attack_recover_delay", 0.38)).timeout
 	if moves_to_attack_position:
 		await _return_player_home()
+	_set_stance_badge_suppressed(false)
 	combat_sequence_active = false
 	_face_player_to(_first_alive_enemy())
 	if not battle_over and heroine.has_method("play_idle_animation"):
@@ -1937,8 +1946,6 @@ func _pulse_tomb(color: Color):
 
 func _log(message: String):
 	battle_log.append(message)
-	if is_instance_valid(battle_ui) and battle_ui.has_method("show_toast"):
-		battle_ui.call("show_toast", message)
 
 func _input(event: InputEvent):
 	if route_selection_mode or not rp_skill_selected:
