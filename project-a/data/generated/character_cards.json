@@ -98,7 +98,7 @@
 		"cost": 2,
 		"card_type": "attack",
 		"motion_animation": "Attack",
-		"text_template": "피해 {0}%를 3회.\n[월영] 자세 변경 카드 {1}장 생성.\n[참월] 이번 턴 자세를 변경했다면 피해 +{2}%.",
+		"text_template": "피해 {0}% x2.\n[월영] 자세 변경 카드 {1}장 생성.\n[참월] 이번 턴 자세를 변경했다면 피해 +{2}%.",
 		"copies": 1,
 		"keywords": [
 			"월영",
