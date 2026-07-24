@@ -1,3 +1,4 @@
+@tool
 extends RefCounted
 
 const DEFAULT_ROUTE: MapRouteResource = preload("res://data/map/DefaultRoute.tres")
@@ -13,7 +14,10 @@ const DEFAULT_NEXT_IDS := {
 
 static func get_nodes() -> Array:
 	var nodes: Array = []
-	for node_data in DEFAULT_ROUTE.get_nodes():
+	for route_node in DEFAULT_ROUTE.nodes:
+		if route_node == null or route_node.id.is_empty():
+			continue
+		var node_data := route_node.to_dictionary()
 		var normalized_node: Dictionary = node_data.duplicate(true)
 		_apply_default_next_ids(normalized_node)
 		nodes.append(normalized_node)
