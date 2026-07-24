@@ -7,7 +7,7 @@
 		"RpCost": 3.0,
 		"DamagePercent": 100.0,
 		"HitCount": 5,
-		"Target": "all_enemies",
+		"Target": "AllEnemies",
 		"MotionAnimation": "MoonSlash",
 		"VfxId": "MoonSlash",
 		"CutinHoldSeconds": 1.0

@@ -2,7 +2,7 @@
 	{
 		"Id": "Stab",
 		"DisplayName": "찌르기",
-		"IntentType": "attack",
+		"IntentType": "Attack",
 		"Power": 100,
 		"IconLabel": "ATK",
 		"DescriptionTemplate": "공격력의 {0}% 피해."
@@ -10,7 +10,7 @@
 	{
 		"Id": "HeavyBlow",
 		"DisplayName": "강타",
-		"IntentType": "attack",
+		"IntentType": "Attack",
 		"Power": 150,
 		"IconLabel": "POW",
 		"DescriptionTemplate": "공격력의 {0}% 피해."
@@ -18,7 +18,7 @@
 	{
 		"Id": "Brace",
 		"DisplayName": "방어",
-		"IntentType": "block",
+		"IntentType": "Block",
 		"Power": 80,
 		"IconLabel": "SHD",
 		"DescriptionTemplate": "실드 {0} 획득."

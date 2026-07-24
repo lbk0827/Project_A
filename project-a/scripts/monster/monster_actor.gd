@@ -376,5 +376,5 @@ func _remove_editor_combat_ui_preview():
 func _preview_intent_type() -> StringName:
 	var normalized := preview_intent_label.strip_edges().to_lower()
 	if normalized.begins_with("def") or normalized.begins_with("block") or normalized.begins_with("shield"):
-		return &"block"
-	return &"attack"
+		return &"Block"
+	return &"Attack"

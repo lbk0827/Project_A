@@ -233,7 +233,7 @@ func _load_card_library() -> Dictionary:
 		var key := _card_key(card.character, card.id)
 		var effect_rows: Array = effect_rows_by_card.get(key, [])
 		card.text = _build_card_text(entry, effect_rows)
-		card.card_type = StringName(String(entry.get("CardType", "skill")))
+		card.card_type = StringName(String(entry.get("CardType", "Skill")))
 		card.motion_animation = StringName(String(entry.get("MotionAnimation", _default_card_motion_animation(card.card_type))))
 		card.effects = _build_card_effects(entry, effect_rows)
 		card.stance_effects = _build_card_stance_effects(entry, effect_rows)
@@ -356,12 +356,12 @@ func _build_card_effects(entry: Dictionary, effect_rows: Array) -> Array:
 		return existing
 	var effects: Array = []
 	for row in effect_rows:
-		var trigger := String(row.get("Trigger", "on_play"))
-		if trigger == "on_play":
+		var trigger := String(row.get("Trigger", "OnPlay"))
+		if trigger == "OnPlay":
 			effects.append(_effect_from_row(row))
-		elif trigger != "on_inspiration" and trigger != "on_stance" and trigger != "text_only":
+		elif trigger != "OnInspiration" and trigger != "OnStance" and trigger != "TextOnly":
 			effects.append({
-				"type": "passive",
+				"type": "Passive",
 				"trigger": trigger,
 				"effect": _effect_from_row(row),
 			})
@@ -373,7 +373,7 @@ func _build_card_stance_effects(entry: Dictionary, effect_rows: Array) -> Dictio
 		return existing
 	var stance_effects: Dictionary = {}
 	for row in effect_rows:
-		if String(row.get("Trigger", "")) != "on_stance":
+		if String(row.get("Trigger", "")) != "OnStance":
 			continue
 		var stance := String(row.get("Stance", ""))
 		if stance.is_empty():
@@ -389,7 +389,7 @@ func _build_card_inspiration(entry: Dictionary, effect_rows: Array) -> Array:
 		return existing
 	var inspiration: Array = []
 	for row in effect_rows:
-		if String(row.get("Trigger", "")) == "on_inspiration":
+		if String(row.get("Trigger", "")) == "OnInspiration":
 			inspiration.append(_effect_from_row(row))
 	return inspiration
 
@@ -397,7 +397,7 @@ func _effect_from_row(row: Dictionary) -> Dictionary:
 	var effect := {
 		"type": String(row.get("EffectType", "")),
 	}
-	for pair in [["Target", "target"], ["CardType", "CardType"], ["Buff", "buff"], ["Scope", "scope"], ["Condition", "condition"]]:
+	for pair in [["Target", "target"], ["CardType", "CardType"], ["Buff", "Buff"], ["Scope", "scope"], ["Condition", "condition"]]:
 		var source_field := String(pair[0])
 		var effect_field := String(pair[1])
 		if _has_table_value(row, source_field):
@@ -407,7 +407,7 @@ func _effect_from_row(row: Dictionary) -> Dictionary:
 		var effect_field := String(pair[1])
 		if _has_table_value(row, source_field):
 			effect[effect_field] = int(row[source_field])
-	if effect["type"] == "add_card_to_hand" and effect.has("scope"):
+	if effect["type"] == "AddCardToHand" and effect.has("scope"):
 		effect["CardId"] = effect["scope"]
 	return effect
 
@@ -436,15 +436,15 @@ func _load_character_table_entry(path: String, character_id: String) -> Dictiona
 
 func _derive_requires_target(effects: Array) -> bool:
 	for effect in effects:
-		if String(effect.get("type", "")) != "damage":
+		if String(effect.get("type", "")) != "Damage":
 			continue
-		var target := String(effect.get("target", "enemy"))
-		if target == "enemy" or target == "all_enemies":
+		var target := String(effect.get("target", "Enemy"))
+		if target == "Enemy" or target == "AllEnemies":
 			return true
 	return false
 
 func _default_card_motion_animation(card_type: StringName) -> String:
-	return "Attack" if String(card_type) == "attack" else "Idle"
+	return "Attack" if String(card_type) == "Attack" else "Idle"
 
 func _setup_scene():
 	player_home_position = heroine.global_position
@@ -567,13 +567,13 @@ func _setup_enemy_ai(enemy: CombatEnemy):
 		return
 	enemy.ai_enabled = true
 	enemy.ai_pattern_id = pattern_id
-	enemy.ai_step_id = "start"
+	enemy.ai_step_id = "Start"
 	_set_enemy_ai_step(enemy, enemy.ai_step_id, null, false)
 
 func _set_enemy_ai_step(enemy: CombatEnemy, step_id: String, count_override: Variant = null, apply_rules := true):
 	var pattern_steps: Dictionary = monster_ai_pattern_steps.get(enemy.ai_pattern_id, {})
 	if not pattern_steps.has(step_id):
-		step_id = "start"
+		step_id = "Start"
 	if not pattern_steps.has(step_id):
 		enemy.ai_enabled = false
 		return
@@ -594,7 +594,7 @@ func _set_enemy_ai_step(enemy: CombatEnemy, step_id: String, count_override: Var
 func _advance_enemy_ai_step(enemy: CombatEnemy):
 	var pattern_steps: Dictionary = monster_ai_pattern_steps.get(enemy.ai_pattern_id, {})
 	var step: Dictionary = pattern_steps.get(enemy.ai_step_id, {})
-	var next_step_id := str(step.get("NextStepId", "start"))
+	var next_step_id := str(step.get("NextStepId", "Start"))
 	_set_enemy_ai_step(enemy, next_step_id)
 	if enemy.ai_next_count_delta != 0:
 		enemy.ai_action_count_remaining = max(enemy.ai_action_count_remaining + enemy.ai_next_count_delta, 1)
@@ -628,12 +628,12 @@ func _apply_enemy_ai_rules(enemy: CombatEnemy):
 	if not set_pattern_id.is_empty() and monster_ai_pattern_steps.has(set_pattern_id):
 		enemy.ai_pattern_id = set_pattern_id
 	var count_override: Variant = selected_rule.get("ActionCountOverride", null)
-	_set_enemy_ai_step(enemy, str(selected_rule.get("SetStepId", "start")), count_override, false)
+	_set_enemy_ai_step(enemy, str(selected_rule.get("SetStepId", "Start")), count_override, false)
 
 func _enemy_ai_rule_matches(enemy: CombatEnemy, rule: Dictionary) -> bool:
 	var trigger_type := str(rule.get("TriggerType", ""))
 	match trigger_type:
-		"hp_below":
+		"HpBelow":
 			var threshold := float(rule.get("TriggerValue", 0))
 			var ratio := float(enemy.hp) / float(max(enemy.max_hp(), 1)) * 100.0
 			return ratio <= threshold
@@ -807,7 +807,7 @@ func _start_battle():
 		enemy.ai_attack_bonus_percent = 0
 		enemy.ai_triggered_rules.clear()
 		if enemy.ai_enabled:
-			_set_enemy_ai_step(enemy, "start")
+			_set_enemy_ai_step(enemy, "Start")
 		enemy.dead = false
 		enemy.node.global_position = enemy.home_position
 		if is_instance_valid(enemy.node) and enemy.node.has_method("reset_combat_state"):
@@ -929,7 +929,7 @@ func _play_card(index: int, target_enemy: CombatEnemy = null):
 	_gain_rp(float(cost) * float(rp_settings.get("RpPerActionPoint", 0.0)), "ACTION")
 	hand.remove_at(index)
 	# Enhance cards install a lasting effect instead of going to discard.
-	var moves_to_tomb := String(card.card_type) != "enhance"
+	var moves_to_tomb := String(card.card_type) != "Enhance"
 	_log("%s 사용." % card.display_name)
 
 	_refresh_ui()
@@ -943,7 +943,7 @@ func _play_card(index: int, target_enemy: CombatEnemy = null):
 	var card_effects := card.effects.duplicate(true)
 	card_effects.append_array(_stance_effects_for(card))
 	for effect in card_effects:
-		if String(effect.get("type", "")) == "passive":
+		if String(effect.get("type", "")) == "Passive":
 			_install_passive(effect)
 		elif _is_attack_modifier_effect(effect):
 			attack_modifiers.append(effect.duplicate())
@@ -982,7 +982,7 @@ func _effective_cost(card: CardData) -> int:
 	var cost: int = card.cost
 	if card.inspired:
 		for entry in card.inspiration:
-			if String(entry.get("type", "")) == "cost_delta":
+			if String(entry.get("type", "")) == "CostDelta":
 				cost += int(entry.get("amount", 0))
 	return max(cost, 0)
 
@@ -996,7 +996,7 @@ func _apply_attack_modifier(entry: Dictionary, attack_effects: Array):
 	if not _modifier_condition_met(entry):
 		return
 	match String(entry.get("type", "")):
-		"add_hit":
+		"AddHit":
 			var base_hits: Array = []
 			for effect in attack_effects:
 				if _is_enemy_damage_effect(effect):
@@ -1004,7 +1004,7 @@ func _apply_attack_modifier(entry: Dictionary, attack_effects: Array):
 			for _i in range(int(entry.get("amount", 0))):
 				for effect in base_hits:
 					attack_effects.append(effect.duplicate())
-		"damage_delta":
+		"DamageDelta":
 			var delta: float = float(entry.get("percent", 0))
 			for effect in attack_effects:
 				if _is_enemy_damage_effect(effect) and effect.has("percent"):
@@ -1012,13 +1012,13 @@ func _apply_attack_modifier(entry: Dictionary, attack_effects: Array):
 
 func _modifier_condition_met(entry: Dictionary) -> bool:
 	match String(entry.get("condition", "")):
-		"stance_changed_this_turn":
+		"StanceChangedThisTurn":
 			return stance_changed_this_turn
 		_:
 			return true
 
 func _is_attack_modifier_effect(effect: Dictionary) -> bool:
-	return String(effect.get("type", "")) in ["add_hit", "damage_delta"]
+	return String(effect.get("type", "")) in ["AddHit", "DamageDelta"]
 
 func _stance_effects_for(card: CardData) -> Array:
 	var effects: Variant = card.stance_effects.get(current_stance, [])
@@ -1032,7 +1032,7 @@ func _toggle_stance():
 	_show_popup(_get_player_screen_position(), current_stance, Color(0.75, 0.9, 1.0), 28)
 
 func _install_passive(effect: Dictionary):
-	if String(effect.get("trigger", "")) == "on_play_inspired_card" and effect.get("effect", null) is Dictionary:
+	if String(effect.get("trigger", "")) == "OnPlayInspiredCard" and effect.get("effect", null) is Dictionary:
 		_inspired_play_passive_effects.append(effect["effect"].duplicate())
 		_show_popup(_get_player_screen_position(), "강화 발동", Color(0.6, 0.85, 1.0), 24)
 
@@ -1051,32 +1051,32 @@ func _activate_random_inspiration(count: int):
 		_refresh_ui()
 
 func _is_enemy_damage_effect(effect: Dictionary) -> bool:
-	return String(effect.get("type", "")) == "damage" and String(effect.get("target", "enemy")) != "self"
+	return String(effect.get("type", "")) == "Damage" and String(effect.get("target", "Enemy")) != "Self"
 
 func _apply_instant_effects(effects: Array):
 	for effect in effects:
 		match String(effect.get("type", "")):
-			"block", "shield":
+			"Block", "Shield":
 				var block_amount := _compute_shield(effect)
 				player_block += block_amount
 				_show_popup(_get_player_screen_position(), "+%d DEF" % block_amount, BLOCK_GAIN_COLOR, 28)
-			"draw":
+			"Draw":
 				await _draw_cards_typed(int(effect.get("amount", 0)), String(effect.get("CardType", "")))
-			"energy":
+			"Energy":
 				var gain := int(effect.get("amount", 0))
 				energy += gain
 				_show_popup(_get_player_screen_position(), "+%d EP" % gain, Color(0.5, 0.9, 1.0), 28)
-			"add_card_to_hand":
+			"AddCardToHand":
 				_add_card_to_hand(String(effect.get("CardId", "")))
-			"buff":
-				if String(effect.get("buff", "")) == "attack_damage_up":
+			"Buff":
+				if String(effect.get("Buff", "")) == "AttackDamageUp":
 					_attack_damage_bonus_percent += int(effect.get("percent", 0))
 					_show_popup(_get_player_screen_position(), "공격 강화", Color(1.0, 0.8, 0.3), 24)
-			"stance_change":
+			"StanceChange":
 				_toggle_stance()
-			"damage":
+			"Damage":
 				_damage_player(int(effect.get("amount", 0)))
-			"activate_inspiration":
+			"ActivateInspiration":
 				_activate_random_inspiration(int(effect.get("amount", 1)))
 
 func _add_card_to_hand(card_id: String) -> bool:
@@ -1289,7 +1289,7 @@ func _play_player_attack_sequence(damage_effects: Array, target_enemy: CombatEne
 # Which enemies a damage effect hits: all living for AoE, else the targeted one
 # (falling back to the first living enemy).
 func _effect_targets(effect: Dictionary, target_enemy: CombatEnemy) -> Array:
-	if String(effect.get("target", "enemy")) == "all_enemies":
+	if String(effect.get("target", "Enemy")) == "AllEnemies":
 		return _alive_enemies()
 	if target_enemy != null and target_enemy.is_alive():
 		return [target_enemy]
@@ -1529,9 +1529,9 @@ func _enemy_turn():
 			continue
 		var intent: EnemyIntentData = enemy.intents[enemy.intent_index]
 		match intent.intent_type:
-			"attack":
+			"Attack":
 				await _play_enemy_attack_sequence(enemy, _enemy_attack_damage(enemy, intent))
-			"block":
+			"Block":
 				enemy.block += intent.amount
 				_show_popup(_enemy_screen_position(enemy), "+%d DEF" % intent.amount, BLOCK_GAIN_COLOR, 28)
 				_update_enemy_bar(enemy)
@@ -1540,21 +1540,21 @@ func _enemy_turn():
 
 func _perform_enemy_ai_action(enemy: CombatEnemy):
 	var action := enemy.ai_current_action
-	var action_type := str(action.get("ActionType", "skill"))
+	var action_type := str(action.get("ActionType", "Skill"))
 	match action_type:
-		"attack":
+		"Attack":
 			await _play_enemy_attack_sequence(enemy, _enemy_ai_attack_damage(enemy, action))
-		"defense", "block":
+		"Defense", "Block":
 			var block_amount := _enemy_ai_defense_amount(enemy, action)
 			enemy.block += block_amount
 			_show_popup(_enemy_screen_position(enemy), "+%d DEF" % block_amount, BLOCK_GAIN_COLOR, 28)
 			_update_enemy_bar(enemy)
-		"buff":
+		"Buff":
 			var gain: int = max(int(action.get("PowerValue", 1)), 1)
 			enemy.ai_attack_bonus_percent += 20 * gain
 			_show_popup(_enemy_screen_position(enemy), "%s +%d" % [str(action.get("DisplayName", "강화")), gain], BLOCK_GAIN_COLOR, 28)
-		"skill":
-			if str(action.get("PowerType", "")) == "count_delta":
+		"Skill":
+			if str(action.get("PowerType", "")) == "CountDelta":
 				enemy.ai_next_count_delta += int(action.get("PowerValue", 0))
 			_show_popup(_enemy_screen_position(enemy), str(action.get("DisplayName", "기술")), Color(0.78, 0.62, 1.0), 28)
 		_:
@@ -1570,9 +1570,9 @@ func _enemy_ai_attack_damage(enemy: CombatEnemy, action: Dictionary) -> int:
 	return damage
 
 func _enemy_ai_defense_amount(enemy: CombatEnemy, action: Dictionary) -> int:
-	var power_type := str(action.get("PowerType", "flat"))
+	var power_type := str(action.get("PowerType", "Flat"))
 	var power_value := int(action.get("PowerValue", 0))
-	if power_type == "defense_percent":
+	if power_type == "DefensePercent":
 		return int(round(_enemy_ai_defense(enemy) * float(power_value) / 100.0))
 	return power_value
 
@@ -1925,11 +1925,11 @@ func _play_pile_transfer_with_delay(from: Vector2, to: Vector2, color: Color, de
 
 func _card_transfer_color(card: CardData) -> Color:
 	match String(card.card_type):
-		"attack":
+		"Attack":
 			return Color(1.0, 0.35, 0.55)
-		"shield":
+		"Shield":
 			return Color(0.4, 0.82, 1.0)
-		"enhance":
+		"Enhance":
 			return Color(0.82, 0.52, 1.0)
 		_:
 			return Color(0.45, 0.92, 1.0)
@@ -2086,22 +2086,22 @@ func _enemy_ai_defense(enemy: CombatEnemy) -> int:
 	return enemy.data.stats.defense
 
 func _enemy_ai_intent_type(action: Dictionary) -> StringName:
-	var action_type := str(action.get("ActionType", "skill"))
+	var action_type := str(action.get("ActionType", "Skill"))
 	match action_type:
-		"attack":
-			return &"attack"
-		"defense", "block":
-			return &"defense"
-	return &"skill"
+		"Attack":
+			return &"Attack"
+		"Defense", "Block":
+			return &"Defense"
+	return &"Skill"
 
 func _enemy_ai_display_amount(enemy: CombatEnemy, action: Dictionary) -> int:
-	var action_type := str(action.get("ActionType", "skill"))
-	var power_type := str(action.get("PowerType", "flat"))
+	var action_type := str(action.get("ActionType", "Skill"))
+	var power_type := str(action.get("PowerType", "Flat"))
 	var power_value := int(action.get("PowerValue", 0))
-	if action_type == "attack":
+	if action_type == "Attack":
 		return power_value
-	if action_type == "defense" or action_type == "block":
-		if power_type == "defense_percent":
+	if action_type == "Defense" or action_type == "Block":
+		if power_type == "DefensePercent":
 			return int(round(_enemy_ai_defense(enemy) * float(power_value) / 100.0))
 		return power_value
 	return abs(power_value)
@@ -2270,7 +2270,7 @@ func _is_card_play_lifted(screen_position: Vector2) -> bool:
 	return screen_position.y <= HAND_TOP_Y - CARD_HAND_SETTINGS.play_lift_threshold
 
 func _is_non_attack_card_map_drop(card: CardData, screen_position: Vector2) -> bool:
-	return String(card.card_type) != "attack" and screen_position.y < HAND_TOP_Y
+	return String(card.card_type) != "Attack" and screen_position.y < HAND_TOP_Y
 
 func _update_inactive_cards(should_lower: bool):
 	for child in hand_container.get_children():
@@ -2303,7 +2303,7 @@ func _selected_card_targets_all_enemies() -> bool:
 	if selected_card_index < 0 or selected_card_index >= hand.size():
 		return false
 	for effect in hand[selected_card_index].effects:
-		if String(effect.get("type", "")) == "damage" and String(effect.get("target", "enemy")) == "all_enemies":
+		if String(effect.get("type", "")) == "Damage" and String(effect.get("target", "Enemy")) == "AllEnemies":
 			return true
 	return false
 

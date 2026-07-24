@@ -15,7 +15,7 @@ const EDGE_LOCKED_COLOR := Color(0.36, 0.42, 0.48, 0.34)
 
 var map_nodes := MapRouteData.get_nodes()
 
-var current_node_id := "base_camp"
+var current_node_id := "BaseCamp"
 var node_lookup: Dictionary = {}
 var node_buttons: Dictionary = {}
 var log_label: Label
@@ -157,7 +157,7 @@ func _build_map_nodes():
 		var button := TextureButton.new()
 		_mark_generated(button)
 		var node_type: String = node_data["type"]
-		var size := BOSS_NODE_SIZE if node_type == "boss" else NODE_SIZE
+		var size := BOSS_NODE_SIZE if node_type == "Boss" else NODE_SIZE
 		button.name = "Node_%s" % node_data["id"]
 		button.texture_normal = _make_icon_texture(node_type)
 		button.ignore_texture_size = true
@@ -209,9 +209,9 @@ func _set_current_node(node_id: String, complete_previous := true):
 	elif is_unresolved_result:
 		log_label.text = "%s node resolved. Confirm the result to continue." % node_data["label"]
 		_show_node_result(node_data)
-	elif node_type == "boss":
+	elif node_type == "Boss":
 		log_label.text = "Boss node selected. Enter the final battle when ready."
-	elif node_type in ["battle", "elite"]:
+	elif node_type in ["Battle", "Elite"]:
 		log_label.text = "%s node selected. Enter battle when ready." % node_data["label"]
 	else:
 		log_label.text = "%s node completed. Choose the next connected node." % node_data["label"]
@@ -252,7 +252,7 @@ func _on_reset_pressed():
 		run_state.reset_run()
 	selected_combat_node_id = ""
 	_hide_node_result()
-	_set_current_node("base_camp", false)
+	_set_current_node("BaseCamp", false)
 
 func _on_continue_node_pressed():
 	if not _is_result_node(current_node_id):
@@ -288,13 +288,13 @@ func _is_result_node(node_id: String) -> bool:
 	if not node_lookup.has(node_id):
 		return false
 	var node_data: Dictionary = node_lookup[node_id]
-	return node_data["type"] in ["event", "treasure", "rest"]
+	return node_data["type"] in ["Event", "Treasure", "Rest"]
 
 func _is_combat_node(node_id: String) -> bool:
 	if not node_lookup.has(node_id):
 		return false
 	var node_data: Dictionary = node_lookup[node_id]
-	return node_data["type"] in ["battle", "elite", "boss"]
+	return node_data["type"] in ["Battle", "Elite", "Boss"]
 
 func _is_node_completed(node_id: String) -> bool:
 	var run_state := _run_state()
@@ -312,19 +312,19 @@ func _make_icon_texture(node_type: String) -> AtlasTexture:
 
 func _get_icon_region(node_type: String) -> Rect2:
 	match node_type:
-		"battle":
+		"Battle":
 			return Rect2(78, 54, 190, 246)
-		"elite":
+		"Elite":
 			return Rect2(442, 54, 190, 246)
-		"boss":
+		"Boss":
 			return Rect2(720, 0, 340, 355)
-		"treasure":
+		"Treasure":
 			return Rect2(1166, 54, 194, 222)
-		"event":
+		"Event":
 			return Rect2(798, 408, 190, 244)
-		"rest":
+		"Rest":
 			return Rect2(1088, 420, 322, 196)
-		"start", "base_camp":
+		"Start", "BaseCamp":
 			return Rect2(444, 408, 190, 244)
 		_:
 			return Rect2(444, 408, 190, 244)
@@ -362,13 +362,13 @@ func _get_result_text(node_type: String) -> String:
 
 func _load_run_state():
 	if Engine.is_editor_hint():
-		current_node_id = "base_camp"
+		current_node_id = "BaseCamp"
 		return
 	var run_state := _run_state()
 	if run_state != null and node_lookup.has(run_state.current_node_id):
 		current_node_id = run_state.current_node_id
 	else:
-		current_node_id = "base_camp"
+		current_node_id = "BaseCamp"
 
 func _clear_generated_children():
 	for child in get_children():

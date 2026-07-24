@@ -207,9 +207,9 @@ func _bind_nodes():
 func _apply_type_style(card_type: StringName):
 	var accent := Color(0.55, 0.95, 1.0, 1.0)
 	match card_type:
-		&"attack":
+		&"Attack":
 			accent = Color(1.0, 0.32, 0.24, 1.0)
-		&"enhance":
+		&"Enhance":
 			accent = Color(0.58, 1.0, 0.72, 1.0)
 		_:
 			accent = Color(0.48, 0.86, 1.0, 1.0)
@@ -248,9 +248,9 @@ func _pascal_to_snake(value: String) -> String:
 
 func _type_text(card_type: StringName) -> String:
 	match card_type:
-		&"attack":
+		&"Attack":
 			return "공격"
-		&"enhance":
+		&"Enhance":
 			return "강화"
 		_:
 			return "기술"

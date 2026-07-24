@@ -3,7 +3,7 @@ extends Resource
 class_name MapRouteNodeData
 
 @export var id := ""
-@export var type := "battle"
+@export var type := "Battle"
 @export var label := ""
 @export var monster_id := ""
 @export var encounter_id := ""

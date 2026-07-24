@@ -3,13 +3,13 @@ extends RefCounted
 
 const DEFAULT_ROUTE: MapRouteResource = preload("res://data/map/DefaultRoute.tres")
 const DEFAULT_NEXT_IDS := {
-	"base_camp": ["battle_1", "event_1"],
-	"battle_1": ["treasure_1", "battle_2"],
-	"event_1": ["battle_2"],
-	"treasure_1": ["elite_1"],
-	"battle_2": ["elite_1", "rest_1"],
-	"elite_1": ["rest_1"],
-	"rest_1": ["boss_1"],
+	"BaseCamp": ["Battle1", "Event1"],
+	"Battle1": ["Treasure1", "Battle2"],
+	"Event1": ["Battle2"],
+	"Treasure1": ["Elite1"],
+	"Battle2": ["Elite1", "Rest1"],
+	"Elite1": ["Rest1"],
+	"Rest1": ["Boss1"],
 }
 
 static func get_nodes() -> Array:
@@ -56,65 +56,65 @@ static func _apply_default_next_ids(node_data: Dictionary):
 
 static func is_result_node(node_id: String) -> bool:
 	var node_data := get_node(node_id)
-	return String(node_data.get("type", "")) in ["event", "treasure", "rest"]
+	return String(node_data.get("type", "")) in ["Event", "Treasure", "Rest"]
 
 static func is_combat_node(node_id: String) -> bool:
 	var node_data := get_node(node_id)
-	return String(node_data.get("type", "")) in ["battle", "elite", "boss"]
+	return String(node_data.get("type", "")) in ["Battle", "Elite", "Boss"]
 
 static func get_type_title(node_type: String) -> String:
 	match node_type:
-		"base_camp":
+		"BaseCamp":
 			return "BASE"
-		"battle":
+		"Battle":
 			return "BATTLE"
-		"elite":
+		"Elite":
 			return "ELITE"
-		"boss":
+		"Boss":
 			return "BOSS"
-		"event":
+		"Event":
 			return "EVENT"
-		"treasure":
+		"Treasure":
 			return "TREASURE"
-		"rest":
+		"Rest":
 			return "REST"
 		_:
 			return "NODE"
 
 static func get_type_description(node_type: String) -> String:
 	match node_type:
-		"base_camp":
+		"BaseCamp":
 			return "Safe starting point. Choose the next route."
-		"battle":
+		"Battle":
 			return "Standard encounter. Win to open the next route."
-		"elite":
+		"Elite":
 			return "Hard encounter with stronger rewards later."
-		"boss":
+		"Boss":
 			return "Final encounter of this prototype route."
-		"event":
+		"Event":
 			return "Resolve a small anomaly and gain gold for now."
-		"treasure":
+		"Treasure":
 			return "Open a cache and gain prototype gold."
-		"rest":
+		"Rest":
 			return "Recover before the next fight."
 		_:
 			return "Continue along the selected route."
 
 static func get_type_color(node_type: String) -> Color:
 	match node_type:
-		"base_camp":
+		"BaseCamp":
 			return Color(0.55, 0.96, 1.0)
-		"battle":
+		"Battle":
 			return Color(0.95, 0.22, 0.38)
-		"elite":
+		"Elite":
 			return Color(0.9, 0.58, 0.18)
-		"boss":
+		"Boss":
 			return Color(0.72, 0.25, 1.0)
-		"event":
+		"Event":
 			return Color(0.42, 0.8, 0.95)
-		"treasure":
+		"Treasure":
 			return Color(1.0, 0.72, 0.24)
-		"rest":
+		"Rest":
 			return Color(0.42, 0.9, 0.62)
 		_:
 			return Color(0.62, 0.72, 0.86)
@@ -123,13 +123,13 @@ static func apply_result_node_effect(run_state: Node, node_type: String) -> Stri
 	if run_state == null:
 		return "Route updated."
 	match node_type:
-		"event":
+		"Event":
 			run_state.gain_gold(10)
 			return "Event resolved. Gained 10 gold."
-		"treasure":
+		"Treasure":
 			run_state.gain_gold(50)
 			return "Treasure opened. Gained 50 gold."
-		"rest":
+		"Rest":
 			var before_hp := int(run_state.current_hp)
 			run_state.heal(12)
 			return "Rested. Recovered %d HP." % (int(run_state.current_hp) - before_hp)
@@ -138,11 +138,11 @@ static func apply_result_node_effect(run_state: Node, node_type: String) -> Stri
 
 static func get_result_text(node_type: String) -> String:
 	match node_type:
-		"event":
+		"Event":
 			return "An unstable anomaly flickers nearby. Event choices will be connected here later."
-		"treasure":
+		"Treasure":
 			return "A sealed cache waits on the path. Reward selection will be connected here later."
-		"rest":
+		"Rest":
 			return "The party catches its breath. Healing and upgrade choices will be connected here later."
 		_:
 			return "This node has been resolved."

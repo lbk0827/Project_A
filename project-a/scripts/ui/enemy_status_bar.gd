@@ -164,8 +164,8 @@ func set_intent(intent_type: StringName, _amount: int, action_count_remaining: i
 	count_label.visible = true
 	icon_disc.visible = true
 	count_label.text = str(max(action_count_remaining, 0))
-	var is_attack: bool = intent_type == &"attack"
-	var is_block: bool = intent_type == &"block" or intent_type == &"defense"
+	var is_attack: bool = intent_type == &"Attack"
+	var is_block: bool = intent_type == &"Block" or intent_type == &"Defense"
 	var accent := BADGE_ATTACK_COLOR if is_attack else (BADGE_BLOCK_COLOR if is_block else BADGE_SKILL_COLOR)
 	badge_diamond_style.bg_color = accent
 	icon_disc_style.border_color = accent.lightened(0.15)

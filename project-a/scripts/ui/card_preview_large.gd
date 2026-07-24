@@ -85,11 +85,11 @@ func _set_label_font_size(label: Control, font_size: int):
 func _apply_type_style(card_type: StringName):
 	var accent := Color(0.55, 0.95, 1.0, 1.0)
 	match card_type:
-		&"attack":
+		&"Attack":
 			accent = Color(1.0, 0.32, 0.24, 1.0)
-		&"enhance":
+		&"Enhance":
 			accent = Color(0.58, 1.0, 0.72, 1.0)
-		&"rp":
+		&"Rp":
 			accent = Color(0.7, 0.42, 1.0, 1.0)
 		_:
 			accent = Color(0.48, 0.86, 1.0, 1.0)
@@ -106,18 +106,18 @@ func _card_art_path(card: CardData) -> String:
 
 func _type_text(card_type: StringName) -> String:
 	match card_type:
-		&"attack":
+		&"Attack":
 			return "공격"
-		&"enhance":
+		&"Enhance":
 			return "강화"
-		&"rp":
+		&"Rp":
 			return "분노 스킬"
 		_:
 			return "기술"
 
 func _type_header_text(card_type: StringName) -> String:
 	var type_text := _type_text(card_type)
-	if card_type == &"rp":
+	if card_type == &"Rp":
 		return type_text
 	return "[%s]" % type_text
 

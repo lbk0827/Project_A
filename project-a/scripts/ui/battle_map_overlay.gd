@@ -99,38 +99,38 @@ class MiniMapView:
 
 	func _type_color(node_type: String) -> Color:
 		match node_type:
-			"base_camp":
+			"BaseCamp":
 				return Color(0.55, 0.96, 1.0)
-			"battle":
+			"Battle":
 				return Color(0.95, 0.22, 0.38)
-			"elite":
+			"Elite":
 				return Color(0.9, 0.58, 0.18)
-			"boss":
+			"Boss":
 				return Color(0.72, 0.25, 1.0)
-			"event":
+			"Event":
 				return Color(0.42, 0.8, 0.95)
-			"treasure":
+			"Treasure":
 				return Color(1.0, 0.72, 0.24)
-			"rest":
+			"Rest":
 				return Color(0.42, 0.9, 0.62)
 			_:
 				return Color(0.62, 0.72, 0.86)
 
 	func _get_icon_region(node_type: String) -> Rect2:
 		match node_type:
-			"battle":
+			"Battle":
 				return Rect2(78, 54, 190, 246)
-			"elite":
+			"Elite":
 				return Rect2(442, 54, 190, 246)
-			"boss":
+			"Boss":
 				return Rect2(720, 0, 340, 355)
-			"treasure":
+			"Treasure":
 				return Rect2(1166, 54, 194, 222)
-			"event":
+			"Event":
 				return Rect2(798, 408, 190, 244)
-			"rest":
+			"Rest":
 				return Rect2(1088, 420, 322, 196)
-			"base_camp":
+			"BaseCamp":
 				return Rect2(444, 408, 190, 244)
 			_:
 				return Rect2(444, 408, 190, 244)
@@ -361,19 +361,19 @@ func _make_node_texture(node_type: String) -> AtlasTexture:
 
 func _get_icon_region(node_type: String) -> Rect2:
 	match node_type:
-		"battle":
+		"Battle":
 			return Rect2(78, 54, 190, 246)
-		"elite":
+		"Elite":
 			return Rect2(442, 54, 190, 246)
-		"boss":
+		"Boss":
 			return Rect2(720, 0, 340, 355)
-		"treasure":
+		"Treasure":
 			return Rect2(1166, 54, 194, 222)
-		"event":
+		"Event":
 			return Rect2(798, 408, 190, 244)
-		"rest":
+		"Rest":
 			return Rect2(1088, 420, 322, 196)
-		"base_camp":
+		"BaseCamp":
 			return Rect2(444, 408, 190, 244)
 		_:
 			return Rect2(444, 408, 190, 244)

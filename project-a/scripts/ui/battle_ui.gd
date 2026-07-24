@@ -478,14 +478,14 @@ func set_rp_skill_card(skill: Dictionary):
 	card.character = String(skill.get("Character", "Tsuki"))
 	card.display_name = String(skill.get("DisplayName", "달빛 베기"))
 	card.cost = int(round(rp_cost))
-	card.card_type = &"rp"
+	card.card_type = &"Rp"
 	card.motion_animation = StringName(skill.get("MotionAnimation", "MoonSlash"))
 	card.requires_target = true
 	card.text = "모든 적에게 공격력 %s%% 피해를 %d회 줍니다." % [_format_rp(damage_percent), hit_count]
 	card.keywords = []
 	card.effects = [{
-		"type": "damage",
-		"target": "all_enemies",
+		"type": "Damage",
+		"target": "AllEnemies",
 		"DamagePercent": damage_percent,
 		"HitCount": hit_count,
 	}]
@@ -855,8 +855,8 @@ func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool, attack
 	row.add_child(name_label)
 
 	var effect_label := Label.new()
-	var is_attack: bool = intent.intent_type == &"attack"
-	var is_block: bool = intent.intent_type == &"block" or intent.intent_type == &"defense"
+	var is_attack: bool = intent.intent_type == &"Attack"
+	var is_block: bool = intent.intent_type == &"Block" or intent.intent_type == &"Defense"
 	if is_attack:
 		effect_label.text = "피해 %d%% (%d)" % [intent.amount, int(round(attack * float(intent.amount) / 100.0))]
 	elif is_block:

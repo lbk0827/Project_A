@@ -1,6 +1,6 @@
 extends Node
 
-const START_NODE_ID := "base_camp"
+const START_NODE_ID := "BaseCamp"
 const STARTING_MAX_HP := 90
 
 var current_node_id := START_NODE_ID
@@ -60,7 +60,7 @@ func complete_active_combat_node():
 		return
 	complete_node(active_combat_node_id)
 	current_node_id = active_combat_node_id
-	if active_combat_node_id == "boss_1":
+	if active_combat_node_id == "Boss1":
 		run_cleared = true
 	active_combat_node_id = ""
 	current_monster_id = ""
