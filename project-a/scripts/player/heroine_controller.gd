@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 const FX_HEROINE_SLASH_SCENE := preload("res://scenes/vfx/fx_heroine_slash.tscn")
-const FX_TSUKI_FIVE_SLASH_SCENE := preload("res://scenes/vfx/fx_tsuki_five_slash.tscn")
+const FX_TSUKI_FIVE_SLASH_SCENE := preload("res://scenes/vfx/FxTsukiFiveSlash.tscn")
 
 @export var speed := 180.0
 @export var attack_action: StringName = &"ui_accept"

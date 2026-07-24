@@ -98,11 +98,32 @@ func _apply_type_style(card_type: StringName):
 
 func _card_art_path(card: CardData) -> String:
 	var character_id := card.character.strip_edges()
+	var card_id := card.id.strip_edges()
 	if not character_id.is_empty():
-		var character_path := "res://assets/card/cardart_full/%s_%s.png" % [character_id, card.id]
-		if ResourceLoader.exists(character_path):
-			return character_path
-	return "res://assets/card/cardart_full/%s.png" % card.id
+		for character_path in [
+			"res://assets/card/cardart_full/%s%s.png" % [character_id, card_id],
+			"res://assets/card/cardart_full/%s_%s.png" % [character_id, card_id],
+			"res://assets/card/cardart_full/%s_%s.png" % [_pascal_to_snake(character_id), _pascal_to_snake(card_id)],
+		]:
+			if ResourceLoader.exists(character_path):
+				return character_path
+	for card_path in [
+		"res://assets/card/cardart_full/%s.png" % card_id,
+		"res://assets/card/cardart_full/%s.png" % _pascal_to_snake(card_id),
+	]:
+		if ResourceLoader.exists(card_path):
+			return card_path
+	return "res://assets/card/cardart_full/%s.png" % card_id
+
+func _pascal_to_snake(value: String) -> String:
+	var result := ""
+	for i in range(value.length()):
+		var character := value.substr(i, 1)
+		var lower_character := character.to_lower()
+		if i > 0 and character != lower_character:
+			result += "_"
+		result += lower_character
+	return result
 
 func _type_text(card_type: StringName) -> String:
 	match card_type:

@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://b5mireimpdata" path="res://scripts/data/monster_data.gd" id="1_data"]
 [ext_resource type="Script" uid="uid://deq25iy1a8nfv" path="res://scripts/data/enemy_intent_data.gd" id="1_intent"]
 [ext_resource type="Resource" uid="uid://ja5l21j6xipk" path="res://data/monsters/FrostRevenantStats.tres" id="2_stats"]
-[ext_resource type="PackedScene" uid="uid://baxcpljbeef4t" path="res://scenes/monster/monster_frost_revenant.tscn" id="3_scene"]
+[ext_resource type="PackedScene" uid="uid://baxcpljbeef4t" path="res://scenes/monster/MonsterFrostRevenant.tscn" id="3_scene"]
 [ext_resource type="Resource" uid="uid://c50a5vw4ugbbp" path="res://data/monsters/intents/Brace.tres" id="4_brace"]
 [ext_resource type="Resource" uid="uid://drj3c0y5cq2xc" path="res://data/monsters/intents/HeavyBlow.tres" id="5_heavy"]
 [ext_resource type="Resource" uid="uid://bn8mki8eb66ab" path="res://data/monsters/intents/Stab.tres" id="6_stab"]

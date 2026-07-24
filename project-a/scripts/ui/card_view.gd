@@ -223,6 +223,7 @@ func _card_art_path(card: CardData) -> String:
 	var card_id := card.id.strip_edges()
 	if not character_id.is_empty():
 		for character_path in [
+			"res://assets/card/cardart_full/%s%s.png" % [character_id, card_id],
 			"res://assets/card/cardart_full/%s_%s.png" % [character_id, card_id],
 			"res://assets/card/cardart_full/%s_%s.png" % [_pascal_to_snake(character_id), _pascal_to_snake(card_id)],
 		]:

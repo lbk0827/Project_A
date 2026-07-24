@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/data/map_route_node_data.gd" id="1_node"]
 [ext_resource type="Script" path="res://scripts/data/map_route_resource.gd" id="2_route"]
 
-[sub_resource type="Resource" id="Resource_base_camp"]
+[sub_resource type="Resource" id="ResourceBaseCamp"]
 script = ExtResource("1_node")
 id = "BaseCamp"
 type = "BaseCamp"
@@ -11,7 +11,7 @@ label = "Base Camp"
 position = Vector2(120, 360)
 next_ids = PackedStringArray("Battle1", "Event1")
 
-[sub_resource type="Resource" id="Resource_battle_1"]
+[sub_resource type="Resource" id="ResourceBattle1"]
 script = ExtResource("1_node")
 id = "Battle1"
 label = "Battle"
@@ -20,7 +20,7 @@ encounter_id = "EncMireImp4"
 position = Vector2(285, 250)
 next_ids = PackedStringArray("Treasure1", "Battle2")
 
-[sub_resource type="Resource" id="Resource_event_1"]
+[sub_resource type="Resource" id="ResourceEvent1"]
 script = ExtResource("1_node")
 id = "Event1"
 type = "Event"
@@ -28,7 +28,7 @@ label = "Event"
 position = Vector2(285, 470)
 next_ids = PackedStringArray("Battle2")
 
-[sub_resource type="Resource" id="Resource_treasure_1"]
+[sub_resource type="Resource" id="ResourceTreasure1"]
 script = ExtResource("1_node")
 id = "Treasure1"
 type = "Treasure"
@@ -36,7 +36,7 @@ label = "Treasure"
 position = Vector2(475, 180)
 next_ids = PackedStringArray("Battle3")
 
-[sub_resource type="Resource" id="Resource_battle_2"]
+[sub_resource type="Resource" id="ResourceBattle2"]
 script = ExtResource("1_node")
 id = "Battle2"
 label = "Battle"
@@ -45,7 +45,7 @@ encounter_id = "EncBogStalker2"
 position = Vector2(475, 385)
 next_ids = PackedStringArray("Battle3", "Rest1")
 
-[sub_resource type="Resource" id="Resource_battle_3"]
+[sub_resource type="Resource" id="ResourceBattle3"]
 script = ExtResource("1_node")
 id = "Battle3"
 label = "Battle"
@@ -54,7 +54,7 @@ encounter_id = "EncBoneCrawler2"
 position = Vector2(650, 255)
 next_ids = PackedStringArray("Battle4", "Elite1")
 
-[sub_resource type="Resource" id="Resource_battle_4"]
+[sub_resource type="Resource" id="ResourceBattle4"]
 script = ExtResource("1_node")
 id = "Battle4"
 label = "Battle"
@@ -63,7 +63,7 @@ encounter_id = "EncGraveboundCrawler2"
 position = Vector2(825, 365)
 next_ids = PackedStringArray("Elite1", "Rest2")
 
-[sub_resource type="Resource" id="Resource_elite_1"]
+[sub_resource type="Resource" id="ResourceElite1"]
 script = ExtResource("1_node")
 id = "Elite1"
 type = "Elite"
@@ -73,7 +73,7 @@ encounter_id = "EncFrostRevenant1"
 position = Vector2(985, 240)
 next_ids = PackedStringArray("Elite2", "Rest2")
 
-[sub_resource type="Resource" id="Resource_rest_1"]
+[sub_resource type="Resource" id="ResourceRest1"]
 script = ExtResource("1_node")
 id = "Rest1"
 type = "Rest"
@@ -81,7 +81,7 @@ label = "Rest"
 position = Vector2(650, 520)
 next_ids = PackedStringArray("Battle4")
 
-[sub_resource type="Resource" id="Resource_rest_2"]
+[sub_resource type="Resource" id="ResourceRest2"]
 script = ExtResource("1_node")
 id = "Rest2"
 type = "Rest"
@@ -89,7 +89,7 @@ label = "Rest"
 position = Vector2(1040, 500)
 next_ids = PackedStringArray("Elite2")
 
-[sub_resource type="Resource" id="Resource_elite_2"]
+[sub_resource type="Resource" id="ResourceElite2"]
 script = ExtResource("1_node")
 id = "Elite2"
 type = "Elite"
@@ -99,7 +99,7 @@ encounter_id = "EncCrownAcolyte1"
 position = Vector2(1180, 345)
 next_ids = PackedStringArray("Boss1")
 
-[sub_resource type="Resource" id="Resource_boss_1"]
+[sub_resource type="Resource" id="ResourceBoss1"]
 script = ExtResource("1_node")
 id = "Boss1"
 type = "Boss"
@@ -110,4 +110,4 @@ position = Vector2(1370, 320)
 
 [resource]
 script = ExtResource("2_route")
-nodes = Array[ExtResource("1_node")]([SubResource("Resource_base_camp"), SubResource("Resource_battle_1"), SubResource("Resource_event_1"), SubResource("Resource_treasure_1"), SubResource("Resource_battle_2"), SubResource("Resource_battle_3"), SubResource("Resource_battle_4"), SubResource("Resource_elite_1"), SubResource("Resource_rest_1"), SubResource("Resource_rest_2"), SubResource("Resource_elite_2"), SubResource("Resource_boss_1")])
+nodes = Array[ExtResource("1_node")]([SubResource("ResourceBaseCamp"), SubResource("ResourceBattle1"), SubResource("ResourceEvent1"), SubResource("ResourceTreasure1"), SubResource("ResourceBattle2"), SubResource("ResourceBattle3"), SubResource("ResourceBattle4"), SubResource("ResourceElite1"), SubResource("ResourceRest1"), SubResource("ResourceRest2"), SubResource("ResourceElite2"), SubResource("ResourceBoss1")])

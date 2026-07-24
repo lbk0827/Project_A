@@ -4,8 +4,8 @@ signal rp_skill_requested
 signal rp_skill_cancelled
 signal monster_info_close_requested
 
-const HEROINE_PORTRAIT := preload("res://assets/characters/tsuki_portrait.png")
-const RP_CUTIN_ART := preload("res://assets/card/cardart_full/tsuki_moon_slash.png")
+const HEROINE_PORTRAIT := preload("res://assets/characters/TsukiPortrait.png")
+const RP_CUTIN_ART := preload("res://assets/card/cardart_full/TsukiMoonSlash.png")
 const CARD_PREVIEW_SCENE := preload("res://scenes/ui/cards/CardViewLarge.tscn")
 const PANEL_BG_COLOR := Color(0.05, 0.07, 0.11, 0.74)
 const PANEL_BORDER_COLOR := Color(0.4, 0.65, 0.9, 0.4)

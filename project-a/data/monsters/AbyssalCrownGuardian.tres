@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://b5mireimpdata" path="res://scripts/data/monster_data.gd" id="1_data"]
 [ext_resource type="Script" uid="uid://deq25iy1a8nfv" path="res://scripts/data/enemy_intent_data.gd" id="1_vf4hy"]
 [ext_resource type="Resource" uid="uid://m2bgxfe3gmdj" path="res://data/monsters/AbyssalCrownGuardianStats.tres" id="2_stats"]
-[ext_resource type="PackedScene" uid="uid://djk8xfkp8vifa" path="res://scenes/monster/monster_abyssal_crown_guardian.tscn" id="3_scene"]
+[ext_resource type="PackedScene" uid="uid://djk8xfkp8vifa" path="res://scenes/monster/MonsterAbyssalCrownGuardian.tscn" id="3_scene"]
 [ext_resource type="Resource" uid="uid://drj3c0y5cq2xc" path="res://data/monsters/intents/HeavyBlow.tres" id="4_heavy"]
 [ext_resource type="Resource" uid="uid://c50a5vw4ugbbp" path="res://data/monsters/intents/Brace.tres" id="5_brace"]
 [ext_resource type="Resource" uid="uid://bn8mki8eb66ab" path="res://data/monsters/intents/Stab.tres" id="6_stab"]

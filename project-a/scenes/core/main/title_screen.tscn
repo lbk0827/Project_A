@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://doxxqn6y2eyia"]
 
-[ext_resource type="Texture2D" uid="uid://dltbsc4yvia26" path="res://assets/ui/bg_title.png" id="1_bg"]
+[ext_resource type="Texture2D" uid="uid://dltbsc4yvia26" path="res://assets/ui/BgTitle.png" id="1_bg"]
 [ext_resource type="Script" uid="uid://c1notob3twlg" path="res://scripts/ui/title_screen.gd" id="2_script"]
 
 [node name="TitleScreen" type="Control" unique_id=1899330143]

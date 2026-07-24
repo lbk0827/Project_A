@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cmqaaplrls6n6" path="res://scripts/core/ingame.gd" id="1_bp03x"]
 [ext_resource type="PackedScene" uid="uid://q3cxavnfvd0o" path="res://scenes/player/heroine.tscn" id="2_ag07a"]
-[ext_resource type="Texture2D" uid="uid://b6h2yk28pplxh" path="res://assets/stage/stage_1.png" id="2_wtb6v"]
+[ext_resource type="Texture2D" uid="uid://b6h2yk28pplxh" path="res://assets/stage/Stage1.png" id="2_wtb6v"]
 
 [node name="InGame" type="Node2D" unique_id=284682706]
 position = Vector2(0, 1)
