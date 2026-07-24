@@ -7,5 +7,5 @@ script = ExtResource("1_stats")
 id = "bone_crawler"
 display_name = "뼈 크롤러"
 max_hp = 800
-attack_power = 18
-defense_power = 20
+attack = 18
+defense = 20

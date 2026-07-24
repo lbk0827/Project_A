@@ -7,5 +7,5 @@ script = ExtResource("1_stats")
 id = "frost_revenant"
 display_name = "프로스트 레버넌트"
 max_hp = 1200
-attack_power = 24
-defense_power = 40
+attack = 24
+defense = 40

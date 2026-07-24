@@ -3,8 +3,8 @@
 		"id": "abyssal_crown_guardian",
 		"display_name": "심연 왕관 수호자",
 		"max_hp": 2500,
-		"attack_power": 30,
-		"defense_power": 48,
+		"attack": 30,
+		"defense": 48,
 		"crit_rate": 0.0,
 		"crit_damage": 1.0
 	},
@@ -12,8 +12,8 @@
 		"id": "bog_stalker",
 		"display_name": "늪 추적자",
 		"max_hp": 650,
-		"attack_power": 16,
-		"defense_power": 14,
+		"attack": 16,
+		"defense": 14,
 		"crit_rate": 0.0,
 		"crit_damage": 1.0
 	},
@@ -21,8 +21,8 @@
 		"id": "mire_imp",
 		"display_name": "마이어 임프",
 		"max_hp": 500,
-		"attack_power": 14,
-		"defense_power": 18,
+		"attack": 14,
+		"defense": 18,
 		"crit_rate": 0.0,
 		"crit_damage": 1.0
 	},
@@ -30,8 +30,8 @@
 		"id": "bone_crawler",
 		"display_name": "뼈 크롤러",
 		"max_hp": 800,
-		"attack_power": 18,
-		"defense_power": 20,
+		"attack": 18,
+		"defense": 20,
 		"crit_rate": 0.0,
 		"crit_damage": 1.0
 	},
@@ -39,8 +39,8 @@
 		"id": "crown_acolyte",
 		"display_name": "왕관 시종",
 		"max_hp": 1400,
-		"attack_power": 28,
-		"defense_power": 32,
+		"attack": 28,
+		"defense": 32,
 		"crit_rate": 0.0,
 		"crit_damage": 1.0
 	},
@@ -48,8 +48,8 @@
 		"id": "frost_revenant",
 		"display_name": "프로스트 레버넌트",
 		"max_hp": 1200,
-		"attack_power": 24,
-		"defense_power": 40,
+		"attack": 24,
+		"defense": 40,
 		"crit_rate": 0.0,
 		"crit_damage": 1.0
 	},
@@ -57,8 +57,8 @@
 		"id": "gravebound_crawler",
 		"display_name": "무덤 크롤러",
 		"max_hp": 950,
-		"attack_power": 20,
-		"defense_power": 36,
+		"attack": 20,
+		"defense": 36,
 		"crit_rate": 0.0,
 		"crit_damage": 1.0
 	},
@@ -66,8 +66,8 @@
 		"id": "monster_dummy",
 		"display_name": "훈련 고블린",
 		"max_hp": 44,
-		"attack_power": 0,
-		"defense_power": 0,
+		"attack": 0,
+		"defense": 0,
 		"crit_rate": 0.0,
 		"crit_damage": 1.0
 	}

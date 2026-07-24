@@ -7,5 +7,5 @@ script = ExtResource("1_stats")
 id = "mire_imp"
 display_name = "마이어 임프"
 max_hp = 500
-attack_power = 14
-defense_power = 18
+attack = 14
+defense = 18

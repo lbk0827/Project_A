@@ -1083,12 +1083,12 @@ func _add_card_to_hand(card_id: String) -> bool:
 	_refresh_ui()
 	return true
 
-# Computed damage of a single attack effect: percent of attack power (or flat
+# Computed damage of a single attack effect: percent of attack (or flat
 # amount), boosted by this turn's attack buff, then rolled for a critical hit.
 func _compute_card_damage(effect: Dictionary) -> Dictionary:
 	var base: int
 	if effect.has("percent"):
-		base = int(round(PLAYER_STATS.attack_power * float(effect["percent"]) / 100.0))
+		base = int(round(PLAYER_STATS.attack * float(effect["percent"]) / 100.0))
 	else:
 		base = int(effect.get("amount", 0))
 	if _attack_damage_bonus_percent != 0:
@@ -1100,7 +1100,7 @@ func _compute_card_damage(effect: Dictionary) -> Dictionary:
 
 func _compute_shield(effect: Dictionary) -> int:
 	if effect.has("percent"):
-		return int(round(PLAYER_STATS.defense_power * float(effect["percent"]) / 100.0))
+		return int(round(PLAYER_STATS.defense * float(effect["percent"]) / 100.0))
 	return int(effect.get("amount", 0))
 
 func _max_rp() -> float:
@@ -1572,9 +1572,9 @@ func _enemy_ai_defense_amount(enemy: CombatEnemy, action: Dictionary) -> int:
 		return int(round(_enemy_ai_defense(enemy) * float(power_value) / 100.0))
 	return power_value
 
-# Attack intent damage = the monster's attack_power scaled by the intent percent.
+# Attack intent damage = the monster's attack scaled by the intent percent.
 func _enemy_attack_damage(enemy: CombatEnemy, intent: EnemyIntentData) -> int:
-	return int(round(enemy.data.stats.attack_power * float(intent.amount) / 100.0))
+	return int(round(enemy.data.stats.attack * float(intent.amount) / 100.0))
 
 func _play_enemy_attack_sequence(enemy: CombatEnemy, amount: int):
 	combat_sequence_active = true
@@ -2072,14 +2072,14 @@ func _enemy_ai_stats(enemy: CombatEnemy) -> Dictionary:
 func _enemy_ai_attack(enemy: CombatEnemy) -> int:
 	var stats: Dictionary = _enemy_ai_stats(enemy)
 	if stats.has("attack"):
-		return int(stats.get("attack", enemy.data.stats.attack_power))
-	return enemy.data.stats.attack_power
+		return int(stats.get("attack", enemy.data.stats.attack))
+	return enemy.data.stats.attack
 
 func _enemy_ai_defense(enemy: CombatEnemy) -> int:
 	var stats: Dictionary = _enemy_ai_stats(enemy)
 	if stats.has("defense"):
-		return int(stats.get("defense", enemy.data.stats.defense_power))
-	return enemy.data.stats.defense_power
+		return int(stats.get("defense", enemy.data.stats.defense))
+	return enemy.data.stats.defense
 
 func _enemy_ai_intent_type(action: Dictionary) -> StringName:
 	var action_type := str(action.get("action_type", "skill"))

@@ -732,7 +732,7 @@ func show_toast(message: String):
 	tween.tween_property(toast, "modulate:a", 0.0, 0.45)
 	tween.tween_callback(toast.queue_free)
 
-func show_monster_info(monster_name: String, intents: Array, next_intent_index: int, action_count_remaining: int = 0, attack_power: int = 0):
+func show_monster_info(monster_name: String, intents: Array, next_intent_index: int, action_count_remaining: int = 0, attack: int = 0):
 	_ensure_monster_info_panel()
 	monster_info_name_label.text = monster_name
 	monster_info_count_label.text = "행동 카운트 %d회 후 발동" % max(action_count_remaining, 0)
@@ -740,7 +740,7 @@ func show_monster_info(monster_name: String, intents: Array, next_intent_index: 
 		child.free()
 	if not intents.is_empty():
 		var intent_index: int = clamp(next_intent_index, 0, intents.size() - 1)
-		monster_info_rows.add_child(_make_intent_row(intents[intent_index], intent_index, true, attack_power))
+		monster_info_rows.add_child(_make_intent_row(intents[intent_index], intent_index, true, attack))
 	monster_info_panel.size = Vector2(MONSTER_INFO_WIDTH, 188)
 	monster_info_panel.visible = true
 	monster_info_panel.modulate = Color(1, 1, 1, 0)
@@ -820,7 +820,7 @@ func _ensure_monster_info_panel():
 	monster_info_rows.add_theme_constant_override("separation", 10)
 	monster_info_panel.add_child(monster_info_rows)
 
-func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool, attack_power: int = 0) -> Panel:
+func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool, attack: int = 0) -> Panel:
 	var row := Panel.new()
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.13, 0.14, 0.16, 0.88) if is_next else Color(0.04, 0.045, 0.052, 0.68)
@@ -858,7 +858,7 @@ func _make_intent_row(intent: EnemyIntentData, order: int, is_next: bool, attack
 	var is_attack: bool = intent.intent_type == &"attack"
 	var is_block: bool = intent.intent_type == &"block" or intent.intent_type == &"defense"
 	if is_attack:
-		effect_label.text = "피해 %d%% (%d)" % [intent.amount, int(round(attack_power * float(intent.amount) / 100.0))]
+		effect_label.text = "피해 %d%% (%d)" % [intent.amount, int(round(attack * float(intent.amount) / 100.0))]
 	elif is_block:
 		effect_label.text = "방어 %d" % intent.amount
 	else:

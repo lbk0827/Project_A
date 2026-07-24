@@ -7,5 +7,5 @@ script = ExtResource("1_stats")
 id = "abyssal_crown_guardian"
 display_name = "심연 왕관 수호자"
 max_hp = 2500
-attack_power = 30
-defense_power = 48
+attack = 30
+defense = 48
