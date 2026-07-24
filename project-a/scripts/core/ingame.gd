@@ -1457,7 +1457,7 @@ func _on_map_overlay_node_selected(node_id: String):
 		return
 
 	if MapRouteData.is_combat_node(node_id):
-		run_state.start_combat_node(node_id, node_data.get("monster_id", "mire_imp"))
+		run_state.start_combat_node(node_id, node_data.get("monster_id", "mire_imp"), node_data.get("encounter_id", ""))
 		await _play_route_wipe_cover()
 		_enter_combat_mode()
 		await _play_route_wipe_reveal()

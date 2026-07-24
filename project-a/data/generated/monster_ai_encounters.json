@@ -90,6 +90,36 @@
 		"note": "찌르기 예고."
 	},
 	{
+		"encounter_slot_id": "enc_bone_crawler_2_enemy_1",
+		"encounter_id": "enc_bone_crawler_2",
+		"slot_id": "enemy_1",
+		"monster_id": "bone_crawler",
+		"pattern_id": "bone_crawler_basic",
+		"start_step_id": "start",
+		"action_count_override": null,
+		"hp_multiplier": 1.0,
+		"attack_multiplier": 1.0,
+		"defense_multiplier": 1.0,
+		"position_x": 880,
+		"position_y": 420,
+		"note": "강공격 예고."
+	},
+	{
+		"encounter_slot_id": "enc_bone_crawler_2_enemy_2",
+		"encounter_id": "enc_bone_crawler_2",
+		"slot_id": "enemy_2",
+		"monster_id": "bone_crawler",
+		"pattern_id": "bone_crawler_basic",
+		"start_step_id": "after_slam",
+		"action_count_override": null,
+		"hp_multiplier": 1.0,
+		"attack_multiplier": 1.0,
+		"defense_multiplier": 1.0,
+		"position_x": 1080,
+		"position_y": 420,
+		"note": "방어 예고."
+	},
+	{
 		"encounter_slot_id": "enc_gravebound_crawler_2_enemy_1",
 		"encounter_id": "enc_gravebound_crawler_2",
 		"slot_id": "enemy_1",
