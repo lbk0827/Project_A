@@ -19,8 +19,8 @@ def main() -> None:
         root / "scripts" / "ui" / "battle_ui.gd",
         root / "scripts" / "ui" / "card_preview_large.gd",
         root / "scripts" / "player" / "heroine_controller.gd",
-        root / "scripts" / "vfx" / "moon_slash_vfx.gd",
-        root / "scenes" / "vfx" / "fx_tsuki_moon_slash.tscn",
+        root / "scripts" / "vfx" / "MoonSlashVfx.gd",
+        root / "scenes" / "vfx" / "FxTsukiMoonSlash.tscn",
     ]
     missing: list[str] = []
     for source in checked_files:
@@ -34,18 +34,18 @@ def main() -> None:
     if missing:
         raise FileNotFoundError("Missing RP runtime resources:\n" + "\n".join(missing))
 
-    skill = json.loads((root / "data/generated/character_rp_skills.json").read_text(encoding="utf-8"))[0]
+    skill = json.loads((root / "data/generated/CharacterRpSkills.json").read_text(encoding="utf-8"))[0]
     heroine_scene = (root / "scenes/player/heroine.tscn").read_text(encoding="utf-8")
-    animation = str(skill["motion_animation"])
+    animation = str(skill["MotionAnimation"])
     if f'"name": &"{animation}"' not in heroine_scene:
         raise ValueError(f"Heroine scene does not define animation {animation!r}")
 
-    card_art_path = root / "assets/card/cardart_full" / f'{skill["character"]}_{skill["id"]}.png'
+    card_art_path = root / "assets/card/cardart_full" / f'{skill["Character"]}{skill["Id"]}.png'
     with Image.open(card_art_path) as card_art:
         if card_art.height <= card_art.width:
             raise ValueError(f"{card_art_path.name}: expected portrait card art")
 
-    image_path = root / "assets/vfx/moon_slash_moon.png"
+    image_path = root / "assets/vfx/MoonSlashMoon.png"
     with Image.open(image_path) as image:
         if image.mode != "RGBA":
             raise ValueError(f"{image_path.name}: expected RGBA, got {image.mode}")
@@ -55,7 +55,7 @@ def main() -> None:
         if alpha.getbbox() is None:
             raise ValueError(f"{image_path.name}: alpha channel has no visible content")
 
-    sprite_sheet_path = root / "assets/vfx/moon_slash_sheet.png"
+    sprite_sheet_path = root / "assets/vfx/MoonSlashSheet.png"
     with Image.open(sprite_sheet_path) as sprite_sheet:
         if sprite_sheet.width != sprite_sheet.height:
             raise ValueError(f"{sprite_sheet_path.name}: expected a square sprite sheet")

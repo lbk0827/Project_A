@@ -10,22 +10,22 @@ from typing import Any
 
 
 REQUIRED_FIELDS = {
-    "card_key",
-    "character",
-    "id",
-    "display_name",
-    "cost",
-    "card_type",
-    "text_template",
-    "copies",
-    "keywords",
+    "CardKey",
+    "Character",
+    "Id",
+    "DisplayName",
+    "Cost",
+    "CardType",
+    "TextTemplate",
+    "Copies",
+    "Keywords",
 }
 
 
 def main() -> int:
     project_root = Path(__file__).resolve().parents[2]
-    cards_path = project_root / "data" / "generated" / "character_cards.json"
-    effect_rows_path = project_root / "data" / "generated" / "card_effect_rows.json"
+    cards_path = project_root / "data" / "generated" / "CharacterCards.json"
+    effect_rows_path = project_root / "data" / "generated" / "CardEffectRows.json"
     art_dir = project_root / "assets" / "card" / "cardart_full"
 
     errors: list[str] = []
@@ -36,7 +36,7 @@ def main() -> int:
         return 1
 
     card_keys = {
-        card_key(str(card.get("character", "")).strip(), str(card.get("id", "")).strip())
+        card_key(str(card.get("Character", "")).strip(), str(card.get("Id", "")).strip())
         for card in cards
         if isinstance(card, dict)
     }
@@ -87,8 +87,8 @@ def validate_card_record(
     if missing:
         errors.append(f"Card #{index} is missing field(s): {', '.join(missing)}")
 
-    character = str(card.get("character", "")).strip()
-    card_id = str(card.get("id", "")).strip()
+    character = str(card.get("Character", "")).strip()
+    card_id = str(card.get("Id", "")).strip()
     if not character:
         errors.append(f"Card #{index} has empty character.")
     if not card_id:
@@ -102,15 +102,15 @@ def validate_card_record(
     seen_ids.add(key)
 
     expected_card_key = card_key(character, card_id)
-    exported_card_key = str(card.get("card_key", "")).strip()
+    exported_card_key = str(card.get("CardKey", "")).strip()
     if exported_card_key != expected_card_key:
         errors.append(f"{character}/{card_id} has invalid card_key: {exported_card_key}")
     if expected_card_key not in effect_card_keys:
-        errors.append(f"{character}/{card_id} has no row in card_effect_rows.")
-    if "effects" in card or "inspiration" in card:
+        errors.append(f"{character}/{card_id} has no row in CardEffectRows.")
+    if "Effects" in card or "Inspiration" in card:
         errors.append(f"{character}/{card_id} still exports legacy JSON effect field(s).")
 
-    art_path = art_dir / f"{character}_{card_id}.png"
+    art_path = art_dir / f"{character}{card_id}.png"
     if not art_path.exists():
         errors.append(f"Missing card art for {character}/{card_id}: {art_path}")
 
@@ -122,12 +122,12 @@ def validate_effect_rows(effect_rows: list[Any], card_keys: set[str], errors: li
         if not isinstance(row, dict):
             errors.append(f"Effect row #{index} must be an object.")
             continue
-        row_id = str(row.get("id", "")).strip()
-        row_card_key = str(row.get("card_key", "")).strip()
-        character = str(row.get("character", "")).strip()
-        card_id = str(row.get("card_id", "")).strip()
-        trigger = str(row.get("trigger", "")).strip()
-        effect_type = str(row.get("effect_type", "")).strip()
+        row_id = str(row.get("Id", "")).strip()
+        row_card_key = str(row.get("CardKey", "")).strip()
+        character = str(row.get("Character", "")).strip()
+        card_id = str(row.get("CardId", "")).strip()
+        trigger = str(row.get("Trigger", "")).strip()
+        effect_type = str(row.get("EffectType", "")).strip()
         if not row_id:
             errors.append(f"Effect row #{index} has empty id.")
         elif row_id in seen_ids:
@@ -137,7 +137,7 @@ def validate_effect_rows(effect_rows: list[Any], card_keys: set[str], errors: li
         if not row_card_key:
             errors.append(f"Effect row {row_id or index} has empty card_key.")
         elif row_card_key != expected_card_key:
-            errors.append(f"Effect row {row_id or index} has invalid card_key: {row_card_key}")
+            errors.append(f"Effect row {row_id or index} has invalid CardKey: {row_card_key}")
         if not card_id:
             errors.append(f"Effect row #{index} has empty card_id.")
         elif row_card_key not in card_keys:
@@ -148,8 +148,8 @@ def validate_effect_rows(effect_rows: list[Any], card_keys: set[str], errors: li
             errors.append(f"Effect row {row_id or index} has empty trigger.")
         if not effect_type:
             errors.append(f"Effect row {row_id or index} has empty effect_type.")
-        if row.get("text_arg_index") is not None and row.get("percent") is None and row.get("amount") is None and row.get("duration_turns") is None:
-            errors.append(f"Effect row {row_id or index} has text_arg_index but no numeric value.")
+        if row.get("TextArgIndex") is not None and row.get("Percent") is None and row.get("Amount") is None and row.get("DurationTurns") is None:
+            errors.append(f"Effect row {row_id or index} has TextArgIndex but no numeric value.")
     return effect_card_keys
 
 
@@ -162,8 +162,8 @@ def validate_no_legacy_card_art(art_dir: Path, errors: list[str]) -> None:
         errors.append(f"Missing card art directory: {art_dir}")
         return
     for path in sorted(art_dir.glob("*.png")):
-        if "_" not in path.stem:
-            errors.append(f"Runtime card art must include character prefix: {path}")
+        if "_" in path.stem:
+            errors.append(f"Runtime card art must use PascalCase without underscores: {path}")
 
 
 def print_errors(errors: list[str]) -> None:

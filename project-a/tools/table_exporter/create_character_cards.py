@@ -12,16 +12,16 @@ import openpyxl
 
 
 CARD_FIELDS = [
-    "card_key",
-    "character",
-    "id",
-    "display_name",
-    "cost",
-    "card_type",
-    "motion_animation",
-    "text_template",
-    "copies",
-    "keywords[]",
+    "CardKey",
+    "Character",
+    "Id",
+    "DisplayName",
+    "Cost",
+    "CardType",
+    "MotionAnimation",
+    "TextTemplate",
+    "Copies",
+    "Keywords[]",
 ]
 CARD_TYPES = [
     None,
@@ -50,22 +50,22 @@ CARD_WIDTHS = {
 }
 
 EFFECT_FIELDS = [
-    "id",
-    "card_key",
-    "character",
-    "card_id",
-    "trigger",
-    "stance",
-    "effect_type",
-    "target",
-    "card_type",
-    "buff",
-    "percent",
-    "amount",
-    "duration_turns",
-    "scope",
-    "condition",
-    "text_arg_index",
+    "Id",
+    "CardKey",
+    "Character",
+    "CardId",
+    "Trigger",
+    "Stance",
+    "EffectType",
+    "Target",
+    "CardType",
+    "Buff",
+    "Percent",
+    "Amount",
+    "DurationTurns",
+    "Scope",
+    "Condition",
+    "TextArgIndex",
 ]
 EFFECT_TYPES = [
     None,
@@ -131,20 +131,20 @@ def build_character_cards(sheet, cards: list[dict[str, Any]]) -> None:
     sheet.append(CARD_TYPES)
     sheet.append([None, *["data"] * len(CARD_FIELDS)])
     for card in cards:
-        character = str(card.get("character", ""))
-        card_id = str(card.get("id", ""))
+        character = str(card.get("Character", ""))
+        card_id = str(card.get("Id", ""))
         sheet.append([
             None,
-            card.get("card_key", card_key(character, card_id)),
+            card.get("CardKey", card_key(character, card_id)),
             character,
             card_id,
-            card.get("display_name", ""),
-            card.get("cost", 0),
-            card.get("card_type", "skill"),
-            card.get("motion_animation", "Idle"),
-            card.get("text_template", card.get("text", "")),
-            card.get("copies", 1),
-            ",".join(card.get("keywords", [])),
+            card.get("DisplayName", ""),
+            card.get("Cost", 0),
+            card.get("CardType", "Skill"),
+            card.get("MotionAnimation", "Idle"),
+            card.get("TextTemplate", card.get("Text", "")),
+            card.get("Copies", 1),
+            ",".join(card.get("Keywords", [])),
         ])
     for column, width in CARD_WIDTHS.items():
         sheet.column_dimensions[column].width = width
@@ -186,7 +186,7 @@ def parse_glossary(glossary_path: Path) -> list[tuple[str, str, str]]:
 
 def build_card_effects(sheet, glossary_path: Path) -> None:
     sheet.append([None])
-    sheet.append(["#data", "keyword", "category", "description"])
+    sheet.append(["#data", "Keyword", "Category", "Description"])
     sheet.append([None, "key,string", "string", "string"])
     sheet.append([None, "data", "data", "data"])
     for category, keyword, description in parse_glossary(glossary_path):
@@ -205,13 +205,13 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     workbook = openpyxl.Workbook()
-    build_character_cards(workbook.active, load_generated(project_root, "character_cards.json"))
-    workbook.active.title = "character_cards"
+    build_character_cards(workbook.active, load_generated(project_root, "CharacterCards.json"))
+    workbook.active.title = "CharacterCards"
     build_card_effect_rows(
-        workbook.create_sheet("card_effect_rows"),
-        load_generated(project_root, "card_effect_rows.json"),
+        workbook.create_sheet("CardEffectRows"),
+        load_generated(project_root, "CardEffectRows.json"),
     )
-    build_card_effects(workbook.create_sheet("card_effects"), glossary_path)
+    build_card_effects(workbook.create_sheet("CardEffects"), glossary_path)
 
     workbook.save(output_dir / "CharacterCards.xlsx")
 

@@ -2,10 +2,10 @@
 """Create the combatant stat table workbook (player growth + monster stats).
 
 Follows the same #data layout the exporter expects. The player growth sheet is
-a reference progression table (level -> stats) for a future character screen;
+a reference progression table (Level -> stats) for a future Character screen;
 combat reads the current tier. Monster stats mirror the same schema so both
 sides share crit fields. Crit values are stored as fractions/multipliers
-(crit_rate 0.03 = 3%, crit_damage 1.25 = +25%).
+(CritRate 0.03 = 3%, CritDamage 1.25 = +25%).
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from pathlib import Path
 import openpyxl
 
 
-# level, attack_power, defense_power, max_hp
+# Level, Attack, Defense, MaxHp
 PLAYER_GROWTH = [
 	(1, 160, 45, 90),
 	(10, 195, 58, 131),
@@ -28,34 +28,34 @@ PLAYER_GROWTH = [
 PLAYER_CRIT_RATE = 0.03
 PLAYER_CRIT_DAMAGE = 1.25
 
-# id, display_name, max_hp, attack_power, defense_power, crit_rate, crit_damage
-# Monsters currently deal damage through intents (flat amounts), so attack_power
+# id, DisplayName, MaxHp, Attack, Defense, CritRate, CritDamage
+# Monsters currently deal damage through intents (flat amounts), so Attack
 # is 0 and crit is disabled (0.0 / 1.0) until a design pass sets enemy crit.
 MONSTER_STATS = [
-	("abyssal_crown_guardian", "심연 왕관 수호자", 2500, 30, 48, 0.0, 1.0),
-	("bog_stalker", "늪 추적자", 650, 16, 14, 0.0, 1.0),
-	("mire_imp", "마이어 임프", 500, 14, 18, 0.0, 1.0),
-	("bone_crawler", "뼈 크롤러", 800, 18, 20, 0.0, 1.0),
-	("crown_acolyte", "왕관 시종", 1400, 28, 32, 0.0, 1.0),
-	("frost_revenant", "프로스트 레버넌트", 1200, 24, 40, 0.0, 1.0),
-	("gravebound_crawler", "무덤 크롤러", 950, 20, 36, 0.0, 1.0),
-	("monster_dummy", "훈련 고블린", 44, 0, 0, 0.0, 1.0),
+	("AbyssalCrownGuardian", "심연 왕관 수호자", 2500, 30, 48, 0.0, 1.0),
+	("BogStalker", "늪 추적자", 650, 16, 14, 0.0, 1.0),
+	("MireImp", "마이어 임프", 500, 14, 18, 0.0, 1.0),
+	("BoneCrawler", "뼈 크롤러", 800, 18, 20, 0.0, 1.0),
+	("CrownAcolyte", "왕관 시종", 1400, 28, 32, 0.0, 1.0),
+	("FrostRevenant", "프로스트 레버넌트", 1200, 24, 40, 0.0, 1.0),
+	("GraveboundCrawler", "무덤 크롤러", 950, 20, 36, 0.0, 1.0),
+	("MonsterDummy", "훈련 고블린", 44, 0, 0, 0.0, 1.0),
 ]
 
 
-def build_player_growth(sheet) -> None:
+def build_PlayerGrowth(sheet) -> None:
 	sheet.append([None])
-	sheet.append(["#data", "character", "level", "attack_power", "defense_power", "max_hp", "crit_rate", "crit_damage"])
+	sheet.append(["#archive", "Character", "Level", "Attack", "Defense", "MaxHp", "CritRate", "CritDamage"])
 	sheet.append([None, "string", "key,int", "int", "int", "int", "float", "float"])
 	sheet.append([None, "data", "data", "data", "data", "data", "data", "data"])
-	for level, atk, defense, hp in PLAYER_GROWTH:
-		sheet.append([None, "tsuki", level, atk, defense, hp, PLAYER_CRIT_RATE, PLAYER_CRIT_DAMAGE])
+	for Level, atk, defense, hp in PLAYER_GROWTH:
+		sheet.append([None, "Tsuki", Level, atk, defense, hp, PLAYER_CRIT_RATE, PLAYER_CRIT_DAMAGE])
 	_apply_widths(sheet, {"B": 10, "C": 8, "D": 14, "E": 14, "F": 10, "G": 12, "H": 12})
 
 
-def build_monster_stats(sheet) -> None:
+def build_MonsterStats(sheet) -> None:
 	sheet.append([None])
-	sheet.append(["#data", "id", "display_name", "max_hp", "attack_power", "defense_power", "crit_rate", "crit_damage"])
+	sheet.append(["#data", "Id", "DisplayName", "MaxHp", "Attack", "Defense", "CritRate", "CritDamage"])
 	sheet.append([None, "key,string", "string", "int", "int", "int", "float", "float"])
 	sheet.append([None, "data", "data", "data", "data", "data", "data", "data"])
 	for row in MONSTER_STATS:
@@ -75,9 +75,9 @@ def main() -> None:
 	output_dir.mkdir(parents=True, exist_ok=True)
 
 	workbook = openpyxl.Workbook()
-	build_player_growth(workbook.active)
-	workbook.active.title = "player_growth"
-	build_monster_stats(workbook.create_sheet("monster_stats"))
+	build_PlayerGrowth(workbook.active)
+	workbook.active.title = "PlayerGrowth"
+	build_MonsterStats(workbook.create_sheet("MonsterStats"))
 
 	workbook.save(output_dir / "StatTable.xlsx")
 

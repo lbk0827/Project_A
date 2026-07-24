@@ -4,8 +4,8 @@
 		"DisplayName": "마이어 임프",
 		"ActionCount": 3,
 		"Intents": [
-			"stab",
-			"brace",
+			"Stab",
+			"Brace",
 			"HeavyBlow"
 		]
 	},
@@ -14,8 +14,8 @@
 		"DisplayName": "늪 추적자",
 		"ActionCount": 2,
 		"Intents": [
-			"stab",
-			"stab",
+			"Stab",
+			"Stab",
 			"HeavyBlow"
 		]
 	},
@@ -25,8 +25,8 @@
 		"ActionCount": 2,
 		"Intents": [
 			"HeavyBlow",
-			"stab",
-			"brace"
+			"Stab",
+			"Brace"
 		]
 	},
 	{
@@ -34,8 +34,8 @@
 		"DisplayName": "무덤 크롤러",
 		"ActionCount": 3,
 		"Intents": [
-			"brace",
-			"stab",
+			"Brace",
+			"Stab",
 			"HeavyBlow"
 		]
 	},
@@ -44,9 +44,9 @@
 		"DisplayName": "프로스트 레버넌트",
 		"ActionCount": 2,
 		"Intents": [
-			"brace",
+			"Brace",
 			"HeavyBlow",
-			"stab",
+			"Stab",
 			"HeavyBlow"
 		]
 	},
@@ -56,7 +56,7 @@
 		"ActionCount": 2,
 		"Intents": [
 			"HeavyBlow",
-			"brace",
+			"Brace",
 			"HeavyBlow"
 		]
 	},
@@ -66,9 +66,9 @@
 		"ActionCount": 3,
 		"Intents": [
 			"HeavyBlow",
-			"brace",
+			"Brace",
 			"HeavyBlow",
-			"stab"
+			"Stab"
 		]
 	}
 ]
