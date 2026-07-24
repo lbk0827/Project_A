@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("1_data")
-id = "gravebound_crawler"
+id = "GraveboundCrawler"
 display_name = "무덤 크롤러"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")

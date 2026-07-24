@@ -1,6 +1,6 @@
 [
 	{
-		"Id": "stab",
+		"Id": "Stab",
 		"DisplayName": "찌르기",
 		"IntentType": "attack",
 		"Power": 100,
@@ -8,7 +8,7 @@
 		"DescriptionTemplate": "공격력의 {0}% 피해."
 	},
 	{
-		"Id": "heavy_blow",
+		"Id": "HeavyBlow",
 		"DisplayName": "강타",
 		"IntentType": "attack",
 		"Power": 150,
@@ -16,7 +16,7 @@
 		"DescriptionTemplate": "공격력의 {0}% 피해."
 	},
 	{
-		"Id": "brace",
+		"Id": "Brace",
 		"DisplayName": "방어",
 		"IntentType": "block",
 		"Power": 80,

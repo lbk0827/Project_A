@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_vgddg")
-id = "monster_dummy"
+id = "MonsterDummy"
 display_name = "훈련 고블린"
 max_hp = 44
 attack = 0

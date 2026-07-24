@@ -1,6 +1,6 @@
 [
 	{
-		"ActionId": "mire_imp_swing",
+		"ActionId": "MireImpSwing",
 		"DisplayName": "휘두르기",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -12,7 +12,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "mire_imp_flurry",
+		"ActionId": "MireImpFlurry",
 		"DisplayName": "마구 휘두르기",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -24,7 +24,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "mire_imp_crouch",
+		"ActionId": "MireImpCrouch",
 		"DisplayName": "웅크리기",
 		"ActionType": "defense",
 		"TargetType": "self",
@@ -36,7 +36,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "mire_imp_giggle",
+		"ActionId": "MireImpGiggle",
 		"DisplayName": "낄낄대기",
 		"ActionType": "skill",
 		"TargetType": "self",
@@ -48,7 +48,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "bog_stalker_stab",
+		"ActionId": "BogStalkerStab",
 		"DisplayName": "찌르기",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -60,7 +60,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "bog_stalker_ambush",
+		"ActionId": "BogStalkerAmbush",
 		"DisplayName": "잠복 기습",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -72,7 +72,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "bog_stalker_mud_cover",
+		"ActionId": "BogStalkerMudCover",
 		"DisplayName": "진흙 엄폐",
 		"ActionType": "defense",
 		"TargetType": "self",
@@ -84,7 +84,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "bog_stalker_venom",
+		"ActionId": "BogStalkerVenom",
 		"DisplayName": "늪독 바르기",
 		"ActionType": "buff",
 		"TargetType": "self",
@@ -96,7 +96,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "bone_crawler_claw",
+		"ActionId": "BoneCrawlerClaw",
 		"DisplayName": "뼈 할퀴기",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -108,7 +108,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "bone_crawler_skull_slam",
+		"ActionId": "BoneCrawlerSkullSlam",
 		"DisplayName": "해골 강타",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -120,7 +120,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "bone_crawler_reassemble",
+		"ActionId": "BoneCrawlerReassemble",
 		"DisplayName": "뼈 재조립",
 		"ActionType": "defense",
 		"TargetType": "self",
@@ -132,7 +132,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "bone_crawler_cracked_bone",
+		"ActionId": "BoneCrawlerCrackedBone",
 		"DisplayName": "금 간 뼈",
 		"ActionType": "buff",
 		"TargetType": "self",
@@ -144,7 +144,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "gravebound_bite",
+		"ActionId": "GraveboundBite",
 		"DisplayName": "묘지 물어뜯기",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -156,7 +156,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "gravebound_jaw",
+		"ActionId": "GraveboundJaw",
 		"DisplayName": "매장자의 턱",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -168,7 +168,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "gravebound_earth_armor",
+		"ActionId": "GraveboundEarthArmor",
 		"DisplayName": "흙무덤 장갑",
 		"ActionType": "defense",
 		"TargetType": "self",
@@ -180,7 +180,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "gravebound_hard_bones",
+		"ActionId": "GraveboundHardBones",
 		"DisplayName": "망자의 강골",
 		"ActionType": "buff",
 		"TargetType": "self",
@@ -192,7 +192,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "frost_ice_blade",
+		"ActionId": "FrostIceBlade",
 		"DisplayName": "얼음 칼날",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -204,7 +204,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "frost_cleave",
+		"ActionId": "FrostCleave",
 		"DisplayName": "서리 절단",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -216,7 +216,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "frost_ice_armor",
+		"ActionId": "FrostIceArmor",
 		"DisplayName": "얼음 갑옷",
 		"ActionType": "defense",
 		"TargetType": "self",
@@ -228,7 +228,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "frost_morale",
+		"ActionId": "FrostMorale",
 		"DisplayName": "사기",
 		"ActionType": "buff",
 		"TargetType": "self",
@@ -240,7 +240,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "frost_mark",
+		"ActionId": "FrostMark",
 		"DisplayName": "빙결 표식",
 		"ActionType": "skill",
 		"TargetType": "player",
@@ -252,7 +252,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "crown_staff",
+		"ActionId": "CrownStaff",
 		"DisplayName": "단죄의 지팡이",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -264,7 +264,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "crown_judgement",
+		"ActionId": "CrownJudgement",
 		"DisplayName": "심판의 일격",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -276,7 +276,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "crown_veil",
+		"ActionId": "CrownVeil",
 		"DisplayName": "신앙의 장막",
 		"ActionType": "defense",
 		"TargetType": "self",
@@ -288,7 +288,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "crown_sentence",
+		"ActionId": "CrownSentence",
 		"DisplayName": "단죄 선포",
 		"ActionType": "skill",
 		"TargetType": "player",
@@ -300,7 +300,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "crown_deep_faith",
+		"ActionId": "CrownDeepFaith",
 		"DisplayName": "깊은 신앙",
 		"ActionType": "buff",
 		"TargetType": "self",
@@ -312,7 +312,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "guardian_crush",
+		"ActionId": "GuardianCrush",
 		"DisplayName": "왕관 분쇄",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -324,7 +324,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "guardian_edict",
+		"ActionId": "GuardianEdict",
 		"DisplayName": "심연의 칙령",
 		"ActionType": "attack",
 		"TargetType": "player",
@@ -336,7 +336,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "guardian_barrier",
+		"ActionId": "GuardianBarrier",
 		"DisplayName": "왕관 방벽",
 		"ActionType": "defense",
 		"TargetType": "self",
@@ -348,7 +348,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "guardian_deep_guard",
+		"ActionId": "GuardianDeepGuard",
 		"DisplayName": "심연 수호",
 		"ActionType": "defense",
 		"TargetType": "self",
@@ -360,7 +360,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "guardian_sentence",
+		"ActionId": "GuardianSentence",
 		"DisplayName": "심연 선고",
 		"ActionType": "skill",
 		"TargetType": "player",
@@ -372,7 +372,7 @@
 		"SfxId": null
 	},
 	{
-		"ActionId": "guardian_authority",
+		"ActionId": "GuardianAuthority",
 		"DisplayName": "왕관의 권능",
 		"ActionType": "buff",
 		"TargetType": "self",

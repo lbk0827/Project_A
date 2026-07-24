@@ -243,7 +243,7 @@ func _on_enter_battle_pressed():
 		return
 	var node_data: Dictionary = node_lookup[selected_combat_node_id]
 	log_label.text = "Loading %s..." % node_data["label"]
-	run_state.start_combat_node(selected_combat_node_id, node_data.get("MonsterId", "mire_imp"), node_data.get("EncounterId", ""))
+	run_state.start_combat_node(selected_combat_node_id, node_data.get("MonsterId", "MireImp"), node_data.get("EncounterId", ""))
 	get_tree().change_scene_to_file(INGAME_SCENE_PATH)
 
 func _on_reset_pressed():

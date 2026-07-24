@@ -1,8 +1,8 @@
 [
 	{
-		"CardKey": "tsuki/crescent_slash",
-		"Character": "tsuki",
-		"Id": "crescent_slash",
+		"CardKey": "Tsuki/CrescentSlash",
+		"Character": "Tsuki",
+		"Id": "CrescentSlash",
 		"DisplayName": "초승 베기",
 		"Cost": 1,
 		"CardType": "attack",
@@ -15,9 +15,9 @@
 		]
 	},
 	{
-		"CardKey": "tsuki/flow_guard",
-		"Character": "tsuki",
-		"Id": "flow_guard",
+		"CardKey": "Tsuki/FlowGuard",
+		"Character": "Tsuki",
+		"Id": "FlowGuard",
 		"DisplayName": "흐름 막기",
 		"Cost": 1,
 		"CardType": "skill",
@@ -30,9 +30,9 @@
 		]
 	},
 	{
-		"CardKey": "tsuki/stance_shift",
-		"Character": "tsuki",
-		"Id": "stance_shift",
+		"CardKey": "Tsuki/StanceShift",
+		"Character": "Tsuki",
+		"Id": "StanceShift",
 		"DisplayName": "자세 변경",
 		"Cost": 0,
 		"CardType": "skill",
@@ -47,9 +47,9 @@
 		]
 	},
 	{
-		"CardKey": "tsuki/afterimage_thrust",
-		"Character": "tsuki",
-		"Id": "afterimage_thrust",
+		"CardKey": "Tsuki/AfterimageThrust",
+		"Character": "Tsuki",
+		"Id": "AfterimageThrust",
 		"DisplayName": "달 가르기",
 		"Cost": 1,
 		"CardType": "attack",
@@ -62,9 +62,9 @@
 		]
 	},
 	{
-		"CardKey": "tsuki/breath_reset",
-		"Character": "tsuki",
-		"Id": "breath_reset",
+		"CardKey": "Tsuki/BreathReset",
+		"Character": "Tsuki",
+		"Id": "BreathReset",
 		"DisplayName": "숨 고르기",
 		"Cost": 0,
 		"CardType": "skill",
@@ -77,9 +77,9 @@
 		]
 	},
 	{
-		"CardKey": "tsuki/rupture_cleave",
-		"Character": "tsuki",
-		"Id": "rupture_cleave",
+		"CardKey": "Tsuki/RuptureCleave",
+		"Character": "Tsuki",
+		"Id": "RuptureCleave",
 		"DisplayName": "파열참",
 		"Cost": 2,
 		"CardType": "attack",
@@ -92,9 +92,9 @@
 		]
 	},
 	{
-		"CardKey": "tsuki/halfmoon_combo",
-		"Character": "tsuki",
-		"Id": "halfmoon_combo",
+		"CardKey": "Tsuki/HalfmoonCombo",
+		"Character": "Tsuki",
+		"Id": "HalfmoonCombo",
 		"DisplayName": "반월 연격",
 		"Cost": 2,
 		"CardType": "attack",

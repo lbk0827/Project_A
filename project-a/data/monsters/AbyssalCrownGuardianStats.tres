@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_stats")
-id = "abyssal_crown_guardian"
+id = "AbyssalCrownGuardian"
 display_name = "심연 왕관 수호자"
 max_hp = 2500
 attack = 30

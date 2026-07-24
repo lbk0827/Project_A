@@ -1,73 +1,73 @@
 [
 	{
-		"Id": "mire_imp",
+		"Id": "MireImp",
 		"DisplayName": "마이어 임프",
 		"ActionCount": 3,
 		"Intents": [
 			"stab",
 			"brace",
-			"heavy_blow"
+			"HeavyBlow"
 		]
 	},
 	{
-		"Id": "bog_stalker",
+		"Id": "BogStalker",
 		"DisplayName": "늪 추적자",
 		"ActionCount": 2,
 		"Intents": [
 			"stab",
 			"stab",
-			"heavy_blow"
+			"HeavyBlow"
 		]
 	},
 	{
-		"Id": "bone_crawler",
+		"Id": "BoneCrawler",
 		"DisplayName": "뼈 크롤러",
 		"ActionCount": 2,
 		"Intents": [
-			"heavy_blow",
+			"HeavyBlow",
 			"stab",
 			"brace"
 		]
 	},
 	{
-		"Id": "gravebound_crawler",
+		"Id": "GraveboundCrawler",
 		"DisplayName": "무덤 크롤러",
 		"ActionCount": 3,
 		"Intents": [
 			"brace",
 			"stab",
-			"heavy_blow"
+			"HeavyBlow"
 		]
 	},
 	{
-		"Id": "frost_revenant",
+		"Id": "FrostRevenant",
 		"DisplayName": "프로스트 레버넌트",
 		"ActionCount": 2,
 		"Intents": [
 			"brace",
-			"heavy_blow",
+			"HeavyBlow",
 			"stab",
-			"heavy_blow"
+			"HeavyBlow"
 		]
 	},
 	{
-		"Id": "crown_acolyte",
+		"Id": "CrownAcolyte",
 		"DisplayName": "왕관 시종",
 		"ActionCount": 2,
 		"Intents": [
-			"heavy_blow",
+			"HeavyBlow",
 			"brace",
-			"heavy_blow"
+			"HeavyBlow"
 		]
 	},
 	{
-		"Id": "abyssal_crown_guardian",
+		"Id": "AbyssalCrownGuardian",
 		"DisplayName": "심연 왕관 수호자",
 		"ActionCount": 3,
 		"Intents": [
-			"heavy_blow",
+			"HeavyBlow",
 			"brace",
-			"heavy_blow",
+			"HeavyBlow",
 			"stab"
 		]
 	}

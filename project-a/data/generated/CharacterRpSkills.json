@@ -1,7 +1,7 @@
 [
 	{
-		"Id": "moon_slash",
-		"Character": "tsuki",
+		"Id": "MoonSlash",
+		"Character": "Tsuki",
 		"DisplayName": "달빛 베기",
 		"DisplayNameEn": "MOON SLASH",
 		"RpCost": 3.0,
@@ -9,7 +9,7 @@
 		"HitCount": 5,
 		"Target": "all_enemies",
 		"MotionAnimation": "MoonSlash",
-		"VfxId": "moon_slash",
+		"VfxId": "MoonSlash",
 		"CutinHoldSeconds": 1.0
 	}
 ]

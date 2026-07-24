@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("1_data")
-id = "frost_revenant"
+id = "FrostRevenant"
 display_name = "프로스트 레버넌트"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")

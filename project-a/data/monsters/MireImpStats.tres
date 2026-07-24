@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_stats")
-id = "mire_imp"
+id = "MireImp"
 display_name = "마이어 임프"
 max_hp = 500
 attack = 14

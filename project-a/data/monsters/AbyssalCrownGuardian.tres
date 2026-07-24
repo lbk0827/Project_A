@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("1_data")
-id = "abyssal_crown_guardian"
+id = "AbyssalCrownGuardian"
 display_name = "심연 왕관 수호자"
 stats = ExtResource("2_stats")
 scene = ExtResource("3_scene")

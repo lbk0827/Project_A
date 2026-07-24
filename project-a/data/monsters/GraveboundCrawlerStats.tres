@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_stats")
-id = "gravebound_crawler"
+id = "GraveboundCrawler"
 display_name = "무덤 크롤러"
 max_hp = 950
 attack = 20

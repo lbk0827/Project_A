@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_stats")
-id = "bog_stalker"
+id = "BogStalker"
 display_name = "늪 추적자"
 max_hp = 650
 attack = 16

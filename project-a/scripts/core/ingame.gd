@@ -107,13 +107,13 @@ const FROST_REVENANT_DATA := preload("res://data/monsters/FrostRevenant.tres")
 const CROWN_ACOLYTE_DATA := preload("res://data/monsters/CrownAcolyte.tres")
 const ABYSSAL_CROWN_GUARDIAN_DATA := preload("res://data/monsters/AbyssalCrownGuardian.tres")
 const MONSTER_DATA_BY_ID := {
-	"mire_imp": DEFAULT_MONSTER_DATA,
-	"bone_crawler": BONE_CRAWLER_DATA,
-	"bog_stalker": BOG_STALKER_DATA,
-	"gravebound_crawler": GRAVEBOUND_CRAWLER_DATA,
-	"frost_revenant": FROST_REVENANT_DATA,
-	"crown_acolyte": CROWN_ACOLYTE_DATA,
-	"abyssal_crown_guardian": ABYSSAL_CROWN_GUARDIAN_DATA,
+	"MireImp": DEFAULT_MONSTER_DATA,
+	"BoneCrawler": BONE_CRAWLER_DATA,
+	"BogStalker": BOG_STALKER_DATA,
+	"GraveboundCrawler": GRAVEBOUND_CRAWLER_DATA,
+	"FrostRevenant": FROST_REVENANT_DATA,
+	"CrownAcolyte": CROWN_ACOLYTE_DATA,
+	"AbyssalCrownGuardian": ABYSSAL_CROWN_GUARDIAN_DATA,
 }
 const CHARACTER_CARDS_PATH := "res://data/generated/CharacterCards.json"
 const CARD_EFFECT_ROWS_PATH := "res://data/generated/CardEffectRows.json"
@@ -192,8 +192,8 @@ func _run_state() -> Node:
 
 func _ready():
 	card_library = _load_card_library()
-	rp_settings = _load_character_table_entry(CHARACTER_RP_SETTINGS_PATH, "tsuki")
-	rp_skill = _load_character_table_entry(CHARACTER_RP_SKILLS_PATH, "tsuki")
+	rp_settings = _load_character_table_entry(CHARACTER_RP_SETTINGS_PATH, "Tsuki")
+	rp_skill = _load_character_table_entry(CHARACTER_RP_SKILLS_PATH, "Tsuki")
 	_load_monster_ai_tables()
 	_setup_scene()
 	_build_ui()
@@ -1461,7 +1461,7 @@ func _on_map_overlay_node_selected(node_id: String):
 		return
 
 	if MapRouteData.is_combat_node(node_id):
-		run_state.start_combat_node(node_id, node_data.get("MonsterId", "mire_imp"), node_data.get("EncounterId", ""))
+		run_state.start_combat_node(node_id, node_data.get("MonsterId", "MireImp"), node_data.get("EncounterId", ""))
 		await _play_route_wipe_cover()
 		_enter_combat_mode()
 		await _play_route_wipe_reveal()

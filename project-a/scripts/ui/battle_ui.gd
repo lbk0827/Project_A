@@ -474,8 +474,8 @@ func set_rp_skill_card(skill: Dictionary):
 	var hit_count := int(skill.get("HitCount", 5))
 	var rp_cost := float(skill.get("RpCost", 0.0))
 	var card := CardData.new()
-	card.id = String(skill.get("Id", "moon_slash"))
-	card.character = String(skill.get("Character", "tsuki"))
+	card.id = String(skill.get("Id", "MoonSlash"))
+	card.character = String(skill.get("Character", "Tsuki"))
 	card.display_name = String(skill.get("DisplayName", "달빛 베기"))
 	card.cost = int(round(rp_cost))
 	card.card_type = &"rp"

@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_stats")
-id = "frost_revenant"
+id = "FrostRevenant"
 display_name = "프로스트 레버넌트"
 max_hp = 1200
 attack = 24
