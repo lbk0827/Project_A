@@ -1,0 +1,74 @@
+[
+	{
+		"Id": "abyssal_crown_guardian",
+		"DisplayName": "심연 왕관 수호자",
+		"MaxHp": 2500,
+		"Attack": 30,
+		"Defense": 48,
+		"CritRate": 0.0,
+		"CritDamage": 1.0
+	},
+	{
+		"Id": "bog_stalker",
+		"DisplayName": "늪 추적자",
+		"MaxHp": 650,
+		"Attack": 16,
+		"Defense": 14,
+		"CritRate": 0.0,
+		"CritDamage": 1.0
+	},
+	{
+		"Id": "mire_imp",
+		"DisplayName": "마이어 임프",
+		"MaxHp": 500,
+		"Attack": 14,
+		"Defense": 18,
+		"CritRate": 0.0,
+		"CritDamage": 1.0
+	},
+	{
+		"Id": "bone_crawler",
+		"DisplayName": "뼈 크롤러",
+		"MaxHp": 800,
+		"Attack": 18,
+		"Defense": 20,
+		"CritRate": 0.0,
+		"CritDamage": 1.0
+	},
+	{
+		"Id": "crown_acolyte",
+		"DisplayName": "왕관 시종",
+		"MaxHp": 1400,
+		"Attack": 28,
+		"Defense": 32,
+		"CritRate": 0.0,
+		"CritDamage": 1.0
+	},
+	{
+		"Id": "frost_revenant",
+		"DisplayName": "프로스트 레버넌트",
+		"MaxHp": 1200,
+		"Attack": 24,
+		"Defense": 40,
+		"CritRate": 0.0,
+		"CritDamage": 1.0
+	},
+	{
+		"Id": "gravebound_crawler",
+		"DisplayName": "무덤 크롤러",
+		"MaxHp": 950,
+		"Attack": 20,
+		"Defense": 36,
+		"CritRate": 0.0,
+		"CritDamage": 1.0
+	},
+	{
+		"Id": "monster_dummy",
+		"DisplayName": "훈련 고블린",
+		"MaxHp": 44,
+		"Attack": 0,
+		"Defense": 0,
+		"CritRate": 0.0,
+		"CritDamage": 1.0
+	}
+]

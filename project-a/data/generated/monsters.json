@@ -1,49 +1,49 @@
 [
 	{
-		"id": "mire_imp",
-		"display_name": "마이어 임프",
-		"action_count": 3,
-		"intents": [
+		"Id": "mire_imp",
+		"DisplayName": "마이어 임프",
+		"ActionCount": 3,
+		"Intents": [
 			"stab",
 			"brace",
 			"heavy_blow"
 		]
 	},
 	{
-		"id": "bog_stalker",
-		"display_name": "늪 추적자",
-		"action_count": 2,
-		"intents": [
+		"Id": "bog_stalker",
+		"DisplayName": "늪 추적자",
+		"ActionCount": 2,
+		"Intents": [
 			"stab",
 			"stab",
 			"heavy_blow"
 		]
 	},
 	{
-		"id": "bone_crawler",
-		"display_name": "뼈 크롤러",
-		"action_count": 2,
-		"intents": [
+		"Id": "bone_crawler",
+		"DisplayName": "뼈 크롤러",
+		"ActionCount": 2,
+		"Intents": [
 			"heavy_blow",
 			"stab",
 			"brace"
 		]
 	},
 	{
-		"id": "gravebound_crawler",
-		"display_name": "무덤 크롤러",
-		"action_count": 3,
-		"intents": [
+		"Id": "gravebound_crawler",
+		"DisplayName": "무덤 크롤러",
+		"ActionCount": 3,
+		"Intents": [
 			"brace",
 			"stab",
 			"heavy_blow"
 		]
 	},
 	{
-		"id": "frost_revenant",
-		"display_name": "프로스트 레버넌트",
-		"action_count": 2,
-		"intents": [
+		"Id": "frost_revenant",
+		"DisplayName": "프로스트 레버넌트",
+		"ActionCount": 2,
+		"Intents": [
 			"brace",
 			"heavy_blow",
 			"stab",
@@ -51,20 +51,20 @@
 		]
 	},
 	{
-		"id": "crown_acolyte",
-		"display_name": "왕관 시종",
-		"action_count": 2,
-		"intents": [
+		"Id": "crown_acolyte",
+		"DisplayName": "왕관 시종",
+		"ActionCount": 2,
+		"Intents": [
 			"heavy_blow",
 			"brace",
 			"heavy_blow"
 		]
 	},
 	{
-		"id": "abyssal_crown_guardian",
-		"display_name": "심연 왕관 수호자",
-		"action_count": 3,
-		"intents": [
+		"Id": "abyssal_crown_guardian",
+		"DisplayName": "심연 왕관 수호자",
+		"ActionCount": 3,
+		"Intents": [
 			"heavy_blow",
 			"brace",
 			"heavy_blow",

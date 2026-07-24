@@ -19,7 +19,7 @@ func to_dictionary() -> Dictionary:
 		"next": Array(next_ids),
 	}
 	if not monster_id.is_empty():
-		data["monster_id"] = monster_id
+		data["MonsterId"] = monster_id
 	if not encounter_id.is_empty():
-		data["encounter_id"] = encounter_id
+		data["EncounterId"] = encounter_id
 	return data

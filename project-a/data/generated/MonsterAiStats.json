@@ -1,0 +1,51 @@
+[
+	{
+		"StatsId": "mire_imp",
+		"MaxHp": 500,
+		"Attack": 14,
+		"Defense": 18,
+		"DesignerNote": "낮은 방어로 학습용 방어 행동 제공."
+	},
+	{
+		"StatsId": "bog_stalker",
+		"MaxHp": 650,
+		"Attack": 16,
+		"Defense": 14,
+		"DesignerNote": "회피/독성 느낌의 얕은 방어."
+	},
+	{
+		"StatsId": "bone_crawler",
+		"MaxHp": 800,
+		"Attack": 18,
+		"Defense": 20,
+		"DesignerNote": "선공 후 뼈를 추스르는 방어."
+	},
+	{
+		"StatsId": "gravebound_crawler",
+		"MaxHp": 950,
+		"Attack": 20,
+		"Defense": 36,
+		"DesignerNote": "장기전 정체성 강화."
+	},
+	{
+		"StatsId": "frost_revenant",
+		"MaxHp": 1200,
+		"Attack": 24,
+		"Defense": 40,
+		"DesignerNote": "얼음 갑옷을 의미 있게 만들기."
+	},
+	{
+		"StatsId": "crown_acolyte",
+		"MaxHp": 1400,
+		"Attack": 28,
+		"Defense": 32,
+		"DesignerNote": "공격형이지만 신앙 보호막 보유."
+	},
+	{
+		"StatsId": "abyssal_crown_guardian",
+		"MaxHp": 2500,
+		"Attack": 30,
+		"Defense": 48,
+		"DesignerNote": "보스의 패턴 방어 기준."
+	}
+]

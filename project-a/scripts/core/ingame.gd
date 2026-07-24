@@ -115,15 +115,15 @@ const MONSTER_DATA_BY_ID := {
 	"crown_acolyte": CROWN_ACOLYTE_DATA,
 	"abyssal_crown_guardian": ABYSSAL_CROWN_GUARDIAN_DATA,
 }
-const CHARACTER_CARDS_PATH := "res://data/generated/character_cards.json"
-const CARD_EFFECT_ROWS_PATH := "res://data/generated/card_effect_rows.json"
-const CHARACTER_RP_SETTINGS_PATH := "res://data/generated/character_rp_settings.json"
-const CHARACTER_RP_SKILLS_PATH := "res://data/generated/character_rp_skills.json"
-const MONSTER_AI_MONSTERS_PATH := "res://data/generated/monster_ai_monsters.json"
-const MONSTER_AI_STATS_PATH := "res://data/generated/monster_ai_stats.json"
-const MONSTER_AI_ACTIONS_PATH := "res://data/generated/monster_ai_actions.json"
-const MONSTER_AI_PATTERNS_PATH := "res://data/generated/monster_ai_patterns.json"
-const MONSTER_AI_RULES_PATH := "res://data/generated/monster_ai_rules.json"
+const CHARACTER_CARDS_PATH := "res://data/generated/CharacterCards.json"
+const CARD_EFFECT_ROWS_PATH := "res://data/generated/CardEffectRows.json"
+const CHARACTER_RP_SETTINGS_PATH := "res://data/generated/CharacterRpSettings.json"
+const CHARACTER_RP_SKILLS_PATH := "res://data/generated/CharacterRpSkills.json"
+const MONSTER_AI_MONSTERS_PATH := "res://data/generated/MonsterAiMonsters.json"
+const MONSTER_AI_STATS_PATH := "res://data/generated/MonsterAiStats.json"
+const MONSTER_AI_ACTIONS_PATH := "res://data/generated/MonsterAiActions.json"
+const MONSTER_AI_PATTERNS_PATH := "res://data/generated/MonsterAiPatterns.json"
+const MONSTER_AI_RULES_PATH := "res://data/generated/MonsterAiRules.json"
 const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
 const ROUTE_WIPE_OVERSCAN := 96.0
 
@@ -222,22 +222,22 @@ func _load_card_library() -> Dictionary:
 	var card_id_counts: Dictionary = {}
 	for entry in parsed:
 		if entry is Dictionary:
-			var entry_id := String(entry.get("id", ""))
+			var entry_id := String(entry.get("Id", ""))
 			card_id_counts[entry_id] = int(card_id_counts.get(entry_id, 0)) + 1
 	for entry in parsed:
 		var card := CardData.new()
-		card.id = String(entry.get("id", ""))
-		card.character = String(entry.get("character", ""))
-		card.display_name = String(entry.get("display_name", ""))
-		card.cost = int(entry.get("cost", 0))
+		card.id = String(entry.get("Id", ""))
+		card.character = String(entry.get("Character", ""))
+		card.display_name = String(entry.get("DisplayName", ""))
+		card.cost = int(entry.get("Cost", 0))
 		var key := _card_key(card.character, card.id)
 		var effect_rows: Array = effect_rows_by_card.get(key, [])
 		card.text = _build_card_text(entry, effect_rows)
-		card.card_type = StringName(String(entry.get("card_type", "skill")))
-		card.motion_animation = StringName(String(entry.get("motion_animation", _default_card_motion_animation(card.card_type))))
+		card.card_type = StringName(String(entry.get("CardType", "skill")))
+		card.motion_animation = StringName(String(entry.get("MotionAnimation", _default_card_motion_animation(card.card_type))))
 		card.effects = _build_card_effects(entry, effect_rows)
 		card.stance_effects = _build_card_stance_effects(entry, effect_rows)
-		var keywords: Variant = entry.get("keywords", [])
+		var keywords: Variant = entry.get("Keywords", [])
 		card.keywords = keywords if keywords is Array else []
 		card.inspiration = _build_card_inspiration(entry, effect_rows)
 		card.requires_target = _derive_requires_target(card.effects)
@@ -258,9 +258,9 @@ func _load_card_effect_rows() -> Dictionary:
 	for row in parsed:
 		if not (row is Dictionary):
 			continue
-		var key := String(row.get("card_key", ""))
+		var key := String(row.get("CardKey", ""))
 		if key.is_empty():
-			key = _card_key(String(row.get("character", "")), String(row.get("card_id", "")))
+			key = _card_key(String(row.get("Character", "")), String(row.get("CardId", "")))
 		if key == "/":
 			continue
 		var rows: Array = rows_by_card.get(key, [])
@@ -287,15 +287,15 @@ func _index_table_by_id(rows: Array, id_field: String) -> Dictionary:
 	return indexed
 
 func _load_monster_ai_tables():
-	monster_ai_monsters = _index_table_by_id(_load_table_array(MONSTER_AI_MONSTERS_PATH), "monster_id")
-	monster_ai_stats = _index_table_by_id(_load_table_array(MONSTER_AI_STATS_PATH), "stats_id")
-	monster_ai_actions = _index_table_by_id(_load_table_array(MONSTER_AI_ACTIONS_PATH), "action_id")
+	monster_ai_monsters = _index_table_by_id(_load_table_array(MONSTER_AI_MONSTERS_PATH), "MonsterId")
+	monster_ai_stats = _index_table_by_id(_load_table_array(MONSTER_AI_STATS_PATH), "StatsId")
+	monster_ai_actions = _index_table_by_id(_load_table_array(MONSTER_AI_ACTIONS_PATH), "ActionId")
 	monster_ai_pattern_steps.clear()
 	for row in _load_table_array(MONSTER_AI_PATTERNS_PATH):
 		if not (row is Dictionary):
 			continue
-		var pattern_id := str(row.get("pattern_id", ""))
-		var step_id := str(row.get("step_id", ""))
+		var pattern_id := str(row.get("PatternId", ""))
+		var step_id := str(row.get("StepId", ""))
 		if pattern_id.is_empty() or step_id.is_empty():
 			continue
 		var steps: Dictionary = monster_ai_pattern_steps.get(pattern_id, {})
@@ -305,7 +305,7 @@ func _load_monster_ai_tables():
 	for row in _load_table_array(MONSTER_AI_RULES_PATH):
 		if not (row is Dictionary):
 			continue
-		var monster_id := str(row.get("monster_id", ""))
+		var monster_id := str(row.get("MonsterId", ""))
 		if monster_id.is_empty():
 			continue
 		var rules: Array = monster_ai_rules_by_monster.get(monster_id, [])
@@ -316,7 +316,7 @@ func _card_key(character: String, card_id: String) -> String:
 	return "%s/%s" % [character, card_id]
 
 func _build_card_text(entry: Dictionary, effect_rows: Array) -> String:
-	var template := String(entry.get("text_template", entry.get("text", "")))
+	var template := String(entry.get("TextTemplate", entry.get("Text", "")))
 	var values := _card_text_values(entry, effect_rows)
 	for index in values:
 		template = template.replace("{%s}" % index, values[index])
@@ -325,20 +325,20 @@ func _build_card_text(entry: Dictionary, effect_rows: Array) -> String:
 func _card_text_values(entry: Dictionary, effect_rows: Array) -> Dictionary:
 	var values: Dictionary = {}
 	for row in effect_rows:
-		if not _has_table_value(row, "text_arg_index"):
+		if not _has_table_value(row, "TextArgIndex"):
 			continue
-		var arg_index := int(row["text_arg_index"])
+		var arg_index := int(row["TextArgIndex"])
 		var value: Variant = null
-		if _has_table_value(row, "percent"):
-			value = row["percent"]
-		elif _has_table_value(row, "amount"):
-			value = row["amount"]
-		elif _has_table_value(row, "duration_turns"):
-			value = row["duration_turns"]
+		if _has_table_value(row, "Percent"):
+			value = row["Percent"]
+		elif _has_table_value(row, "Amount"):
+			value = row["Amount"]
+		elif _has_table_value(row, "DurationTurns"):
+			value = row["DurationTurns"]
 		if value != null:
 			values[str(arg_index)] = _format_table_value(value)
 	if values.is_empty():
-		for field in ["damage_percent", "shield_percent", "draw_amount", "buff_percent", "buff_duration_turns"]:
+		for field in ["DamagePercent", "ShieldPercent", "DrawAmount", "BuffPercent", "BuffDurationTurns"]:
 			if _has_table_value(entry, field):
 				values[str(values.size())] = _format_table_value(entry[field])
 	return values
@@ -351,12 +351,12 @@ func _format_table_value(value: Variant) -> String:
 	return str(number)
 
 func _build_card_effects(entry: Dictionary, effect_rows: Array) -> Array:
-	var existing: Variant = entry.get("effects", null)
+	var existing: Variant = entry.get("Effects", null)
 	if existing is Array:
 		return existing
 	var effects: Array = []
 	for row in effect_rows:
-		var trigger := String(row.get("trigger", "on_play"))
+		var trigger := String(row.get("Trigger", "on_play"))
 		if trigger == "on_play":
 			effects.append(_effect_from_row(row))
 		elif trigger != "on_inspiration" and trigger != "on_stance" and trigger != "text_only":
@@ -368,14 +368,14 @@ func _build_card_effects(entry: Dictionary, effect_rows: Array) -> Array:
 	return effects
 
 func _build_card_stance_effects(entry: Dictionary, effect_rows: Array) -> Dictionary:
-	var existing: Variant = entry.get("stance_effects", null)
+	var existing: Variant = entry.get("StanceEffects", null)
 	if existing is Dictionary:
 		return existing
 	var stance_effects: Dictionary = {}
 	for row in effect_rows:
-		if String(row.get("trigger", "")) != "on_stance":
+		if String(row.get("Trigger", "")) != "on_stance":
 			continue
-		var stance := String(row.get("stance", ""))
+		var stance := String(row.get("Stance", ""))
 		if stance.is_empty():
 			continue
 		var effects: Array = stance_effects.get(stance, [])
@@ -384,27 +384,31 @@ func _build_card_stance_effects(entry: Dictionary, effect_rows: Array) -> Dictio
 	return stance_effects
 
 func _build_card_inspiration(entry: Dictionary, effect_rows: Array) -> Array:
-	var existing: Variant = entry.get("inspiration", null)
+	var existing: Variant = entry.get("Inspiration", null)
 	if existing is Array:
 		return existing
 	var inspiration: Array = []
 	for row in effect_rows:
-		if String(row.get("trigger", "")) == "on_inspiration":
+		if String(row.get("Trigger", "")) == "on_inspiration":
 			inspiration.append(_effect_from_row(row))
 	return inspiration
 
 func _effect_from_row(row: Dictionary) -> Dictionary:
 	var effect := {
-		"type": String(row.get("effect_type", "")),
+		"type": String(row.get("EffectType", "")),
 	}
-	for field in ["target", "card_type", "buff", "scope", "condition"]:
-		if _has_table_value(row, field):
-			effect[field] = String(row[field])
-	for field in ["percent", "amount", "duration_turns"]:
-		if _has_table_value(row, field):
-			effect[field] = int(row[field])
+	for pair in [["Target", "target"], ["CardType", "CardType"], ["Buff", "buff"], ["Scope", "scope"], ["Condition", "condition"]]:
+		var source_field := String(pair[0])
+		var effect_field := String(pair[1])
+		if _has_table_value(row, source_field):
+			effect[effect_field] = String(row[source_field])
+	for pair in [["Percent", "percent"], ["Amount", "amount"], ["DurationTurns", "DurationTurns"]]:
+		var source_field := String(pair[0])
+		var effect_field := String(pair[1])
+		if _has_table_value(row, source_field):
+			effect[effect_field] = int(row[source_field])
 	if effect["type"] == "add_card_to_hand" and effect.has("scope"):
-		effect["card_id"] = effect["scope"]
+		effect["CardId"] = effect["scope"]
 	return effect
 
 func _has_table_value(entry: Dictionary, field: String) -> bool:
@@ -426,7 +430,7 @@ func _load_character_table_entry(path: String, character_id: String) -> Dictiona
 		push_warning("Character table is not an array: %s" % path)
 		return {}
 	for entry in parsed:
-		if entry is Dictionary and String(entry.get("character", "")) == character_id:
+		if entry is Dictionary and String(entry.get("Character", "")) == character_id:
 			return entry.duplicate(true)
 	return {}
 
@@ -558,7 +562,7 @@ func _setup_enemy_ai(enemy: CombatEnemy):
 	if not monster_ai_monsters.has(monster_id):
 		return
 	var monster_row: Dictionary = monster_ai_monsters[monster_id]
-	var pattern_id := str(monster_row.get("default_pattern_id", ""))
+	var pattern_id := str(monster_row.get("DefaultPatternId", ""))
 	if pattern_id.is_empty() or not monster_ai_pattern_steps.has(pattern_id):
 		return
 	enemy.ai_enabled = true
@@ -574,7 +578,7 @@ func _set_enemy_ai_step(enemy: CombatEnemy, step_id: String, count_override: Var
 		enemy.ai_enabled = false
 		return
 	var step: Dictionary = pattern_steps[step_id]
-	var action_id := str(step.get("action_id", ""))
+	var action_id := str(step.get("ActionId", ""))
 	if not monster_ai_actions.has(action_id):
 		enemy.ai_enabled = false
 		return
@@ -583,14 +587,14 @@ func _set_enemy_ai_step(enemy: CombatEnemy, step_id: String, count_override: Var
 	if count_override != null:
 		enemy.ai_action_count_remaining = max(int(count_override), 1)
 	else:
-		enemy.ai_action_count_remaining = max(int(step.get("action_count", 1)), 1)
+		enemy.ai_action_count_remaining = max(int(step.get("ActionCount", 1)), 1)
 	if apply_rules:
 		_apply_enemy_ai_rules(enemy)
 
 func _advance_enemy_ai_step(enemy: CombatEnemy):
 	var pattern_steps: Dictionary = monster_ai_pattern_steps.get(enemy.ai_pattern_id, {})
 	var step: Dictionary = pattern_steps.get(enemy.ai_step_id, {})
-	var next_step_id := str(step.get("next_step_id", "start"))
+	var next_step_id := str(step.get("NextStepId", "start"))
 	_set_enemy_ai_step(enemy, next_step_id)
 	if enemy.ai_next_count_delta != 0:
 		enemy.ai_action_count_remaining = max(enemy.ai_action_count_remaining + enemy.ai_next_count_delta, 1)
@@ -606,31 +610,31 @@ func _apply_enemy_ai_rules(enemy: CombatEnemy):
 	for rule in rules:
 		if not (rule is Dictionary):
 			continue
-		var rule_id := str(rule.get("rule_id", ""))
-		if bool(rule.get("once", false)) and enemy.ai_triggered_rules.has(rule_id):
+		var rule_id := str(rule.get("RuleId", ""))
+		if bool(rule.get("Once", false)) and enemy.ai_triggered_rules.has(rule_id):
 			continue
 		if not _enemy_ai_rule_matches(enemy, rule):
 			continue
-		var priority := int(rule.get("priority", 0))
+		var priority := int(rule.get("Priority", 0))
 		if priority > selected_priority:
 			selected_rule = rule
 			selected_priority = priority
 	if selected_rule.is_empty():
 		return
-	var selected_rule_id := str(selected_rule.get("rule_id", ""))
-	if bool(selected_rule.get("once", false)):
+	var selected_rule_id := str(selected_rule.get("RuleId", ""))
+	if bool(selected_rule.get("Once", false)):
 		enemy.ai_triggered_rules[selected_rule_id] = true
-	var set_pattern_id := str(selected_rule.get("set_pattern_id", ""))
+	var set_pattern_id := str(selected_rule.get("SetPatternId", ""))
 	if not set_pattern_id.is_empty() and monster_ai_pattern_steps.has(set_pattern_id):
 		enemy.ai_pattern_id = set_pattern_id
-	var count_override: Variant = selected_rule.get("action_count_override", null)
-	_set_enemy_ai_step(enemy, str(selected_rule.get("set_step_id", "start")), count_override, false)
+	var count_override: Variant = selected_rule.get("ActionCountOverride", null)
+	_set_enemy_ai_step(enemy, str(selected_rule.get("SetStepId", "start")), count_override, false)
 
 func _enemy_ai_rule_matches(enemy: CombatEnemy, rule: Dictionary) -> bool:
-	var trigger_type := str(rule.get("trigger_type", ""))
+	var trigger_type := str(rule.get("TriggerType", ""))
 	match trigger_type:
 		"hp_below":
-			var threshold := float(rule.get("trigger_value", 0))
+			var threshold := float(rule.get("TriggerValue", 0))
 			var ratio := float(enemy.hp) / float(max(enemy.max_hp(), 1)) * 100.0
 			return ratio <= threshold
 	return false
@@ -772,7 +776,7 @@ func _start_battle():
 		player_hp = min(run_state.current_hp, PLAYER_STATS.max_hp)
 	player_block = 0
 	energy = PLAYER_STATS.starting_energy
-	rage_point = clamp(float(rp_settings.get("starting_rp", 0.0)), 0.0, _max_rp())
+	rage_point = clamp(float(rp_settings.get("StartingRp", 0.0)), 0.0, _max_rp())
 	stance_changed_this_turn = false
 	turn_number = 1
 	battle_over = false
@@ -922,7 +926,7 @@ func _play_card(index: int, target_enemy: CombatEnemy = null):
 	combat_sequence_active = true
 	var is_inspired: bool = card.inspired
 	energy -= cost
-	_gain_rp(float(cost) * float(rp_settings.get("rp_per_action_point", 0.0)), "ACTION")
+	_gain_rp(float(cost) * float(rp_settings.get("RpPerActionPoint", 0.0)), "ACTION")
 	hand.remove_at(index)
 	# Enhance cards install a lasting effect instead of going to discard.
 	var moves_to_tomb := String(card.card_type) != "enhance"
@@ -1057,13 +1061,13 @@ func _apply_instant_effects(effects: Array):
 				player_block += block_amount
 				_show_popup(_get_player_screen_position(), "+%d DEF" % block_amount, BLOCK_GAIN_COLOR, 28)
 			"draw":
-				await _draw_cards_typed(int(effect.get("amount", 0)), String(effect.get("card_type", "")))
+				await _draw_cards_typed(int(effect.get("amount", 0)), String(effect.get("CardType", "")))
 			"energy":
 				var gain := int(effect.get("amount", 0))
 				energy += gain
 				_show_popup(_get_player_screen_position(), "+%d EP" % gain, Color(0.5, 0.9, 1.0), 28)
 			"add_card_to_hand":
-				_add_card_to_hand(String(effect.get("card_id", "")))
+				_add_card_to_hand(String(effect.get("CardId", "")))
 			"buff":
 				if String(effect.get("buff", "")) == "attack_damage_up":
 					_attack_damage_bonus_percent += int(effect.get("percent", 0))
@@ -1104,10 +1108,10 @@ func _compute_shield(effect: Dictionary) -> int:
 	return int(effect.get("amount", 0))
 
 func _max_rp() -> float:
-	return max(float(rp_settings.get("max_rp", 0.0)), 0.0)
+	return max(float(rp_settings.get("MaxRp", 0.0)), 0.0)
 
 func _rp_skill_cost() -> float:
-	return max(float(rp_skill.get("rp_cost", 0.0)), 0.0)
+	return max(float(rp_skill.get("RpCost", 0.0)), 0.0)
 
 func _gain_rp(amount: float, reason: String = ""):
 	if amount <= 0.0 or _max_rp() <= 0.0:
@@ -1163,13 +1167,13 @@ func _execute_rp_skill():
 	_refresh_ui()
 
 	if is_instance_valid(battle_ui):
-		await battle_ui.call("play_rp_cutin", float(rp_skill.get("cutin_hold_seconds", 1.0)))
+		await battle_ui.call("play_rp_cutin", float(rp_skill.get("CutinHoldSeconds", 1.0)))
 
 	var targets: Array = _alive_enemies()
 	_set_stance_badge_suppressed(true)
 	await _move_player_to_moon_slash_position(targets)
 	if heroine.has_method("play_card_animation"):
-		heroine.call("play_card_animation", StringName(String(rp_skill.get("motion_animation", "MoonSlash"))))
+		heroine.call("play_card_animation", StringName(String(rp_skill.get("MotionAnimation", "MoonSlash"))))
 
 	var moon_vfx: Array = []
 	for enemy in targets:
@@ -1182,8 +1186,8 @@ func _execute_rp_skill():
 		vfx.call("reveal")
 	await get_tree().create_timer(0.2).timeout
 
-	var damage_percent := float(rp_skill.get("damage_percent", 0.0))
-	var hit_count: int = max(int(rp_skill.get("hit_count", 5)), 1)
+	var damage_percent := float(rp_skill.get("DamagePercent", 0.0))
+	var hit_count: int = max(int(rp_skill.get("HitCount", 5)), 1)
 	for hit_index in range(hit_count):
 		for vfx in moon_vfx:
 			if is_instance_valid(vfx):
@@ -1403,7 +1407,7 @@ func _kill_enemy(enemy: CombatEnemy):
 	enemy.dead = true
 	if enemy == selected_info_enemy:
 		_clear_selected_monster_info()
-	_gain_rp(float(rp_settings.get("rp_per_enemy_kill", 0.0)), "KILL")
+	_gain_rp(float(rp_settings.get("RpPerEnemyKill", 0.0)), "KILL")
 	if is_instance_valid(enemy.status_bar):
 		enemy.status_bar.clear_intent()
 		enemy.status_bar.visible = false
@@ -1457,7 +1461,7 @@ func _on_map_overlay_node_selected(node_id: String):
 		return
 
 	if MapRouteData.is_combat_node(node_id):
-		run_state.start_combat_node(node_id, node_data.get("monster_id", "mire_imp"), node_data.get("encounter_id", ""))
+		run_state.start_combat_node(node_id, node_data.get("MonsterId", "mire_imp"), node_data.get("EncounterId", ""))
 		await _play_route_wipe_cover()
 		_enter_combat_mode()
 		await _play_route_wipe_reveal()
@@ -1536,7 +1540,7 @@ func _enemy_turn():
 
 func _perform_enemy_ai_action(enemy: CombatEnemy):
 	var action := enemy.ai_current_action
-	var action_type := str(action.get("action_type", "skill"))
+	var action_type := str(action.get("ActionType", "skill"))
 	match action_type:
 		"attack":
 			await _play_enemy_attack_sequence(enemy, _enemy_ai_attack_damage(enemy, action))
@@ -1546,19 +1550,19 @@ func _perform_enemy_ai_action(enemy: CombatEnemy):
 			_show_popup(_enemy_screen_position(enemy), "+%d DEF" % block_amount, BLOCK_GAIN_COLOR, 28)
 			_update_enemy_bar(enemy)
 		"buff":
-			var gain: int = max(int(action.get("power_value", 1)), 1)
+			var gain: int = max(int(action.get("PowerValue", 1)), 1)
 			enemy.ai_attack_bonus_percent += 20 * gain
-			_show_popup(_enemy_screen_position(enemy), "%s +%d" % [str(action.get("display_name", "강화")), gain], BLOCK_GAIN_COLOR, 28)
+			_show_popup(_enemy_screen_position(enemy), "%s +%d" % [str(action.get("DisplayName", "강화")), gain], BLOCK_GAIN_COLOR, 28)
 		"skill":
-			if str(action.get("power_type", "")) == "count_delta":
-				enemy.ai_next_count_delta += int(action.get("power_value", 0))
-			_show_popup(_enemy_screen_position(enemy), str(action.get("display_name", "기술")), Color(0.78, 0.62, 1.0), 28)
+			if str(action.get("PowerType", "")) == "count_delta":
+				enemy.ai_next_count_delta += int(action.get("PowerValue", 0))
+			_show_popup(_enemy_screen_position(enemy), str(action.get("DisplayName", "기술")), Color(0.78, 0.62, 1.0), 28)
 		_:
-			_show_popup(_enemy_screen_position(enemy), str(action.get("display_name", "기술")), Color(0.78, 0.62, 1.0), 28)
+			_show_popup(_enemy_screen_position(enemy), str(action.get("DisplayName", "기술")), Color(0.78, 0.62, 1.0), 28)
 
 func _enemy_ai_attack_damage(enemy: CombatEnemy, action: Dictionary) -> int:
 	var base := _enemy_ai_attack(enemy)
-	var percent := int(action.get("power_value", 100))
+	var percent := int(action.get("PowerValue", 100))
 	var damage := int(round(base * float(percent) / 100.0))
 	if enemy.ai_attack_bonus_percent > 0:
 		damage = int(round(damage * (1.0 + float(enemy.ai_attack_bonus_percent) / 100.0)))
@@ -1566,8 +1570,8 @@ func _enemy_ai_attack_damage(enemy: CombatEnemy, action: Dictionary) -> int:
 	return damage
 
 func _enemy_ai_defense_amount(enemy: CombatEnemy, action: Dictionary) -> int:
-	var power_type := str(action.get("power_type", "flat"))
-	var power_value := int(action.get("power_value", 0))
+	var power_type := str(action.get("PowerType", "flat"))
+	var power_value := int(action.get("PowerValue", 0))
 	if power_type == "defense_percent":
 		return int(round(_enemy_ai_defense(enemy) * float(power_value) / 100.0))
 	return power_value
@@ -1683,7 +1687,7 @@ func _on_end_turn_pressed():
 	if route_selection_mode or battle_over or combat_sequence_active:
 		return
 	_on_rp_skill_cancelled()
-	_gain_rp(float(rp_settings.get("rp_per_end_turn", 0.0)), "TURN")
+	_gain_rp(float(rp_settings.get("RpPerEndTurn", 0.0)), "TURN")
 	combat_sequence_active = true
 	var pending_transitions: Array = []
 	for i in range(hand.size()):
@@ -2071,18 +2075,18 @@ func _enemy_ai_stats(enemy: CombatEnemy) -> Dictionary:
 
 func _enemy_ai_attack(enemy: CombatEnemy) -> int:
 	var stats: Dictionary = _enemy_ai_stats(enemy)
-	if stats.has("attack"):
-		return int(stats.get("attack", enemy.data.stats.attack))
+	if stats.has("Attack"):
+		return int(stats.get("Attack", enemy.data.stats.attack))
 	return enemy.data.stats.attack
 
 func _enemy_ai_defense(enemy: CombatEnemy) -> int:
 	var stats: Dictionary = _enemy_ai_stats(enemy)
-	if stats.has("defense"):
-		return int(stats.get("defense", enemy.data.stats.defense))
+	if stats.has("Defense"):
+		return int(stats.get("Defense", enemy.data.stats.defense))
 	return enemy.data.stats.defense
 
 func _enemy_ai_intent_type(action: Dictionary) -> StringName:
-	var action_type := str(action.get("action_type", "skill"))
+	var action_type := str(action.get("ActionType", "skill"))
 	match action_type:
 		"attack":
 			return &"attack"
@@ -2091,9 +2095,9 @@ func _enemy_ai_intent_type(action: Dictionary) -> StringName:
 	return &"skill"
 
 func _enemy_ai_display_amount(enemy: CombatEnemy, action: Dictionary) -> int:
-	var action_type := str(action.get("action_type", "skill"))
-	var power_type := str(action.get("power_type", "flat"))
-	var power_value := int(action.get("power_value", 0))
+	var action_type := str(action.get("ActionType", "skill"))
+	var power_type := str(action.get("PowerType", "flat"))
+	var power_value := int(action.get("PowerValue", 0))
 	if action_type == "attack":
 		return power_value
 	if action_type == "defense" or action_type == "block":
@@ -2112,18 +2116,18 @@ func _enemy_info_intents(enemy: CombatEnemy) -> Array:
 		if not pattern_steps.has(step_id):
 			break
 		var step: Dictionary = pattern_steps[step_id]
-		var action_id := str(step.get("action_id", ""))
+		var action_id := str(step.get("ActionId", ""))
 		if not monster_ai_actions.has(action_id):
 			break
 		var action: Dictionary = monster_ai_actions[action_id]
 		var intent := EnemyIntentData.new()
-		intent.display_name = str(action.get("display_name", ""))
+		intent.display_name = str(action.get("DisplayName", ""))
 		intent.intent_type = _enemy_ai_intent_type(action)
 		intent.amount = _enemy_ai_display_amount(enemy, action)
-		intent.icon_label = str(action.get("icon_label", ""))
-		intent.description = str(action.get("description", ""))
+		intent.icon_label = str(action.get("IconLabel", ""))
+		intent.description = str(action.get("Description", ""))
 		result.append(intent)
-		var next_step_id := str(step.get("next_step_id", ""))
+		var next_step_id := str(step.get("NextStepId", ""))
 		if next_step_id.is_empty() or next_step_id == step_id:
 			break
 		step_id = next_step_id
@@ -2144,7 +2148,7 @@ func _update_enemy_bar(enemy: CombatEnemy):
 		return
 	enemy.status_bar.set_status(enemy.hp, enemy.max_hp(), enemy.block)
 	if enemy.ai_enabled and not enemy.ai_current_action.is_empty():
-		enemy.status_bar.set_intent(_enemy_ai_intent_type(enemy.ai_current_action), _enemy_ai_display_amount(enemy, enemy.ai_current_action), enemy.ai_action_count_remaining, str(enemy.ai_current_action.get("display_name", "")))
+		enemy.status_bar.set_intent(_enemy_ai_intent_type(enemy.ai_current_action), _enemy_ai_display_amount(enemy, enemy.ai_current_action), enemy.ai_action_count_remaining, str(enemy.ai_current_action.get("DisplayName", "")))
 		return
 	if enemy.intents.is_empty():
 		enemy.status_bar.clear_intent()

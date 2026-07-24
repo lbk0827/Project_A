@@ -470,24 +470,24 @@ func set_rp_state(current_rp: float, max_rp: float, rp_cost: float, selected: bo
 func set_rp_skill_card(skill: Dictionary):
 	if rp_skill_card == null:
 		return
-	var damage_percent := float(skill.get("damage_percent", 0.0))
-	var hit_count := int(skill.get("hit_count", 5))
-	var rp_cost := float(skill.get("rp_cost", 0.0))
+	var damage_percent := float(skill.get("DamagePercent", 0.0))
+	var hit_count := int(skill.get("HitCount", 5))
+	var rp_cost := float(skill.get("RpCost", 0.0))
 	var card := CardData.new()
-	card.id = String(skill.get("id", "moon_slash"))
-	card.character = String(skill.get("character", "tsuki"))
-	card.display_name = String(skill.get("display_name", "달빛 베기"))
+	card.id = String(skill.get("Id", "moon_slash"))
+	card.character = String(skill.get("Character", "tsuki"))
+	card.display_name = String(skill.get("DisplayName", "달빛 베기"))
 	card.cost = int(round(rp_cost))
 	card.card_type = &"rp"
-	card.motion_animation = StringName(skill.get("motion_animation", "MoonSlash"))
+	card.motion_animation = StringName(skill.get("MotionAnimation", "MoonSlash"))
 	card.requires_target = true
 	card.text = "모든 적에게 공격력 %s%% 피해를 %d회 줍니다." % [_format_rp(damage_percent), hit_count]
 	card.keywords = []
 	card.effects = [{
 		"type": "damage",
 		"target": "all_enemies",
-		"damage_percent": damage_percent,
-		"hit_count": hit_count,
+		"DamagePercent": damage_percent,
+		"HitCount": hit_count,
 	}]
 	rp_skill_card.call("set_card", card, card.cost)
 	if rp_skill_card.has_method("set_cost_text"):
