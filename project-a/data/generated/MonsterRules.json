@@ -99,8 +99,8 @@
 		"Once": true,
 		"Priority": 100,
 		"SetPatternId": null,
-		"SetStepId": "Start",
+		"SetStepId": "AfterAuthority",
 		"ActionCountOverride": null,
-		"Note": "HP 40% 이하에서 심연 선고 루프로 복귀."
+		"Note": "HP 40% 이하에서 심연의 칙령 단계로 전환."
 	}
 ]

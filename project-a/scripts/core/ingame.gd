@@ -119,11 +119,11 @@ const CHARACTER_CARDS_PATH := "res://data/generated/CharacterCards.json"
 const CARD_EFFECT_ROWS_PATH := "res://data/generated/CardEffectRows.json"
 const CHARACTER_RP_SETTINGS_PATH := "res://data/generated/CharacterRpSettings.json"
 const CHARACTER_RP_SKILLS_PATH := "res://data/generated/CharacterRpSkills.json"
-const MONSTER_AI_MONSTERS_PATH := "res://data/generated/MonsterAiMonsters.json"
-const MONSTER_AI_STATS_PATH := "res://data/generated/MonsterAiStats.json"
-const MONSTER_AI_ACTIONS_PATH := "res://data/generated/MonsterAiActions.json"
-const MONSTER_AI_PATTERNS_PATH := "res://data/generated/MonsterAiPatterns.json"
-const MONSTER_AI_RULES_PATH := "res://data/generated/MonsterAiRules.json"
+const MONSTER_DEFINITIONS_PATH := "res://data/generated/MonsterDefinitions.json"
+const MONSTER_COMBAT_STATS_PATH := "res://data/generated/MonsterCombatStats.json"
+const MONSTER_ACTIONS_PATH := "res://data/generated/MonsterActions.json"
+const MONSTER_PATTERNS_PATH := "res://data/generated/MonsterPatterns.json"
+const MONSTER_RULES_PATH := "res://data/generated/MonsterRules.json"
 const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
 const ROUTE_WIPE_OVERSCAN := 96.0
 
@@ -145,11 +145,11 @@ var energy := 0
 var rage_point := 0.0
 var rp_settings: Dictionary = {}
 var rp_skill: Dictionary = {}
-var monster_ai_monsters: Dictionary = {}
-var monster_ai_stats: Dictionary = {}
-var monster_ai_actions: Dictionary = {}
-var monster_ai_pattern_steps: Dictionary = {}
-var monster_ai_rules_by_monster: Dictionary = {}
+var monster_definitions: Dictionary = {}
+var monster_combat_stats: Dictionary = {}
+var monster_actions: Dictionary = {}
+var monster_pattern_steps: Dictionary = {}
+var monster_rules_by_monster: Dictionary = {}
 var rp_skill_selected := false
 var current_stance := STANCE_MOON_SHADOW
 var stance_changed_this_turn := false
@@ -194,7 +194,7 @@ func _ready():
 	card_library = _load_card_library()
 	rp_settings = _load_character_table_entry(CHARACTER_RP_SETTINGS_PATH, "Tsuki")
 	rp_skill = _load_character_table_entry(CHARACTER_RP_SKILLS_PATH, "Tsuki")
-	_load_monster_ai_tables()
+	_load_monster_tables()
 	_setup_scene()
 	_build_ui()
 	if _has_active_combat():
@@ -286,31 +286,31 @@ func _index_table_by_id(rows: Array, id_field: String) -> Dictionary:
 			indexed[id] = row
 	return indexed
 
-func _load_monster_ai_tables():
-	monster_ai_monsters = _index_table_by_id(_load_table_array(MONSTER_AI_MONSTERS_PATH), "MonsterId")
-	monster_ai_stats = _index_table_by_id(_load_table_array(MONSTER_AI_STATS_PATH), "StatsId")
-	monster_ai_actions = _index_table_by_id(_load_table_array(MONSTER_AI_ACTIONS_PATH), "ActionId")
-	monster_ai_pattern_steps.clear()
-	for row in _load_table_array(MONSTER_AI_PATTERNS_PATH):
+func _load_monster_tables():
+	monster_definitions = _index_table_by_id(_load_table_array(MONSTER_DEFINITIONS_PATH), "MonsterId")
+	monster_combat_stats = _index_table_by_id(_load_table_array(MONSTER_COMBAT_STATS_PATH), "StatsId")
+	monster_actions = _index_table_by_id(_load_table_array(MONSTER_ACTIONS_PATH), "ActionId")
+	monster_pattern_steps.clear()
+	for row in _load_table_array(MONSTER_PATTERNS_PATH):
 		if not (row is Dictionary):
 			continue
 		var pattern_id := str(row.get("PatternId", ""))
 		var step_id := str(row.get("StepId", ""))
 		if pattern_id.is_empty() or step_id.is_empty():
 			continue
-		var steps: Dictionary = monster_ai_pattern_steps.get(pattern_id, {})
+		var steps: Dictionary = monster_pattern_steps.get(pattern_id, {})
 		steps[step_id] = row
-		monster_ai_pattern_steps[pattern_id] = steps
-	monster_ai_rules_by_monster.clear()
-	for row in _load_table_array(MONSTER_AI_RULES_PATH):
+		monster_pattern_steps[pattern_id] = steps
+	monster_rules_by_monster.clear()
+	for row in _load_table_array(MONSTER_RULES_PATH):
 		if not (row is Dictionary):
 			continue
 		var monster_id := str(row.get("MonsterId", ""))
 		if monster_id.is_empty():
 			continue
-		var rules: Array = monster_ai_rules_by_monster.get(monster_id, [])
+		var rules: Array = monster_rules_by_monster.get(monster_id, [])
 		rules.append(row)
-		monster_ai_rules_by_monster[monster_id] = rules
+		monster_rules_by_monster[monster_id] = rules
 
 func _card_key(character: String, card_id: String) -> String:
 	return "%s/%s" % [character, card_id]
@@ -559,11 +559,11 @@ func _setup_enemies(datas: Array):
 
 func _setup_enemy_ai(enemy: CombatEnemy):
 	var monster_id := enemy.data.id
-	if not monster_ai_monsters.has(monster_id):
+	if not monster_definitions.has(monster_id):
 		return
-	var monster_row: Dictionary = monster_ai_monsters[monster_id]
+	var monster_row: Dictionary = monster_definitions[monster_id]
 	var pattern_id := str(monster_row.get("DefaultPatternId", ""))
-	if pattern_id.is_empty() or not monster_ai_pattern_steps.has(pattern_id):
+	if pattern_id.is_empty() or not monster_pattern_steps.has(pattern_id):
 		return
 	enemy.ai_enabled = true
 	enemy.ai_pattern_id = pattern_id
@@ -571,7 +571,7 @@ func _setup_enemy_ai(enemy: CombatEnemy):
 	_set_enemy_ai_step(enemy, enemy.ai_step_id, null, false)
 
 func _set_enemy_ai_step(enemy: CombatEnemy, step_id: String, count_override: Variant = null, apply_rules := true):
-	var pattern_steps: Dictionary = monster_ai_pattern_steps.get(enemy.ai_pattern_id, {})
+	var pattern_steps: Dictionary = monster_pattern_steps.get(enemy.ai_pattern_id, {})
 	if not pattern_steps.has(step_id):
 		step_id = "Start"
 	if not pattern_steps.has(step_id):
@@ -579,11 +579,11 @@ func _set_enemy_ai_step(enemy: CombatEnemy, step_id: String, count_override: Var
 		return
 	var step: Dictionary = pattern_steps[step_id]
 	var action_id := str(step.get("ActionId", ""))
-	if not monster_ai_actions.has(action_id):
+	if not monster_actions.has(action_id):
 		enemy.ai_enabled = false
 		return
 	enemy.ai_step_id = step_id
-	enemy.ai_current_action = monster_ai_actions[action_id]
+	enemy.ai_current_action = monster_actions[action_id]
 	if count_override != null:
 		enemy.ai_action_count_remaining = max(int(count_override), 1)
 	else:
@@ -592,7 +592,7 @@ func _set_enemy_ai_step(enemy: CombatEnemy, step_id: String, count_override: Var
 		_apply_enemy_ai_rules(enemy)
 
 func _advance_enemy_ai_step(enemy: CombatEnemy):
-	var pattern_steps: Dictionary = monster_ai_pattern_steps.get(enemy.ai_pattern_id, {})
+	var pattern_steps: Dictionary = monster_pattern_steps.get(enemy.ai_pattern_id, {})
 	var step: Dictionary = pattern_steps.get(enemy.ai_step_id, {})
 	var next_step_id := str(step.get("NextStepId", "Start"))
 	_set_enemy_ai_step(enemy, next_step_id)
@@ -604,7 +604,7 @@ func _apply_enemy_ai_rules(enemy: CombatEnemy):
 	if not enemy.ai_enabled:
 		return
 	var monster_id := enemy.data.id
-	var rules: Array = monster_ai_rules_by_monster.get(monster_id, [])
+	var rules: Array = monster_rules_by_monster.get(monster_id, [])
 	var selected_rule: Dictionary = {}
 	var selected_priority := -999999
 	for rule in rules:
@@ -625,7 +625,7 @@ func _apply_enemy_ai_rules(enemy: CombatEnemy):
 	if bool(selected_rule.get("Once", false)):
 		enemy.ai_triggered_rules[selected_rule_id] = true
 	var set_pattern_id := str(selected_rule.get("SetPatternId", ""))
-	if not set_pattern_id.is_empty() and monster_ai_pattern_steps.has(set_pattern_id):
+	if not set_pattern_id.is_empty() and monster_pattern_steps.has(set_pattern_id):
 		enemy.ai_pattern_id = set_pattern_id
 	var count_override: Variant = selected_rule.get("ActionCountOverride", null)
 	_set_enemy_ai_step(enemy, str(selected_rule.get("SetStepId", "Start")), count_override, false)
@@ -2071,7 +2071,7 @@ func _update_all_enemy_bars():
 		_update_enemy_bar(enemy)
 
 func _enemy_ai_stats(enemy: CombatEnemy) -> Dictionary:
-	return monster_ai_stats.get(enemy.data.id, {})
+	return monster_combat_stats.get(enemy.data.id, {})
 
 func _enemy_ai_attack(enemy: CombatEnemy) -> int:
 	var stats: Dictionary = _enemy_ai_stats(enemy)
@@ -2110,16 +2110,16 @@ func _enemy_info_intents(enemy: CombatEnemy) -> Array:
 	if not enemy.ai_enabled:
 		return enemy.intents
 	var result: Array = []
-	var pattern_steps: Dictionary = monster_ai_pattern_steps.get(enemy.ai_pattern_id, {})
+	var pattern_steps: Dictionary = monster_pattern_steps.get(enemy.ai_pattern_id, {})
 	var step_id := enemy.ai_step_id
 	for _i in range(5):
 		if not pattern_steps.has(step_id):
 			break
 		var step: Dictionary = pattern_steps[step_id]
 		var action_id := str(step.get("ActionId", ""))
-		if not monster_ai_actions.has(action_id):
+		if not monster_actions.has(action_id):
 			break
-		var action: Dictionary = monster_ai_actions[action_id]
+		var action: Dictionary = monster_actions[action_id]
 		var intent := EnemyIntentData.new()
 		intent.display_name = str(action.get("DisplayName", ""))
 		intent.intent_type = _enemy_ai_intent_type(action)
