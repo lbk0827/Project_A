@@ -8,7 +8,7 @@
 		"CardType": "Attack",
 		"MotionAnimation": "Attack",
 		"TextTemplate": "피해 {0}%.\n[월영] 실드 {1}%.\n[참월] 피해 +{2}%.",
-		"Copies": 2,
+		"Copies": 3,
 		"Keywords": [
 			"월영",
 			"참월"
@@ -23,7 +23,7 @@
 		"CardType": "Skill",
 		"MotionAnimation": "Idle",
 		"TextTemplate": "실드 {0}%.\n[월영] 카드 {1}장 뽑기.\n[참월] 이번 턴 공격 피해 +{2}%.",
-		"Copies": 1,
+		"Copies": 2,
 		"Keywords": [
 			"월영",
 			"참월"
@@ -37,7 +37,7 @@
 		"Cost": 0,
 		"CardType": "Skill",
 		"MotionAnimation": "Idle",
-		"TextTemplate": "[보존 / 회수 2] 반대 자세로 변경.\n[월영] 자세 유지 : 매 턴 카드 {0}장 뽑기.\n[참월] 자세 유지 : 공격 피해 +{1}%.",
+		"TextTemplate": "반대 자세로 변경.\n[월영] 자세 유지 : 매 턴 카드 {0}장 뽑기.\n[참월] 자세 유지 : 공격 피해 +{1}%.",
 		"Copies": 1,
 		"Keywords": [
 			"보존",
