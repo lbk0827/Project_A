@@ -175,9 +175,9 @@
 		"HpMultiplier": 1.0,
 		"AttackMultiplier": 1.0,
 		"DefenseMultiplier": 1.0,
-		"PositionX": 980,
+		"PositionX": 860,
 		"PositionY": 410,
-		"Note": "단죄 선포로 시작."
+		"Note": "서포터 몬스터. 다른 몬스터 강화/회복으로 시작."
 	},
 	{
 		"EncounterSlotId": "EncAbyssalCrownGuardian1Enemy1",
@@ -192,6 +192,21 @@
 		"DefenseMultiplier": 1.0,
 		"PositionX": 980,
 		"PositionY": 410,
-		"Note": "심연 선고로 시작."
+		"Note": "강공격과 카드 흡수 루프로 시작."
+	},
+	{
+		"EncounterSlotId": "EncCrownAcolyte1Enemy2",
+		"EncounterId": "EncCrownAcolyte1",
+		"SlotId": "Enemy2",
+		"MonsterId": "BoneCrawler",
+		"PatternId": "BoneCrawlerBasic",
+		"StartStepId": "Start",
+		"ActionCountOverride": null,
+		"HpMultiplier": 0.8,
+		"AttackMultiplier": 0.9,
+		"DefenseMultiplier": 0.9,
+		"PositionX": 1080,
+		"PositionY": 420,
+		"Note": "왕관 시종의 강화/회복 대상."
 	}
 ]

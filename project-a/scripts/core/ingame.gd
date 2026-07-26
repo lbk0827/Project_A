@@ -10,10 +10,13 @@ class CombatEnemy:
 	var ai_enabled := false
 	var ai_pattern_id := ""
 	var ai_step_id := ""
+	var ai_start_step_id := "Start"
+	var ai_action_count_override: Variant = null
 	var ai_current_action: Dictionary = {}
 	var ai_action_count_remaining := 1
 	var ai_next_count_delta := 0
 	var ai_attack_bonus_percent := 0
+	var ai_next_attack_pain := 0
 	var ai_triggered_rules: Dictionary = {}
 	var hp := 0
 	var block := 0
@@ -124,6 +127,7 @@ const MONSTER_COMBAT_STATS_PATH := "res://data/generated/MonsterCombatStats.json
 const MONSTER_ACTIONS_PATH := "res://data/generated/MonsterActions.json"
 const MONSTER_PATTERNS_PATH := "res://data/generated/MonsterPatterns.json"
 const MONSTER_RULES_PATH := "res://data/generated/MonsterRules.json"
+const MONSTER_ENCOUNTERS_PATH := "res://data/generated/MonsterEncounters.json"
 const MAP_SCENE_PATH := "res://scenes/map/map_screen.tscn"
 const ROUTE_WIPE_OVERSCAN := 96.0
 
@@ -141,6 +145,9 @@ var targeted_enemy: CombatEnemy = null
 var selected_info_enemy: CombatEnemy = null
 var player_hp := 0
 var player_block := 0
+var player_pain := 0
+var player_ice_crystal := 0
+var player_frozen_turns := 0
 var energy := 0
 var rage_point := 0.0
 var rp_settings: Dictionary = {}
@@ -150,6 +157,7 @@ var monster_combat_stats: Dictionary = {}
 var monster_actions: Dictionary = {}
 var monster_pattern_steps: Dictionary = {}
 var monster_rules_by_monster: Dictionary = {}
+var monster_encounters_by_id: Dictionary = {}
 var rp_skill_selected := false
 var current_stance := STANCE_MOON_SHADOW
 var stance_changed_this_turn := false
@@ -311,6 +319,16 @@ func _load_monster_tables():
 		var rules: Array = monster_rules_by_monster.get(monster_id, [])
 		rules.append(row)
 		monster_rules_by_monster[monster_id] = rules
+	monster_encounters_by_id.clear()
+	for row in _load_table_array(MONSTER_ENCOUNTERS_PATH):
+		if not (row is Dictionary):
+			continue
+		var encounter_id := str(row.get("EncounterId", ""))
+		if encounter_id.is_empty():
+			continue
+		var slots: Array = monster_encounters_by_id.get(encounter_id, [])
+		slots.append(row)
+		monster_encounters_by_id[encounter_id] = slots
 
 func _card_key(character: String, card_id: String) -> String:
 	return "%s/%s" % [character, card_id]
@@ -539,15 +557,19 @@ func _setup_enemies(datas: Array):
 	_clear_enemies()
 	var count := datas.size()
 	for i in range(count):
-		var data: MonsterData = datas[i]
+		var entry: Variant = datas[i]
+		var data: MonsterData = _enemy_data_from_entry(entry)
+		if data == null:
+			continue
 		var enemy := CombatEnemy.new()
 		enemy.data = data
 		enemy.intents = data.intents.duplicate()
+		_apply_enemy_ai_entry(enemy, entry)
 		_setup_enemy_ai(enemy)
 		enemy.node = data.scene.instantiate()
 		enemy.node.name = "Monster%d" % i
 		add_child(enemy.node)
-		enemy.home_position = _enemy_spawn_position(i, count)
+		enemy.home_position = _enemy_spawn_position_from_entry(entry, i, count)
 		enemy.node.global_position = enemy.home_position
 		if "home_position" in enemy.node:
 			enemy.node.home_position = enemy.home_position
@@ -557,18 +579,40 @@ func _setup_enemies(datas: Array):
 		enemy.status_bar.position = data.hp_bar_offset - EnemyStatusBar.PANEL_SIZE * 0.5
 		enemies.append(enemy)
 
+func _enemy_data_from_entry(entry: Variant) -> MonsterData:
+	if entry is MonsterData:
+		return entry
+	if entry is Dictionary and entry.has("data"):
+		return entry["data"] as MonsterData
+	return null
+
+func _apply_enemy_ai_entry(enemy: CombatEnemy, entry: Variant):
+	if not (entry is Dictionary):
+		return
+	enemy.ai_pattern_id = str(entry.get("pattern_id", ""))
+	enemy.ai_start_step_id = str(entry.get("start_step_id", "Start"))
+	enemy.ai_action_count_override = entry.get("action_count_override", null)
+
+func _enemy_spawn_position_from_entry(entry: Variant, index: int, count: int) -> Vector2:
+	if entry is Dictionary and entry.has("position"):
+		return entry["position"] as Vector2
+	return _enemy_spawn_position(index, count)
+
 func _setup_enemy_ai(enemy: CombatEnemy):
 	var monster_id := enemy.data.id
 	if not monster_definitions.has(monster_id):
 		return
 	var monster_row: Dictionary = monster_definitions[monster_id]
-	var pattern_id := str(monster_row.get("DefaultPatternId", ""))
+	var pattern_id := enemy.ai_pattern_id
+	if pattern_id.is_empty():
+		pattern_id = str(monster_row.get("DefaultPatternId", ""))
 	if pattern_id.is_empty() or not monster_pattern_steps.has(pattern_id):
 		return
 	enemy.ai_enabled = true
 	enemy.ai_pattern_id = pattern_id
-	enemy.ai_step_id = "Start"
-	_set_enemy_ai_step(enemy, enemy.ai_step_id, null, false)
+	var start_step_id := enemy.ai_start_step_id if not enemy.ai_start_step_id.is_empty() else "Start"
+	enemy.ai_step_id = start_step_id
+	_set_enemy_ai_step(enemy, enemy.ai_step_id, enemy.ai_action_count_override, false)
 
 func _set_enemy_ai_step(enemy: CombatEnemy, step_id: String, count_override: Variant = null, apply_rules := true):
 	var pattern_steps: Dictionary = monster_pattern_steps.get(enemy.ai_pattern_id, {})
@@ -634,8 +678,9 @@ func _enemy_ai_rule_matches(enemy: CombatEnemy, rule: Dictionary) -> bool:
 	var trigger_type := str(rule.get("TriggerType", ""))
 	match trigger_type:
 		"HpBelow":
-			var threshold := float(rule.get("TriggerValue", 0))
-			var ratio := float(enemy.hp) / float(max(enemy.max_hp(), 1)) * 100.0
+			var threshold: float = float(rule.get("TriggerValue", 0))
+			var max_hp: float = float(max(enemy.max_hp(), 1))
+			var ratio: float = float(enemy.hp) / max_hp * 100.0
 			return ratio <= threshold
 	return false
 
@@ -658,6 +703,9 @@ func _get_encounter_datas() -> Array:
 	var data := DEFAULT_MONSTER_DATA
 	var run_state := _run_state()
 	if run_state != null:
+		var encounter_id: String = run_state.current_encounter_id if "current_encounter_id" in run_state else ""
+		if not encounter_id.is_empty() and monster_encounters_by_id.has(encounter_id):
+			return _build_encounter_entries(monster_encounters_by_id[encounter_id])
 		var monster_id: String = run_state.current_monster_id if "current_monster_id" in run_state else ""
 		if not monster_id.is_empty() and MONSTER_DATA_BY_ID.has(monster_id):
 			data = MONSTER_DATA_BY_ID[monster_id]
@@ -665,6 +713,36 @@ func _get_encounter_datas() -> Array:
 	if data == ABYSSAL_CROWN_GUARDIAN_DATA or data == FROST_REVENANT_DATA or data == CROWN_ACOLYTE_DATA:
 		return [data]
 	return [data, data]
+
+func _build_encounter_entries(slots: Array) -> Array:
+	var entries: Array = []
+	for slot in slots:
+		if not (slot is Dictionary):
+			continue
+		var monster_id := str(slot.get("MonsterId", ""))
+		if monster_id.is_empty() or not MONSTER_DATA_BY_ID.has(monster_id):
+			continue
+		var data := _build_encounter_monster_data(MONSTER_DATA_BY_ID[monster_id], slot)
+		entries.append({
+			"data": data,
+			"pattern_id": str(slot.get("PatternId", "")),
+			"start_step_id": str(slot.get("StartStepId", "Start")),
+			"action_count_override": slot.get("ActionCountOverride", null),
+			"position": Vector2(float(slot.get("PositionX", 0.0)), float(slot.get("PositionY", 0.0))),
+		})
+	return entries
+
+func _build_encounter_monster_data(base_data: MonsterData, slot: Dictionary) -> MonsterData:
+	var data: MonsterData = base_data.duplicate(true)
+	var stats: CombatantStats = base_data.stats.duplicate(true)
+	var hp_multiplier: float = float(slot.get("HpMultiplier", 1.0))
+	var attack_multiplier: float = float(slot.get("AttackMultiplier", 1.0))
+	var defense_multiplier: float = float(slot.get("DefenseMultiplier", 1.0))
+	stats.max_hp = max(int(round(float(stats.max_hp) * hp_multiplier)), 1)
+	stats.attack = max(int(round(float(stats.attack) * attack_multiplier)), 0)
+	stats.defense = max(int(round(float(stats.defense) * defense_multiplier)), 0)
+	data.stats = stats
+	return data
 
 func _alive_enemies() -> Array:
 	var alive: Array = []
@@ -775,6 +853,9 @@ func _start_battle():
 	if run_state != null and run_state.current_hp > 0:
 		player_hp = min(run_state.current_hp, PLAYER_STATS.max_hp)
 	player_block = 0
+	player_pain = 0
+	player_ice_crystal = 0
+	player_frozen_turns = 0
 	energy = PLAYER_STATS.starting_energy
 	rage_point = clamp(float(rp_settings.get("StartingRp", 0.0)), 0.0, _max_rp())
 	stance_changed_this_turn = false
@@ -805,6 +886,7 @@ func _start_battle():
 		enemy.intent_index = 0
 		enemy.ai_next_count_delta = 0
 		enemy.ai_attack_bonus_percent = 0
+		enemy.ai_next_attack_pain = 0
 		enemy.ai_triggered_rules.clear()
 		if enemy.ai_enabled:
 			_set_enemy_ai_step(enemy, "Start")
@@ -833,6 +915,15 @@ func _start_player_turn(is_first_turn := false):
 	stance_changed_this_turn = false
 	if not is_first_turn:
 		turn_number += 1
+	_resolve_player_start_status()
+	if battle_over:
+		combat_sequence_active = false
+		_refresh_ui()
+		return
+	if player_frozen_turns > 0:
+		energy = 0
+		player_frozen_turns -= 1
+		_log("동결 상태로 이번 턴 에너지가 0이 됩니다.")
 	_log("Turn %d. Draw %d cards and spend your energy." % [turn_number, DRAW_CARDS_PER_TURN])
 	if is_instance_valid(battle_ui):
 		battle_ui.call("show_turn_banner", "PLAYER TURN", Color(0.65, 0.9, 1.0))
@@ -840,6 +931,14 @@ func _start_player_turn(is_first_turn := false):
 	await _draw_cards_with_animation(DRAW_CARDS_PER_TURN)
 	combat_sequence_active = false
 	_refresh_ui()
+
+func _resolve_player_start_status():
+	if player_pain <= 0:
+		return
+	var pain_damage: int = max(int(round(float(PLAYER_STATS.max_hp) * 0.05 * float(player_pain))), 1)
+	player_pain = max(player_pain - 1, 0)
+	_log("고통으로 %d 피해를 받습니다." % pain_damage)
+	_damage_player(pain_damage)
 
 func _build_deck() -> Array[CardData]:
 	var deck: Array[CardData] = []
@@ -1541,9 +1640,15 @@ func _enemy_turn():
 func _perform_enemy_ai_action(enemy: CombatEnemy):
 	var action := enemy.ai_current_action
 	var action_type := str(action.get("ActionType", "Skill"))
+	var power_type := str(action.get("PowerType", ""))
 	match action_type:
 		"Attack":
 			await _play_enemy_attack_sequence(enemy, _enemy_ai_attack_damage(enemy, action))
+			if power_type == "AttackWithIceCrystal":
+				_apply_player_ice_crystal(1)
+			if enemy.ai_next_attack_pain > 0:
+				_apply_player_pain(enemy.ai_next_attack_pain)
+				enemy.ai_next_attack_pain = 0
 		"Defense", "Block":
 			var block_amount := _enemy_ai_defense_amount(enemy, action)
 			enemy.block += block_amount
@@ -1551,14 +1656,115 @@ func _perform_enemy_ai_action(enemy: CombatEnemy):
 			_update_enemy_bar(enemy)
 		"Buff":
 			var gain: int = max(int(action.get("PowerValue", 1)), 1)
-			enemy.ai_attack_bonus_percent += 20 * gain
-			_show_popup(_enemy_screen_position(enemy), "%s +%d" % [str(action.get("DisplayName", "강화")), gain], BLOCK_GAIN_COLOR, 28)
+			match power_type:
+				"PainOnNextAttack":
+					enemy.ai_next_attack_pain += gain
+					_show_popup(_enemy_screen_position(enemy), str(action.get("DisplayName", "강화")), Color(0.78, 0.62, 1.0), 28)
+				"AttackBonus":
+					_apply_other_monster_attack_bonus(enemy, 20 * gain, str(action.get("DisplayName", "강화")))
+				_:
+					enemy.ai_attack_bonus_percent += 20 * gain
+					_show_popup(_enemy_screen_position(enemy), "%s +%d" % [str(action.get("DisplayName", "강화")), gain], BLOCK_GAIN_COLOR, 28)
 		"Skill":
-			if str(action.get("PowerType", "")) == "CountDelta":
-				enemy.ai_next_count_delta += int(action.get("PowerValue", 0))
-			_show_popup(_enemy_screen_position(enemy), str(action.get("DisplayName", "기술")), Color(0.78, 0.62, 1.0), 28)
+			match power_type:
+				"CountDelta":
+					if str(action.get("TargetType", "")) == "OtherMonster":
+						_apply_other_monster_count_delta(enemy, int(action.get("PowerValue", 0)))
+					else:
+						enemy.ai_next_count_delta += int(action.get("PowerValue", 0))
+					_show_popup(_enemy_screen_position(enemy), str(action.get("DisplayName", "기술")), Color(0.78, 0.62, 1.0), 28)
+				"HealPercent":
+					_heal_other_monster(enemy, int(action.get("PowerValue", 0)), str(action.get("DisplayName", "회복")))
+				"CardCostHeal":
+					_absorb_player_card(enemy, int(action.get("PowerValue", 0)))
+				"IceCrystal":
+					_apply_player_ice_crystal(max(int(action.get("PowerValue", 1)), 1))
+				_:
+					_show_popup(_enemy_screen_position(enemy), str(action.get("DisplayName", "기술")), Color(0.78, 0.62, 1.0), 28)
 		_:
 			_show_popup(_enemy_screen_position(enemy), str(action.get("DisplayName", "기술")), Color(0.78, 0.62, 1.0), 28)
+
+func _apply_other_monster_count_delta(source_enemy: CombatEnemy, delta: int):
+	var target := _first_other_alive_enemy(source_enemy)
+	if target == null:
+		return
+	target.ai_action_count_remaining = max(target.ai_action_count_remaining + delta, 1)
+	_show_popup(_enemy_screen_position(target), "COUNT %s%d" % ["+" if delta > 0 else "", delta], Color(0.78, 0.62, 1.0), 24)
+	_update_enemy_bar(target)
+
+func _apply_other_monster_attack_bonus(source_enemy: CombatEnemy, bonus_percent: int, label: String):
+	var target := _first_other_alive_enemy(source_enemy)
+	if target == null:
+		return
+	target.ai_attack_bonus_percent += bonus_percent
+	_show_popup(_enemy_screen_position(target), "%s +%d%%" % [label, bonus_percent], BLOCK_GAIN_COLOR, 24)
+
+func _heal_other_monster(source_enemy: CombatEnemy, percent: int, label: String):
+	var target := _lowest_hp_other_alive_enemy(source_enemy)
+	if target == null:
+		return
+	var heal_amount: int = max(int(round(float(target.max_hp()) * float(percent) / 100.0)), 1)
+	target.hp = min(target.max_hp(), target.hp + heal_amount)
+	_show_popup(_enemy_screen_position(target), "%s +%d" % [label, heal_amount], Color(0.45, 1.0, 0.68), 24)
+	_update_enemy_bar(target)
+
+func _absorb_player_card(enemy: CombatEnemy, heal_per_cost: int):
+	if hand.is_empty():
+		_show_popup(_enemy_screen_position(enemy), "카드 흡수 실패", Color(0.78, 0.62, 1.0), 24)
+		return
+	var index := _highest_cost_hand_index()
+	var absorbed_card: CardData = hand[index]
+	hand.remove_at(index)
+	var heal_amount: int = max(_effective_cost(absorbed_card), 1) * max(heal_per_cost, 1)
+	enemy.hp = min(enemy.max_hp(), enemy.hp + heal_amount)
+	_show_popup(_enemy_screen_position(enemy), "카드 흡수 +%d" % heal_amount, Color(0.45, 1.0, 0.68), 24)
+	_log("%s이(가) %s을(를) 흡수했습니다." % [enemy.data.display_name, absorbed_card.display_name])
+	_update_enemy_bar(enemy)
+	_refresh_ui()
+
+func _highest_cost_hand_index() -> int:
+	var best_index := 0
+	var best_cost := -999999
+	for i in range(hand.size()):
+		var cost := _effective_cost(hand[i])
+		if cost > best_cost:
+			best_cost = cost
+			best_index = i
+	return best_index
+
+func _apply_player_pain(amount: int):
+	player_pain += amount
+	_show_popup(_get_player_screen_position() + Vector2(0, -52), "고통 +%d" % amount, Color(0.95, 0.35, 0.7), 24)
+	_log("고통 %d 획득." % amount)
+
+func _apply_player_ice_crystal(amount: int):
+	player_ice_crystal += amount
+	_show_popup(_get_player_screen_position() + Vector2(0, -76), "얼음 결정 +%d" % amount, Color(0.55, 0.9, 1.0), 24)
+	if player_ice_crystal >= 3:
+		player_ice_crystal = 0
+		player_frozen_turns = max(player_frozen_turns, 1)
+		_log("얼음 결정이 3개가 되어 1턴간 동결됩니다.")
+	else:
+		_log("얼음 결정 %d 획득." % amount)
+
+func _first_other_alive_enemy(source_enemy: CombatEnemy) -> CombatEnemy:
+	for candidate in enemies:
+		if candidate != source_enemy and candidate.is_alive():
+			return candidate
+	return null
+
+func _lowest_hp_other_alive_enemy(source_enemy: CombatEnemy) -> CombatEnemy:
+	var selected: CombatEnemy = null
+	var selected_ratio: float = 999999.0
+	for candidate in enemies:
+		if candidate == source_enemy or not candidate.is_alive():
+			continue
+		var max_hp: float = max(float(candidate.max_hp()), 1.0)
+		var ratio: float = float(candidate.hp) / max_hp
+		if ratio < selected_ratio:
+			selected = candidate
+			selected_ratio = ratio
+	return selected
 
 func _enemy_ai_attack_damage(enemy: CombatEnemy, action: Dictionary) -> int:
 	var base := _enemy_ai_attack(enemy)

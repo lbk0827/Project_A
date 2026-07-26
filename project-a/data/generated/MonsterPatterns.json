@@ -316,24 +316,24 @@
 		"PatternId": "AbyssalCrownGuardianBasic",
 		"StepId": "Start",
 		"StepOrder": 1,
-		"ActionId": "GuardianSentence",
-		"ActionCount": 5,
-		"NextStepId": "AfterSentence",
-		"ConditionId": null,
-		"Weight": 1,
-		"Note": "보스 큰 패턴 전조."
-	},
-	{
-		"PatternStepId": "AbyssalCrownGuardianBasicAfterSentence",
-		"PatternId": "AbyssalCrownGuardianBasic",
-		"StepId": "AfterSentence",
-		"StepOrder": 2,
 		"ActionId": "GuardianCrush",
 		"ActionCount": 4,
 		"NextStepId": "AfterCrush",
 		"ConditionId": null,
 		"Weight": 1,
 		"Note": "기본 보스 강공격."
+	},
+	{
+		"PatternStepId": "AbyssalCrownGuardianBasicAfterCardAbsorb",
+		"PatternId": "AbyssalCrownGuardianBasic",
+		"StepId": "AfterCardAbsorb",
+		"StepOrder": 7,
+		"ActionId": "GuardianCardAbsorb",
+		"ActionCount": 4,
+		"NextStepId": "AfterCrush",
+		"ConditionId": null,
+		"Weight": 1,
+		"Note": "카드 흡수로 체력을 회복하고 장기전 압박을 만듭니다."
 	},
 	{
 		"PatternStepId": "AbyssalCrownGuardianBasicAfterCrush",
@@ -378,7 +378,7 @@
 		"StepOrder": 6,
 		"ActionId": "GuardianDeepGuard",
 		"ActionCount": 4,
-		"NextStepId": "AfterSentence",
+		"NextStepId": "AfterCardAbsorb",
 		"ConditionId": null,
 		"Weight": 1,
 		"Note": "큰 공격 후 수호."

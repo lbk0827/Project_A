@@ -1,7 +1,7 @@
 extends Node
 
 const START_NODE_ID := "BaseCamp"
-const STARTING_MAX_HP := 90
+const STARTING_MAX_HP := 150
 
 var current_node_id := START_NODE_ID
 var active_combat_node_id := ""

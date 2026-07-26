@@ -77,6 +77,13 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
+[node name="PrototypeByLabel" type="Label" parent="SafeArea/MenuPanel/MenuRoot"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.78, 0.42, 0.92)
+theme_override_font_sizes/font_size = 15
+text = "Prototype By BK"
+horizontal_alignment = 1
+
 [node name="StartButton" type="Button" parent="SafeArea/MenuPanel/MenuRoot" unique_id=738552188]
 custom_minimum_size = Vector2(260, 54)
 layout_mode = 2

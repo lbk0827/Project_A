@@ -91,7 +91,7 @@
 		"Note": "HP 70% 이하에서 왕관의 권능으로 전환."
 	},
 	{
-		"RuleId": "GuardianHp40Sentence",
+		"RuleId": "GuardianHp40Edict",
 		"MonsterId": "AbyssalCrownGuardian",
 		"PatternId": "AbyssalCrownGuardianBasic",
 		"TriggerType": "HpBelow",

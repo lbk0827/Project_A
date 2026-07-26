@@ -6,7 +6,7 @@
 script = ExtResource("1_3q5wk")
 id = "Tsuki"
 display_name = "츠키"
-max_hp = 90
+max_hp = 150
 attack = 160
 defense = 45
 starting_energy = 3
