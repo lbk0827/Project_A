@@ -16,7 +16,7 @@ script = ExtResource("1_node")
 id = "Battle1"
 label = "Battle"
 monster_id = "MireImp"
-encounter_id = "EncMireImp4"
+encounter_id = ""
 position = Vector2(285, 250)
 next_ids = PackedStringArray("Treasure1", "Battle2")
 

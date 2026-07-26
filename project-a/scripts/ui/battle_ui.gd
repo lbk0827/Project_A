@@ -14,6 +14,10 @@ const HP_FILL_LOW_COLOR := Color(0.95, 0.55, 0.2)
 const HP_BACK_COLOR := Color(0.07, 0.1, 0.08, 0.9)
 const EP_FILL_COLOR := Color(0.35, 0.75, 1.0)
 const EP_EMPTY_COLOR := Color(0.16, 0.22, 0.3, 0.85)
+const RP_SEGMENT_WIDTH := 40.0
+const RP_SEGMENT_MIN_HEIGHT := 4.0
+const RP_SEGMENT_DEFAULT_HEIGHT := 11.0
+const RP_SEGMENT_DEFAULT_AREA_HEIGHT := 70.0
 const RP_READY_COLOR := Color(0.75, 0.92, 1.0)
 const RP_AIM_COLOR := Color(0.35, 0.92, 1.0, 0.92)
 const BLOCK_CHIP_COLOR := Color(0.3, 0.55, 0.95, 0.92)
@@ -172,6 +176,7 @@ func _build_energy_gauge():
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(10)
 	energy_gauge_panel.add_theme_stylebox_override("panel", style)
+	energy_gauge_panel.clip_contents = true
 	energy_gauge_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	var ep_label := $UIRoot/EnergyGauge/EpLabel as Label
@@ -197,18 +202,26 @@ func _build_energy_gauge():
 	energy_value_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	energy_segment_container = %EnergySegmentContainer as VBoxContainer
-	energy_segment_container.add_theme_constant_override("separation", 2)
+	energy_segment_container.clip_contents = true
 	energy_segment_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	_rebuild_energy_segments(7)
 	energy_value_label.text = "0"
 
 func _rebuild_energy_segments(max_energy: int):
-	energy_max = max_energy
+	energy_max = max(max_energy, 1)
 	for segment in energy_segments:
 		segment.queue_free()
 	energy_segments.clear()
-	for _i in range(max_energy):
+	var available_height: float = RP_SEGMENT_DEFAULT_AREA_HEIGHT
+	if energy_segment_container != null and energy_segment_container.size.y > 0.0:
+		available_height = energy_segment_container.size.y
+	var separation: int = 2 if energy_max <= 8 else 1
+	var total_gap_height: float = float(max(energy_max - 1, 0) * separation)
+	var segment_height: float = floor((available_height - total_gap_height) / float(energy_max))
+	segment_height = clamp(segment_height, RP_SEGMENT_MIN_HEIGHT, RP_SEGMENT_DEFAULT_HEIGHT)
+	energy_segment_container.add_theme_constant_override("separation", separation)
+	for _i in range(energy_max):
 		var segment := Panel.new()
 		var style := StyleBoxFlat.new()
 		style.bg_color = EP_EMPTY_COLOR
@@ -216,7 +229,7 @@ func _rebuild_energy_segments(max_energy: int):
 		style.border_color = Color(0.45, 0.65, 0.9, 0.4)
 		style.set_border_width_all(1)
 		segment.add_theme_stylebox_override("panel", style)
-		segment.custom_minimum_size = Vector2(40, 11)
+		segment.custom_minimum_size = Vector2(RP_SEGMENT_WIDTH, segment_height)
 		segment.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		energy_segment_container.add_child(segment)
 		energy_segments.append(segment)

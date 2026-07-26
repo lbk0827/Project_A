@@ -728,7 +728,6 @@ func _build_encounter_entries(slots: Array) -> Array:
 			"pattern_id": str(slot.get("PatternId", "")),
 			"start_step_id": str(slot.get("StartStepId", "Start")),
 			"action_count_override": slot.get("ActionCountOverride", null),
-			"position": Vector2(float(slot.get("PositionX", 0.0)), float(slot.get("PositionY", 0.0))),
 		})
 	return entries
 
