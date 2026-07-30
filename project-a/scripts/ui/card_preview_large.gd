@@ -51,10 +51,10 @@ func _bind_nodes():
 	body_label = %BodyLabel
 
 func _fit_all_labels():
-	_fit_label(name_label, 18, 10)
-	_fit_label(keyword_label, 14, 9)
-	_fit_label(type_label, 14, 9)
-	_fit_label(body_label, 15, 10)
+	_fit_label(name_label, 20, 10)
+	_fit_label(keyword_label, 16, 9)
+	_fit_label(type_label, 16, 9)
+	_fit_label(body_label, 17, 10)
 
 func _fit_label(label: Control, max_size: int, min_size: int):
 	if label == null:

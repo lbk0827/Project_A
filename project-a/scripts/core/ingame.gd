@@ -85,6 +85,8 @@ const BATTLE_UI_SCENE := preload("res://scenes/ui/battle_ui.tscn")
 const BATTLE_MAP_OVERLAY_SCENE := preload("res://scenes/ui/battle_map_overlay.tscn")
 const CARD_VIEW_SCENE := preload("res://scenes/ui/cards/CardView.tscn")
 const CARD_PREVIEW_SCENE := preload("res://scenes/ui/cards/CardViewLarge.tscn")
+const CARD_PREVIEW_NORMAL_SCALE := Vector2.ONE
+const CARD_PREVIEW_TARGETED_ATTACK_SCALE := Vector2(0.657, 0.657)
 const CARD_TRANSFER_VFX := preload("res://scripts/vfx/card_transfer_vfx.gd")
 const CARD_DISSOLVE_VFX := preload("res://scripts/vfx/card_dissolve_vfx.gd")
 const MOON_SLASH_VFX_SCENE := preload("res://scenes/vfx/FxTsukiMoonSlash.tscn")
@@ -194,6 +196,7 @@ var stance_badge_suppressed := false
 var draw_animation_card_indices: Array[int] = []
 var reshuffle_animation_pending := false
 var card_preview_large: Control
+var card_preview_scale_tween: Tween
 
 func _run_state() -> Node:
 	return get_node_or_null("/root/RunState")
@@ -2462,8 +2465,8 @@ func _on_card_drag_moved(index: int, screen_position: Vector2):
 			_start_targeting_card(index, screen_position)
 			return
 		if is_targeting_active:
-			_anchor_large_card_preview(_get_targeting_card_center())
 			_update_targeting_dot(screen_position)
+			_anchor_large_card_preview(_get_targeting_card_center(), _target_large_card_preview_scale())
 			return
 	_update_large_card_preview_position(screen_position)
 	if should_lift == is_card_play_lifted:
@@ -2531,6 +2534,8 @@ func _show_large_card_preview(index: int, screen_position: Vector2):
 	card_preview_large.z_index = 1050
 	card_preview_large.modulate.a = 0.0
 	card_preview_large.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card_preview_large.pivot_offset = Vector2.ZERO
+	card_preview_large.scale = CARD_PREVIEW_NORMAL_SCALE
 	ui_root.add_child(card_preview_large)
 	var effective_cost := _effective_cost(card)
 	card_preview_large.call("set_card", card, effective_cost, current_stance)
@@ -2542,15 +2547,43 @@ func _show_large_card_preview(index: int, screen_position: Vector2):
 func _update_large_card_preview_position(screen_position: Vector2):
 	if not is_instance_valid(card_preview_large):
 		return
-	var preview_size := card_preview_large.size
+	var preview_size := _card_preview_visual_size()
 	var target_position := screen_position - Vector2(preview_size.x * 0.5, preview_size.y * 0.82)
 	card_preview_large.global_position = _clamp_preview_position(target_position, preview_size)
 
-func _anchor_large_card_preview(center_position: Vector2):
+func _anchor_large_card_preview(center_position: Vector2, preview_scale := Vector2(-1.0, -1.0)):
 	if not is_instance_valid(card_preview_large):
 		return
-	var preview_size := card_preview_large.size
+	var preview_size := _card_preview_visual_size(preview_scale)
 	card_preview_large.global_position = _clamp_preview_position(center_position - preview_size * 0.5, preview_size)
+
+func _card_preview_visual_size(preview_scale := Vector2(-1.0, -1.0)) -> Vector2:
+	if not is_instance_valid(card_preview_large):
+		return Vector2.ZERO
+	var scale_to_use := card_preview_large.scale if preview_scale.x < 0.0 else preview_scale
+	return Vector2(card_preview_large.size.x * scale_to_use.x, card_preview_large.size.y * scale_to_use.y)
+
+func _apply_large_card_preview_scale(animated := true):
+	if not is_instance_valid(card_preview_large):
+		return
+	var target_scale := _target_large_card_preview_scale()
+	if card_preview_large.scale.is_equal_approx(target_scale):
+		return
+	if card_preview_scale_tween != null:
+		card_preview_scale_tween.kill()
+	if animated:
+		card_preview_scale_tween = create_tween()
+		card_preview_scale_tween.tween_property(card_preview_large, "scale", target_scale, 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	else:
+		card_preview_large.scale = target_scale
+
+func _target_large_card_preview_scale() -> Vector2:
+	return CARD_PREVIEW_TARGETED_ATTACK_SCALE if _selected_card_is_attack() and targeted_enemy != null else CARD_PREVIEW_NORMAL_SCALE
+
+func _selected_card_is_attack() -> bool:
+	if selected_card_index < 0 or selected_card_index >= hand.size():
+		return false
+	return String(hand[selected_card_index].card_type) == "Attack"
 
 func _clamp_preview_position(position: Vector2, preview_size: Vector2) -> Vector2:
 	var viewport_size := get_viewport().get_visible_rect().size
@@ -2560,6 +2593,9 @@ func _clamp_preview_position(position: Vector2, preview_size: Vector2) -> Vector
 	)
 
 func _hide_large_card_preview():
+	if card_preview_scale_tween != null:
+		card_preview_scale_tween.kill()
+		card_preview_scale_tween = null
 	if is_instance_valid(card_preview_large):
 		card_preview_large.queue_free()
 	card_preview_large = null
@@ -2576,9 +2612,14 @@ func _get_targeting_card_center() -> Vector2:
 func _update_targeting_dot(screen_position: Vector2):
 	var target_position := screen_position
 	var hovered_enemy := _enemy_at_screen_position(screen_position)
+	var target_changed := targeted_enemy != hovered_enemy
 	if targeted_enemy != hovered_enemy:
 		targeted_enemy = hovered_enemy
 		_refresh_enemy_selection_visuals()
+	if target_changed:
+		var target_preview_scale := _target_large_card_preview_scale()
+		_apply_large_card_preview_scale()
+		_anchor_large_card_preview(_get_targeting_card_center(), target_preview_scale)
 	if targeted_enemy != null:
 		target_position = _enemy_screen_position(targeted_enemy)
 	if is_instance_valid(targeting_dot):
